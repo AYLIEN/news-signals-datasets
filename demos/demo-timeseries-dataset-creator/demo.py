@@ -8,8 +8,9 @@ from matplotlib.dates import DateFormatter
 from aylien_ts_datasets.newsapi import retrieve_timeseries
 from aylien_ts_datasets.numerai_signals import generate_numerai_signals
 
+
 page_config = st.set_page_config(
-    page_title="Aylien timeseries analysis",
+    page_title="Timeseries Dataset Creator"
 )
 
 
@@ -17,6 +18,8 @@ def get_session_state():
     # Initialize session state
     if not st.session_state.get('INIT', False):
         st.session_state['button_click_count'] = 0
+
+
 
     st.session_state['INIT'] = True
     return st.session_state
