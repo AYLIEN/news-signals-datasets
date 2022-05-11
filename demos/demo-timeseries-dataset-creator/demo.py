@@ -10,7 +10,7 @@ from aylien_ts_datasets.numerai_signals import generate_numerai_signals
 
 
 page_config = st.set_page_config(
-    page_title="Timeseries Dataset Creator"
+    page_title="Aylien timeseries analysis"
 )
 
 
