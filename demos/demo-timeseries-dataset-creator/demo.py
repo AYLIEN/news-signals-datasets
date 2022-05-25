@@ -3,10 +3,9 @@ import datetime
 import pandas as pd
 import streamlit as st
 import plost
-from matplotlib.dates import DateFormatter
 
 from aylien_ts_datasets.newsapi import retrieve_timeseries
-from aylien_ts_datasets.numerai_signals import generate_numerai_signals
+from aylien_ts_datasets.yfinance_timeseries import retrieve_yfinance_timeseries
 
 
 page_config = st.set_page_config(
@@ -65,7 +64,7 @@ def main():
         format = '%Y-%m-%d'
         news_df['date'] = pd.to_datetime(news_df['published_at'], format=format).dt.date
         news_df.set_index('date', inplace=True)
-        yfinance_df = generate_numerai_signals(session_state["entity"], session_state["start_date"])
+        yfinance_df = retrieve_yfinance_timeseries(session_state["entity"], session_state["start_date"])
         main_df = pd.concat([news_df, yfinance_df], axis=1, join="inner")
         main_df.index.names = ['date']
         df = main_df.reset_index()

@@ -4,10 +4,6 @@ import yfinance
 
 import pandas as pd
 
-NUMERAI_TICKERS = 'https://numerai-signals-public-data.s3-us-west-2.amazonaws.com/signals_ticker_map_w_bbg.csv'
-NAPI_PUBLIC_KEY = os.getenv('NAPI_PUBLIC_KEY')
-NAPI_PRIVATE_KEY = os.getenv('NAPI_PRIVATE_KEY')
-
 
 def RSI(prices, interval=14):
     '''Computes Relative Strength Index given a price series and lookback interval
@@ -27,12 +23,7 @@ def RSI(prices, interval=14):
     return RSI
 
 
-def generate_numerai_signals(ticker, start_date):
-    # print(NAPI_PUBLIC_KEY[0])
-    # napi = numerapi.SignalsAPI(NAPI_PUBLIC_KEY[0], NAPI_PRIVATE_KEY[0])
-    # eligible_tickers = pd.Series(napi.ticker_universe(), name='ticker')
-    # print(f"Number of eligible tickers: {len(eligible_tickers)}")
-    # ticker_map = pd.read_csv(NUMERAI_TICKERS)
+def retrieve_yfinance_timeseries(ticker, start_date):
     raw_data = yfinance.download(ticker, start=str(start_date), threads=True)
     raw_data =raw_data.rename(columns={'Adj Close': 'price'})
     raw_data['RSI'] = raw_data['price'].transform(lambda x: RSI(x))
