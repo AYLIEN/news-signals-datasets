@@ -2,3 +2,7 @@ site_name: News Signals Datasets
 site_url: https://aylien.github.io/news-signals-datasets
 nav:
     - Home: index.md
+    - News Signals: news_signals.md
+
+plugins: 
+  - mkdocstrings
