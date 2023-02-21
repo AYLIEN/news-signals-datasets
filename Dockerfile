@@ -4,7 +4,7 @@ WORKDIR /srv
 
 RUN pip install --upgrade pip
 
-ADD aylien_ts_datasets ./aylien_ts_datasets
+ADD news_signals ./news_signals
 ADD requirements.txt ./
 ADD VERSION ./
 ADD setup.py ./
