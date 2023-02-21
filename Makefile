@@ -31,10 +31,14 @@ new-demo:
 	echo "Finished creating new demo: $(DEMO_NAME)"
 	echo "To run, do: cd demos/$(DEMO_NAME) && make run"
 
+#########
+## DEV ##
+#########
+
 .PHONY: dev
 dev:
-	pip install -e .
-
+	pip --use-deprecated=legacy-resolver install -e .
+	pip install -r requirements.txt
 
 ###########
 ## TESTS ##
