@@ -1,0 +1,1 @@
+{"type": "AylienSignal", "name": "Q1155668", "metadata": {}, "params": {"entity_ids": ["Q1155668"], "language": "en", "sort_by": "relevance", "per_page": 3}, "aql": "entities: {{prominence_score:[0.7 TO *] AND  (id:Q1155668) sort_by(overall_prominence)}}", "ts_column": "count"}

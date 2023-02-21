@@ -7,8 +7,8 @@ with open("VERSION") as f:
     version = f.read().strip()
 
 setup(
-    name="aylien_ts_datasets",
+    name="news_signals",
     version=version,
-    packages=["aylien_ts_datasets"],
+    packages=["news_signals"],
     install_requires=requirements
 )

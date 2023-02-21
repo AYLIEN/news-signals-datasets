@@ -1,7 +1,18 @@
+VERSION       ?= `cat VERSION`
+
+# Resources
+RESOURCES_ROOT    := gs://aylien-science-files/aylien_timeseries
+RESOURCES_VERSION ?= 1
+RESOURCE_PATH     ?= resources/$(RESOURCES_VERSION)
+
+TEST_RESOURCES_VERSION ?= test
+TEST_STORAGE            = test_storage
+STORAGE                ?= storage/$(TEST_STORAGE)
+
 PROJECT_DIR ?= new-project
 PKG_NAME ?= new_pkg
 PORT ?= 8000
-CONTAINER := aylien_ts_datasets
+CONTAINER := news_signals
 VERSION ?= `cat VERSION`
 DEMO_NAME ?= new-demo
 
@@ -25,11 +36,15 @@ dev:
 	pip install -e .
 
 
+###########
+## TESTS ##
+###########
+
 .PHONY: test
-test:
-	python -Wignore -m unittest discover ; \
-	flake8 aylien_ts_datasets bin --exclude schema_pb2.py ; \
-	#black aylien_ts_datasets bin --check --line-length=79 --exclude schema_pb2.py --experimental-string-processing
+test: $(resources-test)
+	RESOURCES=resources/$(TEST_RESOURCES_VERSION) \
+	python -W ignore -m unittest discover -p "test*.py"
+	#flake8 aylien_timeseries --exclude schema_pb2.py
 
 
 .PHONY: proto

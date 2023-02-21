@@ -1,0 +1,10 @@
+.DS_Store
+*.swp
+*.swo
+*.pyc
+*.pkl
+*.npy
+*.egg-info
+.ipynb_checkpoints
+.deps
+.idea/

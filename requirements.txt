@@ -1,8 +1,0 @@
-aylien_timeseries @ git+ssh://git@github.com/AYLIEN/newsfeed-technical-indicators.git
-flake8>=4.0.1
-pandas>=1.4.2
-plost>=0.2.5
-requests>=2.27.1
-setuptools>=57.0.0
-sqlitedict>=1.7.0
-streamlit>=1.8.0
