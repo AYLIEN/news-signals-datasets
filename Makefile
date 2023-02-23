@@ -68,3 +68,12 @@ run:
 .PHONY: build
 build:
 	docker build --no-cache -t $(CONTAINER):$(VERSION) -f Dockerfile .
+
+################# 
+# DOCUMENTATION #
+################# 
+
+# runs local mkdocs server on port 8000
+.PHONY: docs-serve
+docs-serve:
+	mkdocs serve
