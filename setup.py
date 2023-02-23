@@ -5,7 +5,13 @@ with open("VERSION") as f:
     version = f.read().strip()
 
 setup(
-    name="news_signals",
+    name="news-signals",
     version=version,
-    packages=["news_signals"]
+    description="A library for working with text and timeseries data.",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    readme="README.md",
+    packages=["news_signals"],
+    data_files=["LICENSE", "VERSION", "README.md"],
+    include_package_data=True
 )
