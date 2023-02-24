@@ -9,27 +9,10 @@ TEST_RESOURCES_VERSION ?= test
 TEST_STORAGE            = test_storage
 STORAGE                ?= storage/$(TEST_STORAGE)
 
-PROJECT_DIR ?= new-project
-PKG_NAME ?= new_pkg
-PORT ?= 8000
-CONTAINER := news_signals
-VERSION ?= `cat VERSION`
-DEMO_NAME ?= new-demo
-
-# initialize a new project
-.PHONY: new-project
-new-project:
-	python templates/create_project.py \
-		--project-dir $(PROJECT_DIR) \
-		--pkg-name $(PKG_NAME)
-
-
-# initialize a new demo within current project
-.PHONY: new-demo
-new-demo:
-	python templates/create_demo.py --dirname $(DEMO_NAME)
-	echo "Finished creating new demo: $(DEMO_NAME)"
-	echo "To run, do: cd demos/$(DEMO_NAME) && make run"
+.PHONY: tag
+tag:
+	git tag -a $(VERSION) -m "version $(VERSION)"
+	git push origin $(VERSION)
 
 #########
 ## DEV ##
@@ -51,19 +34,6 @@ test: $(resources-test)
 	#flake8 aylien_timeseries --exclude schema_pb2.py
 
 
-.PHONY: proto
-proto:
-	protoc --python_out=aylien_ts_datasets schema.proto
-
-
-# run service locally
-.PHONY: run
-run:
-	python -m aylien_model_serving \
-		--handler aylien_ts_datasets.serving \
-		--port $(PORT)
-
-
 # build docker container
 .PHONY: build
 build:
@@ -77,3 +47,27 @@ build:
 .PHONY: docs-serve
 docs-serve:
 	mkdocs serve
+
+# see https://github.com/AYLIEN/datascience-project-quickstarter for more info
+# on these Makefile commands
+PROJECT_DIR ?= new-project
+PKG_NAME ?= new_pkg
+PORT ?= 8000
+CONTAINER := news_signals
+VERSION ?= `cat VERSION`
+DEMO_NAME ?= new-demo
+
+# initialize a new project
+.PHONY: new-project
+new-project:
+	python templates/create_project.py \
+		--project-dir $(PROJECT_DIR) \
+		--pkg-name $(PKG_NAME)
+
+
+# initialize a new demo within current project
+.PHONY: new-demo
+new-demo:
+	python templates/create_demo.py --dirname $(DEMO_NAME)
+	echo "Finished creating new demo: $(DEMO_NAME)"
+	echo "To run, do: cd demos/$(DEMO_NAME) && make run"
