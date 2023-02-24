@@ -12,7 +12,6 @@ setup(
     long_description_content_type="text/markdown",
     readme="README.md",
     packages=["news_signals"],
-    package_data=["resources/test"],
     data_files=["LICENSE", "VERSION", "README.md"],
     include_package_data=True
 )
