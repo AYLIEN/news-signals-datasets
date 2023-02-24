@@ -14,7 +14,7 @@ setup(
     name="news-signals",
     version=version,
     description="A library for working with text and timeseries data.",
-    install_reuires=requirements,
+    install_requires=requirements,
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     readme="README.md",
