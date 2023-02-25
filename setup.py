@@ -5,7 +5,7 @@ with open("VERSION") as f:
     version = f.read().strip()
 
 # TODO: this is not the advised way to do this for a library
-# but before fixing it, we need to know the best way to install spacy models
+# but before fixing it, we need to decide on the best way to install spacy models
 # and other data files that are not python modules.
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
