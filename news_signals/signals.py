@@ -622,7 +622,7 @@ class AylienSignal(Signal):
         else:
             raise UnknownFrequencyArgument
 
-    def update(self, start=None, end=None, freq='D'):
+    def update(self, start=None, end=None, freq='D', ts_endpoint=None):
         """
         This method should eventually update all of the data in the signal, not just 
         the timeseries_df. This is a work in progress.
@@ -631,7 +631,7 @@ class AylienSignal(Signal):
         any new data while retaining the existing information as well
         :param start: datetime
         :param end: datetime
-        """
+        """        
         if end is None:
             end = self.normalize_timestamp(datetime.datetime.now(), freq)
         # if start is None, we look up to 30 days ago
@@ -650,6 +650,8 @@ class AylienSignal(Signal):
                     f'end date was more than 30 days ago, so we are using '
                     f'default update interval of 30 days --> {start} to {end}'
                 )
+        if ts_endpoint is None:
+            ts_endpoint = self.ts_endpoint
 
         # first check if we already have this time range,
         # if so, we don't need to query again
@@ -671,7 +673,7 @@ class AylienSignal(Signal):
                         start = dt
                         break
             period = self.pd_freq_to_aylien_period(freq)
-            aylien_ts_df = self.query_news_signals(start, end, period)
+            aylien_ts_df = self.query_news_signals(start, end, period, ts_endpoint)
             if self.timeseries_df is None:
                 self.timeseries_df = aylien_ts_df
             else:
@@ -689,9 +691,14 @@ class AylienSignal(Signal):
         params['aql'] = self.aql
         return params
 
-    def query_news_signals(self, start, end, period):
+    def query_news_signals(self, start, end, period, ts_endpoint=None):
+        if ts_endpoint is None:
+            ts_endpoint = self.ts_endpoint
         params = self.make_query(start, end, period=period)
-        aylien_ts = self.ts_endpoint(params)
+        if ts_endpoint != self.ts_endpoint:
+            print("PARAMS")
+            print(params)
+        aylien_ts = ts_endpoint(params)
         ts_df = aylien_ts_to_df(
             aylien_ts, dt_index=True
         )
