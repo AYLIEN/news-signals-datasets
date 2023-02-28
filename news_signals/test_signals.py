@@ -29,7 +29,8 @@ class SignalTest(unittest.TestCase):
         cls.timeseries = {}
         for ts in sorted(resources.glob('*timeseries.json')):
             name = ts.parts[-1].split('.')[0]
-            data = json.load(open(ts))
+            with open(ts) as f:
+                data = json.load(f)
             cls.timeseries[name] = data
         cls.resources = resources
 

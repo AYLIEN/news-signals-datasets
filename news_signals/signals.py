@@ -410,8 +410,9 @@ class Signal:
         signals_dir = Path(signals_path)
         static_config_paths = signals_dir.glob('*.static_fields.json')
         signals = []
-        for signal_config_path in static_config_paths:            
-            signal_config = json.load(open(signal_config_path))
+        for signal_config_path in static_config_paths:
+            with open(signal_config_path) as f:
+                signal_config = json.load(f)
             signal_id = str(signal_config_path.name).split('.')[0]
             # load signal dataframes from parquet files
             df_paths = [p.name for p in signals_dir.glob(f'{signal_id}.*.parquet')]
