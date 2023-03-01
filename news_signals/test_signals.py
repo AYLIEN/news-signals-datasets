@@ -29,7 +29,8 @@ class SignalTest(unittest.TestCase):
         cls.timeseries = {}
         for ts in sorted(resources.glob('*timeseries.json')):
             name = ts.parts[-1].split('.')[0]
-            data = json.load(open(ts))
+            with open(ts) as f:
+                data = json.load(f)
             cls.timeseries[name] = data
         cls.resources = resources
 
@@ -91,21 +92,6 @@ class TestSignal(SignalTest):
         signal = self.aylien_signals()[0]
         df = signal.df
         assert tuple(df.columns) == ('count', 'published_at', 'stories', 'signal_name', 'freq')
-
-    def test_update(self):
-        """
-        Test that we can update a signal
-        """
-        signal = self.aylien_signals()[0]
-        signal.update()
-        freq = 'D'
-        end = signals.Signal.normalize_timestamp(datetime.datetime.now(), freq)
-        start = signals.Signal.normalize_timestamp(
-            end - datetime.timedelta(days=30),
-            freq
-        )
-        df = signal[start:end]
-        assert len(df) == 30
     
     def test_getitem(self):
         """
@@ -274,6 +260,35 @@ class TestAylienSignal(SignalTest):
         assert ts_endpoint_mock.num_calls == 2, \
             'We called the signal three times but only hit the endpoint twice'
         assert len(complete_ts) == 365
+
+    def test_update(self):
+        """
+        Test that we can update a signal
+        """
+        ts_endpoint_mock = MockEndpoint()
+        aylien_ts = [
+            {"published_at": "2020-01-01T00:00:00Z", "count": 1},
+            {"published_at": "2020-01-02T00:00:00Z", "count": 2},
+            {"published_at": "2020-01-03T00:00:00Z", "count": 4},
+            {"published_at": "2020-01-04T00:00:00Z", "count": 1},
+            {"published_at": "2020-01-05T00:00:00Z", "count": 6},
+        ]
+        timeseries_df = aylien_ts_to_df(aylien_ts, normalize=True, freq='D')
+        t1 = list(timeseries_df.index)[0]
+        t2 = list(timeseries_df.index)[2]
+        t3 = list(timeseries_df.index)[4]
+        signal = signals.AylienSignal(
+            'test-signal',
+            params={'timeseries_df': timeseries_df[t1:t2]},
+            ts_endpoint=ts_endpoint_mock
+        )
+        signal.update(start=t1, end=t2, ts_endpoint=ts_endpoint_mock)
+        assert signal.start == t1
+        assert signal.end == t2
+        signal.params = {'timeseries_df': timeseries_df[t1:t3]}
+        signal.update(start=t1, end=t3, ts_endpoint=ts_endpoint_mock)
+        assert signal.start == t1
+        assert signal.end == t3
 
     def test_gap_filling(self):
         ts_endpoint_mock = MockEndpoint()
