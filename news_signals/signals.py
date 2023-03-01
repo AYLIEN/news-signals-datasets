@@ -356,7 +356,7 @@ class Signal:
             return getattr(self.timeseries_df, name)
         except AttributeError as e:
             raise AttributeError(
-                f"type object '{self.type}' has no attribute '{name}'"
+                f"type object '{type(self)}' has no attribute '{name}'"
             )
     
     def __getitem__(self, subscript):
@@ -733,6 +733,7 @@ class AylienSignal(Signal):
             start_end_tups = [(s, e) for s, e in zip(list(date_range), list(date_range)[1:])]
             story_bucket_records = []
             for start, end in tqdm.tqdm(start_end_tups):
+                logger.info(f'Getting stories for {start} to {end}')
                 params = self.make_query(start, end)
                 stories = self.stories_endpoint(params)
                 story_bucket_records.append({'timestamp': start, 'stories': stories})
@@ -921,7 +922,7 @@ class AggregateSignal(Signal):
             return getattr(self.df, name)
         except AttributeError as _:
             raise AttributeError(
-                f"type object '{self.type}' has no attribute '{name}'"
+                f"type object '{type(self)}' has no attribute '{name}'"
             )
 
 
