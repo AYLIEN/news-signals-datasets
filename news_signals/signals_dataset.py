@@ -195,7 +195,7 @@ def ask_rmdir(dirpath, msg, yes="y"):
             shutil.rmtree(dirpath)
 
 
-def make_query(params, start, end, period="+1DAY"):
+def make_aylien_newsapi_query(params, start, end, period="+1DAY"):
     _start = arrow_to_aylien_date(arrow.get(start))
     _end = arrow_to_aylien_date(arrow.get(end))
     aql = params_to_aql(params)
@@ -210,9 +210,9 @@ def make_query(params, start, end, period="+1DAY"):
     return new_params
 
 
-def reduce_story(s):
+def reduce_aylien_story(s):
     body = " ".join(s["body"].split()[:MAX_BODY_TOKENS])
-    smart_cats = extract_smart_tagger_categories(s)
+    smart_cats = extract_aylien_smart_tagger_categories(s)
     reduced = {
         "title": s["title"],
         "body": body,
@@ -225,7 +225,7 @@ def reduce_story(s):
     return reduced
 
 
-def extract_smart_tagger_categories(s):
+def extract_aylien_smart_tagger_categories(s):
     category_items = []
     for c in s["categories"]:
         if c["taxonomy"] == "aylien":
@@ -285,11 +285,10 @@ def retrieve_and_write_stories(
 
         vol = time_to_volume[start]
         if vol > 0:
-            params = make_query(params_template, start, end)
+            params = make_aylien_newsapi_query(params_template, start, end)
             stories = stories_endpoint(params)
-            print(stories[0]["entities"])
             if post_process_story is not None:
-                stories = [post_process_story[s] for s in stories]            
+                stories = [post_process_story(s) for s in stories]            
         else:
             stories = []
         output_item = {
@@ -308,7 +307,7 @@ def retrieve_and_write_timeseries(
     ts_endpoint=newsapi.retrieve_timeseries
 ) -> List:
     if not output_path.exists():
-        params = make_query(params, start, end)
+        params = make_aylien_newsapi_query(params, start, end)
         ts = ts_endpoint(params)
         write_json(ts, output_path)
     else:
@@ -380,7 +379,7 @@ def generate_dataset(
     output_dataset_dir.mkdir(parents=True, exist_ok=True)    
 
     # optional, e.g. for reducing story fields
-    if post_process_story is not None:
+    if post_process_story is not None and type(post_process_story) == str:
         try:
             post_process_story = globals()[post_process_story]
         except:
