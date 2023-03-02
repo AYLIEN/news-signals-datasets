@@ -259,7 +259,8 @@ def retrieve_and_write_stories(
     ts: List,
     output_path: Path,
     num_stories: int = 20,
-    stories_endpoint=newsapi.retrieve_stories
+    stories_endpoint=newsapi.retrieve_stories,
+    post_process_story=None,
 ):
     time_to_volume = dict(
         (arrow.get(x["published_at"]).datetime, x["count"]) for x in ts
@@ -286,7 +287,9 @@ def retrieve_and_write_stories(
         if vol > 0:
             params = make_query(params_template, start, end)
             stories = stories_endpoint(params)
-            stories = [reduce_story(s) for s in stories]
+            print(stories[0]["entities"])
+            if post_process_story is not None:
+                stories = [post_process_story[s] for s in stories]            
         else:
             stories = []
         output_item = {
@@ -343,6 +346,7 @@ def generate_dataset(
     delete_tmp_files: bool = False,
     stories_endpoint=newsapi.retrieve_stories,
     ts_endpoint=newsapi.retrieve_timeseries,
+    post_process_story=None,
 ):
 
     """
@@ -375,6 +379,16 @@ def generate_dataset(
         )
     output_dataset_dir.mkdir(parents=True, exist_ok=True)    
 
+    # optional, e.g. for reducing story fields
+    if post_process_story is not None:
+        try:
+            post_process_story = globals()[post_process_story]
+        except:
+            raise NotImplementedError(
+                f"Unknown function for processing stories: {post_process_story}"
+            )
+
+
     for signal in tqdm.tqdm(signals_):
         if signal_exists(signal, output_dataset_dir):
             logger.info("signal exists already, skipping to next")
@@ -401,7 +415,8 @@ def generate_dataset(
             ts,
             stories_path,
             num_stories=stories_per_day,
-            stories_endpoint=stories_endpoint
+            stories_endpoint=stories_endpoint,
+            post_process_story=post_process_story
         )
 
         # now this signal is completely realized
@@ -417,4 +432,3 @@ def generate_dataset(
             stories_path.unlink()
 
     return SignalsDataset.load(output_dataset_dir)
-
