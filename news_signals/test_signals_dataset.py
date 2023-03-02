@@ -40,17 +40,11 @@ class MockTSEndpoint:
 
 class MockStoriesEndPoint:    
 
+    def __init__(self):
+        self.sample_stories = json.loads((resources / "sample_stories.json").read_text())
+
     def __call__(self, payload):
-        return [{
-            'id': 'test-id',
-            'title': 'title',
-            'title': 'link',
-            'body': 'body',
-            'categories': [{'taxonomy': 'aylien', 'id': 'ay.test.cat', 'score': 0.8}],
-            'published_at': datetime_to_aylien_str(datetime.datetime(2023, 1, 1)),
-            'links': {'permalink': 'test-link'},
-            'language': 'en',
-        }]
+        return self.sample_stories
 
 
 class MockWikidataClient:
@@ -125,6 +119,12 @@ class TestDatasetGeneration(unittest.TestCase):
             self.assertIsInstance(signal.feeds_df, pd.DataFrame)                
             for col in ["stories"]:
                 self.assertIn(col, signal.feeds_df)            
+                
+            # we know the stories should come from the mock endpoint
+            assert all(
+                len(tick) == len(self.stories_endpoint.sample_stories)
+                for tick in signal.feeds_df['stories']
+            )
 
             assert signal.params is not None
             assert signal.name is not None

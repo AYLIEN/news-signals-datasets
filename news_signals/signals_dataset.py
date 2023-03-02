@@ -195,7 +195,7 @@ def ask_rmdir(dirpath, msg, yes="y"):
             shutil.rmtree(dirpath)
 
 
-def make_query(params, start, end, period="+1DAY"):
+def make_aylien_newsapi_query(params, start, end, period="+1DAY"):
     _start = arrow_to_aylien_date(arrow.get(start))
     _end = arrow_to_aylien_date(arrow.get(end))
     aql = params_to_aql(params)
@@ -210,9 +210,9 @@ def make_query(params, start, end, period="+1DAY"):
     return new_params
 
 
-def reduce_story(s):
+def reduce_aylien_story(s):
     body = " ".join(s["body"].split()[:MAX_BODY_TOKENS])
-    smart_cats = extract_smart_tagger_categories(s)
+    smart_cats = extract_aylien_smart_tagger_categories(s)
     reduced = {
         "title": s["title"],
         "body": body,
@@ -225,7 +225,7 @@ def reduce_story(s):
     return reduced
 
 
-def extract_smart_tagger_categories(s):
+def extract_aylien_smart_tagger_categories(s):
     category_items = []
     for c in s["categories"]:
         if c["taxonomy"] == "aylien":
@@ -259,7 +259,8 @@ def retrieve_and_write_stories(
     ts: List,
     output_path: Path,
     num_stories: int = 20,
-    stories_endpoint=newsapi.retrieve_stories
+    stories_endpoint=newsapi.retrieve_stories,
+    post_process_story=None,
 ):
     time_to_volume = dict(
         (arrow.get(x["published_at"]).datetime, x["count"]) for x in ts
@@ -284,9 +285,10 @@ def retrieve_and_write_stories(
 
         vol = time_to_volume[start]
         if vol > 0:
-            params = make_query(params_template, start, end)
+            params = make_aylien_newsapi_query(params_template, start, end)
             stories = stories_endpoint(params)
-            stories = [reduce_story(s) for s in stories]
+            if post_process_story is not None:
+                stories = [post_process_story(s) for s in stories]            
         else:
             stories = []
         output_item = {
@@ -305,7 +307,7 @@ def retrieve_and_write_timeseries(
     ts_endpoint=newsapi.retrieve_timeseries
 ) -> List:
     if not output_path.exists():
-        params = make_query(params, start, end)
+        params = make_aylien_newsapi_query(params, start, end)
         ts = ts_endpoint(params)
         write_json(ts, output_path)
     else:
@@ -343,6 +345,7 @@ def generate_dataset(
     delete_tmp_files: bool = False,
     stories_endpoint=newsapi.retrieve_stories,
     ts_endpoint=newsapi.retrieve_timeseries,
+    post_process_story=None,
 ):
 
     """
@@ -375,6 +378,16 @@ def generate_dataset(
         )
     output_dataset_dir.mkdir(parents=True, exist_ok=True)    
 
+    # optional, e.g. for reducing story fields
+    if post_process_story is not None and type(post_process_story) == str:
+        try:
+            post_process_story = globals()[post_process_story]
+        except:
+            raise NotImplementedError(
+                f"Unknown function for processing stories: {post_process_story}"
+            )
+
+
     for signal in tqdm.tqdm(signals_):
         if signal_exists(signal, output_dataset_dir):
             logger.info("signal exists already, skipping to next")
@@ -401,7 +414,8 @@ def generate_dataset(
             ts,
             stories_path,
             num_stories=stories_per_day,
-            stories_endpoint=stories_endpoint
+            stories_endpoint=stories_endpoint,
+            post_process_story=post_process_story
         )
 
         # now this signal is completely realized
@@ -417,4 +431,3 @@ def generate_dataset(
             stories_path.unlink()
 
     return SignalsDataset.load(output_dataset_dir)
-
