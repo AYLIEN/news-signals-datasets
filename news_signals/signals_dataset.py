@@ -1,16 +1,19 @@
+import base64
 import json
+import logging
 import os
 import shutil
-import logging
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Union
 from copy import deepcopy
 
+import appdirs
 import arrow
-import tqdm
+import gdown
 import pandas as pd
 import numpy as np
+import tqdm
 
 import news_signals.signals as signals
 import news_signals.newsapi as newsapi
@@ -28,7 +31,9 @@ DEFAULT_METADATA = {
 
 
 class SignalsDataset:
-    def __init__(self, signals=None, metadata=None):
+    DEFAULT_CACHE_DIR = Path(appdirs.user_cache_dir('news-signals/datasets'))
+
+    def __init__(self, signals=None, metadata=None, cache_dir=None):
         if metadata is None:
             metadata = {
                 # default dataset name
@@ -50,7 +55,20 @@ class SignalsDataset:
         raise NotImplementedError
         
     @classmethod
-    def load(cls, dataset_path):        
+    def load(cls, dataset_path, cache_dir=None):       
+        if type(dataset_path) is str and dataset_path.startswith('https://drive.google.com'):
+            basename = base64.b64encode(dataset_path.encode()).decode()
+            if cache_dir is None:
+                cache_dir = cls.DEFAULT_CACHE_DIR
+            local_dataset_dir = Path(cache_dir) / basename
+            if not local_dataset_dir.exists():
+                logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_dir}.')
+                local_dataset_dir.mkdir(parents=True, exist_ok=True)
+                gdown.download_folder(url=dataset_path, output=str(local_dataset_dir), remaining_ok=True)
+            else:
+                logger.info(f'Using cached dataset at {local_dataset_dir}.')
+            dataset_path = local_dataset_dir
+        
         dataset_path = Path(dataset_path)
         dataset_signals = signals.Signal.load(dataset_path)
         if (dataset_path / 'metadata.json').is_file():
@@ -83,8 +101,8 @@ class SignalsDataset:
             components=list(self.signals.values())
         )
 
-    def plot(self, savedir=None):
-        plot = self.aggregate_signal().plot()
+    def plot(self, savedir=None, **kwargs):
+        plot = self.aggregate_signal().plot(**kwargs)
         if savedir is not None:
             savedir = Path(savedir)
             savedir.mkdir(parents=True, exist_ok=True)

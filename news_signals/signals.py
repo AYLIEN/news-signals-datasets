@@ -58,7 +58,7 @@ class Signal:
     users know the semantics of the timeseries and feeds. 
 
     Signals have periods ("ticks") - but these may be implicit, e.g. if
-    using the `infer_freq` method of pandas DatetimeIndex
+    using the `infer_freq` method of pandas DatetimeIndex.
 
     """
     def __init__(self, name, metadata=None, timeseries_df=None, feeds_df=None, ts_column='count'):
@@ -904,12 +904,13 @@ class AggregateSignal(Signal):
         end = reference_index.max()
         return start, end, freq
 
-    def plot(self):
+    def plot(self, include_aggregate=False):
         if len(self.components) and getattr(self.components[0], 'timeseries_df', None) is not None:
             start, end, freq = self.infer_index_args()
             df = self.components_to_df(start, end, freq=freq)
             agg = self(start, end, freq=freq)
-            df = pd.concat([df, agg.timeseries_df], axis=1)
+            if include_aggregate:
+                df = pd.concat([df, agg.timeseries_df], axis=1)
             plot = df.plot()
             return plot
         else:

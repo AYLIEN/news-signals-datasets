@@ -3,6 +3,7 @@ import os
 import unittest
 import shutil
 import datetime
+import base64
 from pathlib import Path
 
 import arrow
@@ -188,6 +189,21 @@ class TestSignalsDataset(test_signals.SignalTest):
             assert d1[k].name == d2[k].name
         assert json.dumps(d1.metadata) == json.dumps(d2.metadata)
         shutil.rmtree(tmp_dir)
+    
+    def test_load_from_url(self):
+        cache_dir = Path('/tmp/test_signals_dataset')
+        cache_dir.mkdir(parents=True)
+        fake_gdrive_path = 'https://drive.google.com/fake-path'
+        basename = base64.b64encode(fake_gdrive_path.encode()).decode()
+
+        d1 = SignalsDataset(self.aylien_signals())
+        d1.save(cache_dir / basename)
+
+        # assert that the loader things the dataset already exists
+        d2 = SignalsDataset.load(fake_gdrive_path, cache_dir=cache_dir)
+        assert len(d1) == len(d2)
+
+        shutil.rmtree(cache_dir)
         
     def test_plot_dataset(self):
         dataset = SignalsDataset(self.aylien_signals())

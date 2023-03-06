@@ -10,7 +10,9 @@ with open("VERSION") as f:
 # TODO: we need to decide on the best way to install particular spacy models
 # and other data files that are not python modules.
 INSTALL_REQUIRES = [
+    "appdirs>=1.4.4",
     "arrow>=1.1.1",
+    "gdown>=4.6.4",
     "matplotlib>=3.5.3",
     "networkx<=2.7",
     "pandas>=1.4.1",
