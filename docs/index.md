@@ -1,8 +1,32 @@
 # News Signals Documentation
 
 Welcome to News Signals Datasets!
-Signals are wrappers around dataframes that make it easy to work with timeseries
-data and feeds of textual data. Explore these docs to find out how to use this library.
+Think of signals as wrappers around dataframes that make it easy to work with timeseries
+data combined with feeds of textual data. Explore these docs to find out how to use this library.
+
+## Quickstart
+
+```
+conda create -n test-signals-pypi python=3.8
+
+conda activate test-signals-pypi
+
+pip install news-signals
+```
+
+```
+from news_signals import signals
+
+# Create a signal from a dataframe
+df = pd.DataFrame({'date': ['2020-01-01', '2020-01-02', '2020-01-03'], 'value': [1, 2, 3]})
+signal = signals.DataFrameSignal(df, date_column='date', value_column='value')
+
+
+
+```
+
+
+
 
 # Welcome to MkDocs
 

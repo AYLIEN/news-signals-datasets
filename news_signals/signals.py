@@ -66,9 +66,24 @@ class Signal:
         if metadata is None:
             metadata = dict()
         self.metadata = metadata
+
+        if timeseries_df is not None:
+            if type(timeseries_df) is pd.Series:
+                timeseries_df = timeseries_df.to_frame(name=name)
+                ts_column = name
+            self.assert_df_index_type(timeseries_df)
+        
+        if feeds_df is not None:
+            self.assert_df_index_type(feeds_df)
+            
         self.timeseries_df=timeseries_df
         self.feeds_df=feeds_df
         self.ts_column = ts_column
+    
+    @staticmethod
+    def assert_df_index_type(df):
+        assert str(df.index.dtype) == 'datetime64[ns, UTC]', \
+            'we expect dataframes with timezone-aware index dtypes in UTC timezone'
 
     @abstractmethod
     def __call__(self, start, end, freq='D'):
@@ -466,14 +481,10 @@ class DataframeSignal(Signal):
         timeseries_df, metadata=None,
         feeds_df=None, ts_column='count'
     ):
-        super().__init__(name, metadata=metadata, timeseries_df=timeseries_df, feeds_df=feeds_df, ts_column=ts_column)
-        if type(timeseries_df) is pd.Series:
-            timeseries_df = timeseries_df.to_frame(name=name)
-            ts_column = name
-        assert str(timeseries_df.index.dtype) == 'datetime64[ns, UTC]', \
-            'we expect dataframes with timezone-aware index dtypes in UTC timezone'
-        self.timeseries_df = timeseries_df
-        self.ts_column = ts_column
+        super().__init__(
+            name,
+            metadata=metadata, timeseries_df=timeseries_df, feeds_df=feeds_df, ts_column=ts_column
+        )
 
     def to_dict(self):
         return {

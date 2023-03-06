@@ -48,6 +48,11 @@ build:
 docs-serve:
 	mkdocs serve
 
+
+############################################
+# Datascience Project Quickstarter Tooling #
+############################################
+
 # see https://github.com/AYLIEN/datascience-project-quickstarter for more info
 # on these Makefile commands
 PROJECT_DIR ?= new-project
