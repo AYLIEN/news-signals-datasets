@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import shutil
+import tarfile
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Union
@@ -56,20 +57,43 @@ class SignalsDataset:
         
     @classmethod
     def load(cls, dataset_path, cache_dir=None):       
+
+        # handle downloading from url
         if type(dataset_path) is str and dataset_path.startswith('https://drive.google.com'):
             basename = base64.b64encode(dataset_path.encode()).decode()
             if cache_dir is None:
                 cache_dir = cls.DEFAULT_CACHE_DIR
             local_dataset_dir = Path(cache_dir) / basename
+
             if not local_dataset_dir.exists():
                 logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_dir}.')
                 local_dataset_dir.mkdir(parents=True, exist_ok=True)
                 gdown.download_folder(url=dataset_path, output=str(local_dataset_dir), remaining_ok=True)
             else:
-                logger.info(f'Using cached dataset at {local_dataset_dir}.')
+                logger.info(f'Using cached dataset at {local_dataset_dir}.') 
+
             dataset_path = local_dataset_dir
-        
+
+        # handle decompressing tar.gz
         dataset_path = Path(dataset_path)
+        if str(dataset_path).endswith('.tar.gz') or dataset_path.with_suffix('.tar.gz').exists():
+            # add .tar.gz suffix if dataset_path doesn't already have it
+            if not str(dataset_path).endswith('.tar.gz'):
+                dataset_path = dataset_path.with_suffix('.tar.gz')
+
+            # check if dataset_path exists without .tar.gz suffix
+            expected_dataset_path = Path(str(dataset_path).replace('.tar.gz', ''))
+            # already decompressed
+            if os.path.exists(expected_dataset_path):
+                logger.info(f'Found decompressed dataset at {expected_dataset_path}, '
+                            'not decompressing again.')
+            else:
+                # extract tar.gz to the same directory as the tar.gz is in
+                with tarfile.open(dataset_path, 'r:gz') as tar:
+                    tar.extractall(path=Path(dataset_path).parent)
+
+            dataset_path = expected_dataset_path
+
         dataset_signals = signals.Signal.load(dataset_path)
         if (dataset_path / 'metadata.json').is_file():
             metadata = read_json(dataset_path / 'metadata.json')
@@ -80,7 +104,7 @@ class SignalsDataset:
             metadata=metadata
         )
 
-    def save(self, dataset_path, overwrite=False):        
+    def save(self, dataset_path, compress=True, overwrite=False):
         dataset_path = Path(dataset_path)
         dataset_path.mkdir(parents=True, exist_ok=overwrite)
         for signal in self.signals.values():
@@ -89,9 +113,21 @@ class SignalsDataset:
             self.metadata,
             dataset_path / 'metadata.json'
         )
-        logger.info(
-            f'Saved {len(self.signals)} signals in dataset to {dataset_path}.'
-        )
+        if compress:
+            shutil.make_archive(
+                base_name=dataset_path,
+                format='gztar',
+                root_dir=dataset_path.parent,
+                base_dir=dataset_path.name
+            )
+            shutil.rmtree(dataset_path)
+            logger.info(f'Saved compressed dataset to {dataset_path}.tar.gz')
+            return f'{dataset_path}.tar.gz'
+        else:
+            logger.info(
+                f'Saved {len(self.signals)} signals in dataset to {dataset_path}.'
+            )
+            return dataset_path
     
     def aggregate_signal(self, name=None):
         if name is None:
@@ -404,7 +440,6 @@ def generate_dataset(
             raise NotImplementedError(
                 f"Unknown function for processing stories: {post_process_story}"
             )
-
 
     for signal in tqdm.tqdm(signals_):
         if signal_exists(signal, output_dataset_dir):

@@ -50,26 +50,29 @@ class TestDatasetTransformations(unittest.TestCase):
         cls.sample_dataset_dir = resources / "nasdaq100_sample_dataset"
         cls.output_dataset_dir = resources / "output_dataset_dir"
         cls.dataset = SignalsDataset.load(cls.sample_dataset_dir)
-        if cls.output_dataset_dir.exists():
-            shutil.rmtree(cls.output_dataset_dir)
+    
+    def tearDown(self):
+        compressed_path = Path(f'{str(self.output_dataset_dir)}.tar.gz')
+        if compressed_path.exists():
+            compressed_path.unlink()
+        if self.output_dataset_dir.exists():
+            shutil.rmtree(self.output_dataset_dir)
 
     def save_and_load_dataset(self):
-        self.dataset.save(self.output_dataset_dir)
-        return SignalsDataset.load(self.output_dataset_dir)
+        dataset_path = self.dataset.save(self.output_dataset_dir)
+        return SignalsDataset.load(dataset_path)
 
     def test_add_summaries(self):
         dataset_transformations.add_summaries(self.dataset)
         assert all('summary' in s.feeds_df.columns for s in self.dataset.signals.values())                
         dataset = self.save_and_load_dataset()
         assert all('summary' in s.feeds_df.columns for s in dataset.signals.values())
-        shutil.rmtree(self.output_dataset_dir)
 
     def test_add_anomalies(self):
         dataset_transformations.add_anomalies(self.dataset)
         assert all('anomalies' in s.columns for s in self.dataset.signals.values())
         dataset = self.save_and_load_dataset()
         assert all('anomalies' in s.columns for s in dataset.signals.values())
-        shutil.rmtree(self.output_dataset_dir)
 
     def test_add_wikimedia_pageviews(self):
         signals_ = list(self.dataset.signals.values())
@@ -90,4 +93,3 @@ class TestDatasetTransformations(unittest.TestCase):
         assert all('wikimedia_pageviews' in s.columns for s in self.dataset.signals.values())
         dataset = self.save_and_load_dataset()
         assert all('wikimedia_pageviews' in s.columns for s in dataset.signals.values())
-        shutil.rmtree(self.output_dataset_dir)

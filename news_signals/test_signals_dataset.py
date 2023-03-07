@@ -91,6 +91,10 @@ class TestDatasetGeneration(unittest.TestCase):
     def tearDownClass(cls):
         if cls.output_dataset_dir.exists():
             shutil.rmtree(cls.output_dataset_dir)
+
+    def tearDown(self):
+        if self.output_dataset_dir.exists():
+            shutil.rmtree(self.output_dataset_dir)
     
     def generate_sample_dataset(self):
         signals_dataset.generate_dataset(
@@ -106,8 +110,7 @@ class TestDatasetGeneration(unittest.TestCase):
         )
 
     def test_generate_dataset(self):
-        if not self.output_dataset_dir.exists():
-            self.generate_sample_dataset()
+        self.generate_sample_dataset()
 
         signals_ = signals_dataset.SignalsDataset.load(
             self.output_dataset_dir
@@ -132,8 +135,7 @@ class TestDatasetGeneration(unittest.TestCase):
             assert signal.id is not None              
 
     def test_signal_exists(self):
-        if not self.output_dataset_dir.exists():
-            self.generate_sample_dataset()        
+        self.generate_sample_dataset()
         signals_ = signals.Signal.load(self.output_dataset_dir)
         for s in signals_:            
             assert signals_dataset.signal_exists(s, self.output_dataset_dir)
@@ -183,7 +185,7 @@ class TestSignalsDataset(test_signals.SignalTest):
     def test_save_and_load_dataset(self):
         d1 = SignalsDataset(self.aylien_signals())
         tmp_dir = Path('/tmp/test_signals_dataset')
-        d1.save(tmp_dir)
+        d1.save(tmp_dir, compress=False)
         d2 = SignalsDataset.load(tmp_dir)
         for k in d1:
             assert d1[k].name == d2[k].name
@@ -197,12 +199,10 @@ class TestSignalsDataset(test_signals.SignalTest):
         basename = base64.b64encode(fake_gdrive_path.encode()).decode()
 
         d1 = SignalsDataset(self.aylien_signals())
-        d1.save(cache_dir / basename)
-
-        # assert that the loader things the dataset already exists
+        _ = d1.save(cache_dir / basename, compress=False)
+        # assert that the loader thinks the dataset already exists
         d2 = SignalsDataset.load(fake_gdrive_path, cache_dir=cache_dir)
         assert len(d1) == len(d2)
-
         shutil.rmtree(cache_dir)
         
     def test_plot_dataset(self):

@@ -7,6 +7,7 @@ from typing import List
 from importlib import import_module
 import json
 import base64
+import tarfile
 from pathlib import Path
 
 import tqdm
@@ -420,9 +421,10 @@ class Signal:
 
     @staticmethod
     def load(signals_path):
-        if type(signals_path) is str:
-            assert os.path.isdir(signals_path), 'Signals load paths must be directories'
+
         signals_dir = Path(signals_path)
+        assert os.path.isdir(signals_dir), 'Signals load paths must be directories'
+
         static_config_paths = signals_dir.glob('*.static_fields.json')
         signals = []
         for signal_config_path in static_config_paths:
