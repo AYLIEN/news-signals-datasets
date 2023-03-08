@@ -15,6 +15,9 @@ pip install news-signals
 ```
 
 #### Look at a sample dataset
+
+Do `pip install jupyter` in your environment to run this code
+in a jupyter notebook or in ipython, or just type `python` in your terminal. 
 ```
 from news_signals.signals_dataset import SignalsDataset
 
