@@ -63,16 +63,29 @@ class SignalsDataset:
             basename = base64.b64encode(dataset_path.encode()).decode()
             if cache_dir is None:
                 cache_dir = cls.DEFAULT_CACHE_DIR
-            local_dataset_dir = Path(cache_dir) / basename
 
+            local_dataset_dir = cache_dir / basename
             if not local_dataset_dir.exists():
-                logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_dir}.')
-                local_dataset_dir.mkdir(parents=True, exist_ok=True)
-                gdown.download_folder(url=dataset_path, output=str(local_dataset_dir), remaining_ok=True)
+                if 'folders' in dataset_path:
+                    local_dataset_dir = Path(cache_dir) / basename
+                    local_dataset_dir.mkdir(parents=True, exist_ok=True)
+                    logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_dir}.')
+                    status = gdown.download_folder(
+                        url=dataset_path,
+                        output=str(local_dataset_dir),
+                        remaining_ok=True
+                    )
+                    dataset_path = local_dataset_dir
+                else:
+                    local_dataset_path = Path(str(local_dataset_dir) + '.tar.gz')
+                    logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_path}.')
+                    status = gdown.download(url=dataset_path, output=str(local_dataset_path))
+                    assert status is not None, 'Download as file failed.'
+                    dataset_path = local_dataset_path
             else:
                 logger.info(f'Using cached dataset at {local_dataset_dir}.') 
+                dataset_path = local_dataset_dir
 
-            dataset_path = local_dataset_dir
 
         # handle decompressing tar.gz
         dataset_path = Path(dataset_path)
@@ -90,7 +103,11 @@ class SignalsDataset:
             else:
                 # extract tar.gz to the same directory as the tar.gz is in
                 with tarfile.open(dataset_path, 'r:gz') as tar:
-                    tar.extractall(path=Path(dataset_path).parent)
+                    common_path = os.path.commonpath(tar.getnames())
+                    expected_dataset_path = dataset_path.parent / common_path
+                    print(f'Extracting dataset to {expected_dataset_path}')
+                    if not expected_dataset_path.exists():
+                        tar.extractall(path=dataset_path.parent)
 
             dataset_path = expected_dataset_path
 
