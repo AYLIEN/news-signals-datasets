@@ -19,7 +19,7 @@ pip install news-signals
 from news_signals.signals_dataset import SignalsDataset
 
 # nasdaq100 sample dataset
-dataset_url = 'https://drive.google.com/drive/folders/1TBFcpzxKeXDczBXMePjb7kGuU0jj_GdM?usp=share_link'
+dataset_url = 'https://drive.google.com/uc?id=150mfU2YA4ScfTlJvO6Duzto4aT_Q7K3D'
 
 dataset = SignalsDataset.load(dataset_url)
 ```
