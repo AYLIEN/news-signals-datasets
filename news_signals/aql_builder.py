@@ -34,6 +34,9 @@ def params_to_aql(params):
         'entity_ids': None,
         'entities_sentiment': None
     }
+    if len(set(params.keys()).intersection(set(params_schema.keys()))) == 0:
+        return None
+    
     # pattern match
     extra_keys = set(params.keys()) - set(params_schema.keys())
     if len(extra_keys):

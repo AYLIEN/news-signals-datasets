@@ -620,11 +620,8 @@ class AylienSignal(Signal):
 
         self.update(start=start, end=end, freq=freq)
 
-        # range must exist now or we errored elsewhere
-        return DataframeSignal(
-            name=self.name,
-            timeseries_df=self.timeseries_df.loc[start:end][self.ts_column]
-        )
+        return self
+
 
     @staticmethod
     def pd_freq_to_aylien_period(freq):
@@ -701,7 +698,8 @@ class AylienSignal(Signal):
         params['published_at.start'] = _start
         params['published_at.end'] = _end
         params['period'] = period
-        params['aql'] = self.aql
+        if self.aql is not None:
+            params['aql'] = self.aql
         return params
 
     def query_news_signals(self, start, end, period, ts_endpoint=None):
