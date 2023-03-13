@@ -31,8 +31,10 @@ def params_to_aql(params):
         'industries': None,
         'not_industries': None,
         'entity_surface_forms': None,
+        'entity_surface_forms_text': None,
         'entity_ids': None,
-        'entities_sentiment': None
+        'entities_sentiment': None,
+        'min_prominence_score': None
     }
     if len(set(params.keys()).intersection(set(params_schema.keys()))) == 0:
         return None
@@ -48,7 +50,8 @@ def params_to_aql(params):
     list_types = [
         'categories', 'not_categories',
         'industries', 'not_industries',
-        'entity_surface_forms', 'entity_ids'
+        'entity_surface_forms', 'entity_ids',
+        'entity_surface_forms_text'
     ]
     for t in list_types:
         if params[t] is not None and type(params[t]) is not list:
@@ -57,13 +60,16 @@ def params_to_aql(params):
         params['categories'], params['not_categories'])
     industries_aql = make_industries_aql(
         params['industries'], params['not_industries'])
-    # note difference between surface forms and entity ids
+
     entities_sentiment = params.get('entities_sentiment', None)
+    min_prominence = params.get('min_prominence_score', None)
 
     entities_aql = make_entities_aql(
         params['entity_surface_forms'],
         params['entity_ids'],
-        sentiment=entities_sentiment
+        params['entity_surface_forms_text'],
+        sentiment=entities_sentiment,
+        min_prominence=min_prominence
     )
     aql_components = [
         c for c in [aylien_categories_aql, industries_aql, entities_aql]
@@ -72,17 +78,23 @@ def params_to_aql(params):
     return ' AND '.join(aql_components)
 
 
-def make_entities_aql(surface_forms, entity_ids, sentiment=None, min_prominence=0.7):
+def make_entities_aql(surface_forms, entity_ids, entity_surface_forms_text,
+    sentiment=None, min_prominence=None):
+
     sfs_aql = ''
     if surface_forms is not None and len(surface_forms) > 0:
-        sfs_aql = f'surface_forms.text: (' + ' '.join([f'"{sf}"' for sf in surface_forms]) + ')'
+        sfs_aql = f'surface_forms: (' + ' '.join([f'"{sf}"' for sf in surface_forms]) + ')'
+    
+    sfs_text_aql = ''
+    if entity_surface_forms_text is not None and len(entity_surface_forms_text) > 0:
+        sfs_text_aql = f'surface_forms.text: (' + ' '.join([f'"{sf}"' for sf in entity_surface_forms_text]) + ')'
 
     ids_aql = ''
     if entity_ids is not None and len(entity_ids) > 0:
-        ids_aql = f' (' + ' '.join([f'id:{entity_id}' for entity_id in entity_ids]) + ')'
+        ids_aql = f'(' + ' '.join([f'id:{entity_id}' for entity_id in entity_ids]) + ')'
 
     entities_aql = ''
-    if len(sfs_aql) or len(ids_aql):
+    if len(sfs_aql) or len(ids_aql) or len(sfs_text_aql):
         prominence_aql = ''
         if min_prominence is not None:
             prominence_aql = f'prominence_score:[{min_prominence} TO *]'
@@ -90,10 +102,12 @@ def make_entities_aql(surface_forms, entity_ids, sentiment=None, min_prominence=
         if sentiment is not None and sentiment in ['positive', 'negative']:
             sentiment_aql = f'sentiment:{sentiment}'
 
-        entities_aql_components = [c for c in [prominence_aql, sentiment_aql, sfs_aql, ids_aql]
+        entities_aql_components = [c for c in [prominence_aql, sentiment_aql, sfs_aql, sfs_text_aql, ids_aql]
                                    if len(c) > 0]
         entities_aql = 'entities: {{' + ' AND '.join(entities_aql_components)
-        entities_aql += ' sort_by(overall_prominence)}}'
+        if len(prominence_aql) > 0:
+            entities_aql += ' sort_by(overall_prominence)'
+        entities_aql += '}}'
     return entities_aql
 
 
