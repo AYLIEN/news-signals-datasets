@@ -56,7 +56,7 @@ def add_wikimedia_pageviews(
 
 def get_dataset_transform(func_name):
     try:
-        cls = globals()[func_name]
+        func = globals()[func_name]
     except:
         raise NotImplementedError(f'Unknown transformation function: {func_name}')
-    return cls
+    return func
