@@ -2,12 +2,10 @@ import copy
 import os
 import sys
 from abc import abstractmethod
-from collections import Counter, OrderedDict
+from collections import Counter
 from typing import List
-from importlib import import_module
 import json
 import base64
-import tarfile
 from pathlib import Path
 
 import tqdm
@@ -327,7 +325,7 @@ class Signal:
         if cache:
             series.name = 'anomalies'
             anomaly_df = series.to_frame()
-            if overwrite_existing:
+            if overwrite_existing and 'anomalies' in self.timeseries_df:
                 del self.timeseries_df['anomalies']
             self.timeseries_df = self.timeseries_df.join(anomaly_df, how='left')
             return self
