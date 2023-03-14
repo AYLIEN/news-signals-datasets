@@ -51,6 +51,18 @@ class TestSigmaAnomalyDetector(unittest.TestCase):
         anomaly_series = anomaly_detector(history, test_series)
         assert np.isclose(anomaly_series.iloc[0], 4.3, atol=0.1)
 
+        timeseries = pd.Series([0, 0, 0, 0, 0, 2, 18])
+        history = timeseries[:-1]
+        test_series = timeseries[-1:]
+        anomaly_series = anomaly_detector(history, test_series)
+        assert np.isclose(anomaly_series.iloc[0], 17.6, atol=0.1)
+
+        timeseries = pd.Series([0, 0, 0, 0, 0, 2])
+        history = timeseries[:-1]
+        test_series = timeseries[-1:]
+        anomaly_series = anomaly_detector(history, test_series)
+        assert anomaly_series.iloc[0] == 2
+
 
 if __name__ == '__main__':
     unittest.main()
