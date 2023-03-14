@@ -13,7 +13,6 @@ import appdirs
 import arrow
 import gdown
 import pandas as pd
-import numpy as np
 import tqdm
 
 import news_signals.signals as signals
@@ -123,6 +122,8 @@ class SignalsDataset:
 
     def save(self, dataset_path, compress=True, overwrite=False):
         dataset_path = Path(dataset_path)
+        if overwrite and not dataset_path.is_dir():
+            dataset_path.unlink()
         dataset_path.mkdir(parents=True, exist_ok=overwrite)
         for signal in self.signals.values():
             signal.save(dataset_path)

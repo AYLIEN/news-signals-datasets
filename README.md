@@ -65,3 +65,14 @@ python bin/generate_dataset.py \
     --output-dataset-dir sample_dataset_output
 
 ```
+
+## Transform a Dataset
+
+```shell
+
+python bin/transform_dataset.py \
+    --input-dataset-dir sample_dataset_output \
+    --config resources/default_transform_config.json
+
+```
+This adds anomaly scores, summary headlines and Wikimedia pageviews to each signal in a dataset (specified in [config file](resources/default_transform_config.json)). 

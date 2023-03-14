@@ -1,0 +1,22 @@
+[
+    {
+        "transform": "add_anomalies",
+        "params": {
+            "overwrite_existing": true
+        }
+    },
+    {
+        "transform": "add_summaries",
+        "params": {
+            "summarizer": "CentralTitleSummarizer",
+            "summarization_params": {},
+            "overwrite_existing": true
+        }
+    },
+    {
+        "transform": "add_wikimedia_pageviews",
+        "params": {
+            "overwrite_existing": true
+        }
+    }   
+]
