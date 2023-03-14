@@ -2,7 +2,7 @@ import copy
 import os
 import sys
 from abc import abstractmethod
-from collections import Counter, OrderedDict
+from collections import Counter, defaultdict
 from typing import List
 from importlib import import_module
 import json
@@ -194,6 +194,8 @@ class Signal:
     def infer_freq(self):
         if getattr(self, 'timeseries_df', None) is not None:
             return pd.infer_freq(self.timeseries_df.index)
+        elif getattr(self, 'feeds_df', None) is not None:
+            return pd.infer_freq(self.feeds_df.index)
         else:
             raise NotImplementedError(
                 'infer_freq() is not implemented for this signal type'
@@ -249,6 +251,8 @@ class Signal:
     def __len__(self):
         if getattr(self, 'timeseries_df', None) is not None:
             return len(self.timeseries_df)
+        elif getattr(self, 'feeds_df', None) is not None:
+            return len(self.feeds_df)
         else:
             raise NotImplementedError(
                 'len() is not implemented for this signal type'
@@ -725,39 +729,58 @@ class AylienSignal(Signal):
     def sample_stories_in_window(self, start, end,
                                  num_stories=20,
                                  sample_per_tick=True,
-                                 cache_stories=True,
+                                 overwrite_existing=False,
+                                 stories_column='stories',
                                  freq='D'):
         """
         if sample_per_tick is True, return a dataframe with a time axis containing
         sampled stories at each tick
         Otherwise just directly return the stories
         """
-        if num_stories > 100:
-            logger.warning(
-                f'Num stories cannot be greater than 100, '
-                'truncating to 100.'
-            )
         params = self.make_query(start, end)
         params['per_page'] = num_stories
+        story_bucket_records = []
+        if self.feeds_df is None:
+            date_range = self.date_range(start, end, freq=freq)
+            # init with UTC datetime index
+            # we use only start dates thus the cutoff
+            self.feeds_df = pd.DataFrame(
+                columns=[stories_column],
+                index=pd.DatetimeIndex(date_range[:-1], tz='UTC')
+            )
+        
         if sample_per_tick:
             date_range = self.date_range(start, end)
             start_end_tups = [(s, e) for s, e in zip(list(date_range), list(date_range)[1:])]
-            story_bucket_records = []
             for start, end in tqdm.tqdm(start_end_tups):
-                logger.info(f'Getting stories for {start} to {end}')
-                params = self.make_query(start, end)
-                stories = self.stories_endpoint(params)
-                story_bucket_records.append({'timestamp': start, 'stories': stories})
-            story_bucket_df = pd.DataFrame.from_records(
-                story_bucket_records,
-                index='timestamp'
-            )
-            if cache_stories:
-                self.feeds_df = story_bucket_df
-            return story_bucket_df
+                # note we check if the type is a list instead of pd.isna because
+                # the polymorphic .isna check in pandas is weird
+                if type(self.feeds_df.loc[start][stories_column]) is list and not overwrite_existing:
+                    logger.info(f'Already have stories for {start} to {end}')
+                    continue
+                else:
+                    logger.info(f'Getting stories for {start} to {end}')
+                    params = self.make_query(start, end)
+                    stories = self.stories_endpoint(params)
+                    story_bucket_records.append({'timestamp': start, stories_column: stories})
         else:
             params = self.make_query(start, end)
-            return self.stories_endpoint(params)
+            stories = self.stories_endpoint(params)
+            records = defaultdict(list)
+            for story in stories:
+                ts = self.normalize_timestamp(story['published_at'], freq)
+                records[ts].append(story)
+            for ts, stories in records.items():
+                story_bucket_records.append({'timestamp': ts, stories_column: stories})
+        
+        # now merge the stories into self.feeds_df at the correct timestamps
+        story_bucket_df = pd.DataFrame(
+            story_bucket_records,
+            index=pd.DatetimeIndex([r['timestamp'] for r in story_bucket_records], tz='UTC')
+        )
+        self.feeds_df = self.feeds_df.combine_first(story_bucket_df)
+
+        return self
 
     def sample_anomaly_stories(self, start, end, num_stories=20):
         """
