@@ -1,6 +1,11 @@
 # News Signals
 
-Check out this [colab notebook](https://drive.google.com/file/d/1zM4J3jFA9v2LDTFKOpaa3EUUGhOdQieo/view?usp=share_link) to see some of the things you can do with the news-signals library.
+### Example Colab Notebooks
+
+These notebooks let you try out `news-signals` without installing anything!
+
+[Searching the Aylien NewsAPI Using An Entity Name](https://drive.google.com/file/d/1zKCSjWqxRJCPWBaGKXt5oQwkOzT8aDSg/view?usp=share_link)      
+[An Overview of News Signals Datasets](https://drive.google.com/file/d/1zM4J3jFA9v2LDTFKOpaa3EUUGhOdQieo/view?usp=share_link)      
 
 
 ## Quickstart
