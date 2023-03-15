@@ -1,6 +1,6 @@
 # News Signals
 
-Check out this [colab notebook](https://drive.google.com/file/d/1iTjjeSt1S5WF0jJItH31DRe2C3IkZvz5/view?usp=sharing) to see some of the things you can do with the news-signals library.
+Check out this [colab notebook](https://drive.google.com/file/d/1zM4J3jFA9v2LDTFKOpaa3EUUGhOdQieo/view?usp=share_link) to see some of the things you can do with the news-signals library.
 
 
 ## Quickstart
