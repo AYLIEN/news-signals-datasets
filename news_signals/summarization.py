@@ -33,6 +33,14 @@ class Summary:
             "metadata": self.metadata,
         }
 
+    @staticmethod
+    def from_dict(d):
+        return Summary(
+            stories=d["stories"],
+            summary=d["summary"],
+            metadata=d["metadata"]
+        )    
+
 
 class Summarizer(ABC):
 
