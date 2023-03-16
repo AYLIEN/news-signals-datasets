@@ -47,6 +47,14 @@ class TooManyRequestsError(Exception):
     pass
 
 
+def set_headers(app_id, app_key):
+    """
+    set global headers for newsapi requests
+    """
+    HEADERS['X-AYLIEN-NewsAPI-Application-ID'] = app_id
+    HEADERS['X-AYLIEN-NewsAPI-Application-Key'] = app_key
+
+
 @sleep_and_retry
 @limits(calls=NEWSAPI_CALLS_PER_MINUTE, period=60)
 def make_newsapi_request(

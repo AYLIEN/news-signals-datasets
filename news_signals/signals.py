@@ -839,6 +839,17 @@ class AylienSignal(Signal):
         )
         return self.to_dict()
 
+    @staticmethod
+    def normalize_aylien_story(story):
+        """
+        stories is a list of dicts, each dict is a story
+        """
+        # this is needed because arrow cannot serialize empty dicts
+        for e in story['entities']:
+            if 'external_ids' in e and len(e['external_ids']) == 0:
+                del e['external_ids']
+        return story
+
     def sample_stories_in_window(self, start, end,
                                  num_stories=20,
                                  sample_per_tick=True,
@@ -876,11 +887,11 @@ class AylienSignal(Signal):
                 else:
                     logger.info(f'Getting stories for {start} to {end}')
                     params = self.make_query(start, end)
-                    stories = self.stories_endpoint(params)
+                    stories = [self.normalize_aylien_story(s) for s in self.stories_endpoint(params)]
                     story_bucket_records.append({'timestamp': start, stories_column: stories})
         else:
             params = self.make_query(start, end)
-            stories = self.stories_endpoint(params)
+            stories = [self.normalize_aylien_story(s) for s in self.stories_endpoint(params)]
             records = defaultdict(list)
             for story in stories:
                 ts = self.normalize_timestamp(story['published_at'], freq)
