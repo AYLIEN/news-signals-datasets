@@ -209,26 +209,7 @@ class MockRequestsEndpoint:
         return self.response
 
         
-class TestAylienSignal(SignalTest):
-
-    @classmethod
-    def setup_summarization_tests(cls):
-        with open(resources / "tesla_stories.json") as f:
-            stories = json.load(f)
-        stories_endpoint_mock = MockEndpoint()
-        signal = signals.AylienSignal(
-            'test-signal',
-            params={},
-            stories_endpoint=stories_endpoint_mock
-        )
-        signal.params = {'stories': stories}
-        start = '2022-12-01'
-        end = '2022-12-02'
-        signal.sample_stories_in_window(
-            start, end, sample_per_tick=True
-        )
-        return signal, start, end, stories
-
+class TestAylienSignal(SignalTest):  
 
     def test_call_aylien_signal(self):
         ts_endpoint_mock = MockEndpoint()
@@ -289,6 +270,171 @@ class TestAylienSignal(SignalTest):
         signal.update(start=t1, end=t3, ts_endpoint=ts_endpoint_mock)
         assert signal.start == t1
         assert signal.end == t3
+
+    def test_update_anomalies(self):
+        ts_endpoint_mock = MockEndpoint()
+        aylien_ts = [
+            {"published_at": "2020-01-01T00:00:00Z", "count": 1},
+            {"published_at": "2020-01-02T00:00:00Z", "count": 2},
+            {"published_at": "2020-01-03T00:00:00Z", "count": 4},
+            {"published_at": "2020-01-04T00:00:00Z", "count": 1},
+            {"published_at": "2020-01-05T00:00:00Z", "count": 6},
+        ]
+        timeseries_df = aylien_ts_to_df(aylien_ts, normalize=True, freq='D')
+        t1 = list(timeseries_df.index)[0]
+        t2 = list(timeseries_df.index)[2]
+        t3 = list(timeseries_df.index)[4]
+        signal = signals.AylienSignal(
+            'test-signal',
+            params={'timeseries_df': timeseries_df[t1:t2]},
+            ts_endpoint=ts_endpoint_mock
+        )
+        signal = signal(t1, t2)        
+        assert "anomalies" not in signal.timeseries_df
+        signal.anomaly_signal(start=t1, end=t2)
+        assert "anomalies" in signal.timeseries_df[t1: t2]        
+        signal.update(start=t2, end=t3)
+        # checking if anomalies were added to new section
+        assert "anomalies" in signal.timeseries_df[t2: t3]
+
+    def test_update_stories(self):
+        stories_endpoint_mock = MockEndpoint()
+        signal = signals.AylienSignal(
+            'test-signal',
+            params={},
+            stories_endpoint=stories_endpoint_mock
+        )
+        t1 = '2022-01-01'
+        t2 = '2022-01-05'
+        t3 = '2022-01-10'
+        payload = {
+            'stories': [
+                {'title': 'title',
+                 'body': 'body',
+                 'published_at': str(dt.date()) + "T00:00:00Z"}
+                for dt in pd.date_range(t1, t2)
+            ][:-1] # removing last because date_range is end-inclusive
+        }
+        signal.params = payload
+        aylien_ts = [
+            {'published_at': str(dt.date()) + "T00:00:00Z", 'count': 3}
+            for dt in pd.date_range(t1, t2)
+        ][:-1] # removing last because date_range is end-inclusive
+        timeseries_df = aylien_ts_to_df(aylien_ts, normalize=True, freq='D')
+        signal.timeseries_df = timeseries_df
+        
+        signal = signal.sample_stories_in_window(t1, t2)
+        stories = signal.feeds_df["stories"][t1: t2]
+        n_spanned_days = (pd.Timestamp(t2) - pd.Timestamp(t1)).days
+        assert None not in stories
+        assert len(stories) == n_spanned_days
+
+        signal.update(start=t2, end=t3)
+        stories = signal.feeds_df["stories"]
+        n_spanned_days = (pd.Timestamp(t3) - pd.Timestamp(t1)).days
+        assert None not in stories
+        assert len(stories) == n_spanned_days
+                
+    def test_update_summaries(self):
+        stories_endpoint_mock = MockEndpoint()
+        ts_endpoint_mock = MockEndpoint()
+        signal = signals.AylienSignal(
+            'test-signal',
+            params={},
+            stories_endpoint=stories_endpoint_mock,
+            ts_endpoint=ts_endpoint_mock
+
+        )
+        t1 = '2022-01-01'
+        t2 = '2022-01-05'
+        t3 = '2022-01-10'
+        payload = {
+            'stories': [
+                {'title': 'title',
+                 'body': 'body',
+                 'published_at': str(dt.date()) + "T00:00:00Z"}
+                for dt in pd.date_range(t1, t2)
+            ][:-1] # removing last because date_range is end-inclusive
+        }
+        signal.params = payload
+        aylien_ts = [
+            {'published_at': str(dt.date()) + "T00:00:00Z", 'count': 3}
+            for dt in pd.date_range(t1, t2)
+        ][:-1] # removing last because date_range is end-inclusive
+        timeseries_df = aylien_ts_to_df(aylien_ts, normalize=True, freq='D')
+        signal.timeseries_df = timeseries_df
+        
+        signal = signal.sample_stories_in_window(t1, t2)
+        signal.summarize()
+        summaries = signal.feeds_df["summary"][t1: t2]
+        n_spanned_days = (pd.Timestamp(t2) - pd.Timestamp(t1)).days
+        assert None not in summaries
+        assert len(summaries) == n_spanned_days
+        signal.update(start=t2, end=t3)        
+        summaries = signal.feeds_df["summary"]
+        n_spanned_days = (pd.Timestamp(t3) - pd.Timestamp(t1)).days
+        assert None not in summaries
+        assert len(summaries) == n_spanned_days
+        
+    
+    def test_update_wikimedia_pageviews(self):
+        ts_endpoint_mock = MockEndpoint()
+        t1 = '2022-01-01'
+        t2 = '2022-01-05'
+        t3 = '2022-01-10'        
+        aylien_ts_1 = [
+            {'published_at': str(dt.date()) + "T00:00:00Z", 'count': 3}
+            for dt in pd.date_range(t1, t2)
+        ][:-1] # removing last because date_range is end-inclusive
+        aylien_ts_2 = [
+            {'published_at': str(dt.date()) + "T00:00:00Z", 'count': 3}
+            for dt in pd.date_range(t2, t3)
+        ][:-1]
+        timeseries_df1 = aylien_ts_to_df(aylien_ts_1, normalize=True, freq='D')
+        timeseries_df2 = aylien_ts_to_df(aylien_ts_2, normalize=True, freq='D')
+        
+        signal = signals.AylienSignal(
+            'test-signal',
+            params={"entity_ids": ["Q42"], "timeseries_df": timeseries_df1},
+            ts_endpoint=ts_endpoint_mock,
+            timeseries_df=timeseries_df1
+        )
+
+        mock_pageview_items1 = [
+            {"views": 3, "timestamp": dt.strftime("%Y%m%d00")}
+            for dt in pd.date_range(t1, t2)
+        ][:-1]
+        mock_pageview_items2 = [
+            {"views": 3, "timestamp": dt.strftime("%Y%m%d00")}
+            for dt in pd.date_range(t2, t3)
+        ][:-1]
+        wikidata_client=MockWikidataClient("wiki-link-placeholder")
+        wikimedia_endpoint = MockRequestsEndpoint(
+            response={"items": mock_pageview_items1}
+        )
+        signal.wikimedia_pageviews_timeseries(
+            wikidata_client=wikidata_client,
+            wikimedia_endpoint=wikimedia_endpoint
+        )
+        pageviews = signal.timeseries_df["wikimedia_pageviews"].values
+        n_spanned_days = (pd.Timestamp(t2) - pd.Timestamp(t1)).days
+        assert len(pageviews) == n_spanned_days
+        assert None not in pageviews
+        wikimedia_endpoint = MockRequestsEndpoint(
+            response={"items": mock_pageview_items2}
+        )
+        signal.params = {
+            "entity_ids": ["Q42"], "timeseries_df": timeseries_df2
+        }
+        signal.update(
+            start=t2, end=t3,
+            wikidata_client=wikidata_client,
+            wikimedia_endpoint=wikimedia_endpoint
+        )
+        pageviews = signal.timeseries_df["wikimedia_pageviews"].values
+        n_spanned_days = (pd.Timestamp(t3) - pd.Timestamp(t1)).days        
+        assert len(pageviews) == n_spanned_days
+        assert None not in pageviews
 
     def test_gap_filling(self):
         ts_endpoint_mock = MockEndpoint()
@@ -392,35 +538,70 @@ class TestAylienSignal(SignalTest):
         )
         date_range = signals.Signal.date_range(start, end)
         assert all(len(s) == stories_per_tick for s in signal_with_stories.feeds_df['stories'] if type(s) is list)
-        assert len(signal_with_stories) == len(date_range) - 1
+        assert len(signal_with_stories) == len(date_range) - 1        
 
-    def test_summarize(self):
-        signal, _, _, stories = self.setup_summarization_tests()
+    @classmethod
+    def setup_summarization_tests(cls):
+        with open(resources / "tesla_stories.json") as f:
+            stories = json.load(f)
+        stories_endpoint_mock = MockEndpoint()
+        signal = signals.AylienSignal(
+            'test-signal',
+            params={'stories': stories},        
+            stories_endpoint=stories_endpoint_mock,
+        )        
+        start = '2022-01-01'
+        end = '2022-01-05'
+        signal = signal(start, end)
+        signal.sample_stories_in_window(
+            start, end, freq='D', sample_per_tick=True
+        )
+        aylien_ts = [
+            {"published_at": "2022-01-01T00:00:00Z", "count": 1},
+            {"published_at": "2022-01-02T00:00:00Z", "count": 2},
+            {"published_at": "2022-01-03T00:00:00Z", "count": 4},
+            {"published_at": "2022-01-04T00:00:00Z", "count": 1},
+        ]
+        timeseries_df = aylien_ts_to_df(aylien_ts, normalize=True, freq='D')        
+        signal.timeseries_df = timeseries_df
+        return signal.copy(), start, end, stories
+    
+    def test_summarize(self):        
+        signal, _, _, stories = self.setup_summarization_tests()        
         summarizer = summarization.CentralTitleSummarizer()
         raw_summary = summarizer(stories)
-        # note cache flag is set to True
         signal_summaries = signal.summarize(
-            summarizer, cache_summaries=True
+            summarizer=summarizer,
+            cache_summaries=True
         )
         assert \
             raw_summary.to_dict() == \
             signal_summaries[0] == \
             signal.feeds_df["summary"][0]
 
+    def test_summarize_range(self):        
+        signal, _, _, _ = self.setup_summarization_tests()
+        start = "2022-01-01"
+        end = "2022-01-02"
+        signal.summarize(start=start, end=end)
+        assert all([pd.notnull(x) for x in signal.feeds_df["summary"][start: end]])
+        next_day = pd.Timestamp(end) + pd.Timedelta(days=1)
+        assert all([pd.isnull(x) for x in signal.feeds_df["summary"][next_day:]])
+        
     def test_summarizer_params(self):
         signal, _, _, _ = self.setup_summarization_tests()
         summarizer = summarization.TfidfKeywordSummarizer()
         for k in (1, 2, 5):
-            summarizer_params = {"top_k": k}
+            summarization_params = {"top_k": k}
             summaries = signal.summarize(
-                summarizer, summarizer_params,
-                cache_summaries=True
-            )
+                summarizer=summarizer,
+                summarization_params=summarization_params,
+                cache_summaries=False
+            )            
             summary = summaries[0]
             assert len(summary["summary"].split()) == k
-            del signal.feeds_df["summary"]
 
-    def test_add_wikimedia_pageviews_timeseries(self):
+    def test_wikimedia_pageviews_timeseries(self):
         aylien_ts = [
             {"published_at": "2020-01-01T00:00:00Z", "count": 1},
             {"published_at": "2020-01-02T00:00:00Z", "count": 2},
@@ -434,7 +615,7 @@ class TestAylienSignal(SignalTest):
             params={"entity_ids": ["Q42"]},
             timeseries_df=timeseries_df
         )
-        signal.add_wikimedia_pageviews_timeseries(
+        signal.wikimedia_pageviews_timeseries(
             wikidata_client=MockWikidataClient("wiki-link-placeholder"),
             wikimedia_endpoint = MockRequestsEndpoint(
                 response={
