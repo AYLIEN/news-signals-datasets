@@ -45,7 +45,7 @@ def add_wikimedia_pageviews(
     overwrite_existing=False
 ):  
     def transform(signal):
-        return signal.add_wikimedia_pageviews_timeseries(
+        return signal.wikimedia_pageviews_timeseries(
             wikidata_client=wikidata_client,
             wikimedia_endpoint=wikimedia_endpoint,
             overwrite_existing=overwrite_existing
