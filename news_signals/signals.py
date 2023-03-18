@@ -845,9 +845,12 @@ class AylienSignal(Signal):
         stories is a list of dicts, each dict is a story
         """
         # this is needed because arrow cannot serialize empty dicts
-        for e in story['entities']:
-            if 'external_ids' in e and len(e['external_ids']) == 0:
-                del e['external_ids']
+        # and depending upon user's enabled NewsAPI feature flags, the external_ids field
+        # may be empty
+        if 'entities' in story:
+            for e in story['entities']:
+                if 'external_ids' in e and len(e['external_ids']) == 0:
+                    del e['external_ids']
         return story
 
     def sample_stories_in_window(self, start, end,
