@@ -124,6 +124,9 @@ def wikimedia_pageviews_timeseries_from_wikipedia_link(
     url_date_format = "%Y%m%d00"
     assert granularity in ["daily", "monthly"]
     start = start.strftime(url_date_format)
+    # NOTE: the response includes an entry for the end date; we shift the end back
+    # by 1 day to match the date range behavior of NewsAPI requests
+    end = end - datetime.timedelta(days=1)    
     end = end.strftime(url_date_format)
     page_name = wikipedia_link.split("/")[-1]
     url = f"https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/{language}.wikipedia/all-access/all-agents/{page_name}/{granularity}/{start}/{end}"

@@ -7,13 +7,15 @@ from typing import List
 import json
 import base64
 from pathlib import Path
+from dataclasses import dataclass
+from itertools import zip_longest
 
 import tqdm
 import pandas as pd
 import arrow
 import datetime
 from sqlitedict import SqliteDict
-from dataclasses import dataclass
+
 
 from .newsapi import retrieve_timeseries, retrieve_stories
 from .data import arrow_to_aylien_date
@@ -21,7 +23,7 @@ from .log import create_logger
 from .data import aylien_ts_to_df, datetime_to_aylien_str
 from .anomaly_detection import SigmaAnomalyDetector
 from .aql_builder import params_to_aql
-from .summarization import Summarizer
+from .summarization import Summarizer, CentralTitleSummarizer
 from .exogenous_signals import wikimedia_pageviews_timeseries_from_wikidata_id
 
 logger = create_logger(__name__)
@@ -268,12 +270,16 @@ class Signal:
         return signal.timeseries_df[signal.timeseries_df[signal.ts_column] > 0.][signal.ts_column]
 
     def anomaly_signal(
-            self, start=None, end=None, freq='D',
-            history_length=1,
-            history_interval='months',
-            cache=True,
-            overwrite_existing=False,
-            detector=None):
+        self,
+        start=None,
+        end=None,
+        freq='D',
+        history_length=1,
+        history_interval='months',
+        cache=True,
+        overwrite_existing=False,        
+        detector=None
+    ):
         """
         Anomaly detection methods expect a minimum amount of history,
         or function is not idempotent wrt dates (same date will have different scores
@@ -286,16 +292,17 @@ class Signal:
         :param: history_length: history length
         :param: history_interval: history interval (months, days, hours, ...)
         """
+        if not overwrite_existing and 'anomalies' in self.timeseries_df.columns: 
+            if not self.timeseries_df["anomalies"].isnull().values.any():            
+                return self
 
         # if user didn't supply start and end, we want signal to have enough data that 
         # we can take the first part and use it to compute necessary stats to do the 
-        # anomaly transformation on the rest of the signal
-        if not overwrite_existing and 'anomalies' in self.timeseries_df.columns:
-            return self
-            
+        # anomaly transformation on the rest of the signal            
         if start is None:
             ts_begin = self.timeseries_df.index.min()
             ts_end = self.timeseries_df.index.max()
+            
             dates = self.date_range(ts_begin, ts_end)
             if freq == 'D' and len(dates) > 2:
                 history_length = min(len(dates) // 2, 60)
@@ -319,10 +326,13 @@ class Signal:
         history_start = arrow.get(start).shift(**shift_kwargs).datetime
         start = arrow.get(start).datetime
         end = arrow.get(end).datetime
-        # get history, then compute anomalies wrt history
-        full_signal = self.__call__(history_start, end, freq)
+        # get history, then compute anomalies wrt history;
+        # we create separate signal objects for this to
+        # preserve the time range of the original signal
+        full_signal = self.copy(included_columns=[self.ts_column])
+        full_signal = full_signal(history_start, end, freq)
         history = full_signal(history_start, start, freq)
-        series = full_signal(start, end, freq).to_series()
+        series = full_signal(start, end, freq).to_series()        
         series = detector(history.to_series(), series)
 
         # side effect
@@ -331,11 +341,16 @@ class Signal:
             anomaly_df = series.to_frame()
             if overwrite_existing and 'anomalies' in self.timeseries_df:
                 del self.timeseries_df['anomalies']
-            self.timeseries_df = self.timeseries_df.join(anomaly_df, how='left')
+            if 'anomalies' in self.timeseries_df:
+                # updating existing anomaly timeseries
+                new_values = series[start: end].to_list()                
+                self.timeseries_df.loc[start: end, "anomalies"] = new_values
+            else:
+                self.timeseries_df = self.timeseries_df.join(anomaly_df, how='left')
             return self
         else:
             # legacy, deprecate
-            return DataframeSignal(f'{self.name}-anomalies', timeseries_df=series)
+            return DataframeSignal(f'{self.name}-anomalies', timeseries_df=series)        
 
     def __repr__(self):
         signal_dict = self.to_dict()
@@ -399,6 +414,26 @@ class Signal:
             args['feeds_df'] = args.pop('stories_df')
         return signal_type.from_dict(args)
 
+    def copy(self, included_columns=None):
+        if self.feeds_df is None:
+            feeds_df = None
+        else:
+            feeds_df = self.feeds_df.copy()
+        if included_columns and feeds_df is not None:
+            columns_to_remove = [c for c in feeds_df.columns if c not in included_columns]
+            feeds_df.drop(columns_to_remove, axis=1, inplace=True)
+        timeseries_df = self.timeseries_df.copy()            
+        if included_columns:
+            columns_to_remove = [c for c in timeseries_df.columns if c not in included_columns]
+            timeseries_df.drop(columns_to_remove, axis=1, inplace=True)                    
+        return Signal(
+            name=self.name,
+            metadata=self.metadata.copy(),
+            timeseries_df=timeseries_df,
+            feeds_df=feeds_df,
+            ts_column=self.ts_column
+        )
+    
     def save(self, datadir):
         """
         Save a signal to disk
@@ -423,7 +458,6 @@ class Signal:
 
     @staticmethod
     def load(signals_path):
-
         signals_dir = Path(signals_path)
         assert os.path.isdir(signals_dir), 'Signals load paths must be directories'
 
@@ -510,6 +544,26 @@ class DataframeSignal(Signal):
             ts_column=data['ts_column'],
         )
 
+    def copy(self, included_columns=None):
+        if self.feeds_df is None:
+            feeds_df = None
+        else:
+            feeds_df = self.feeds_df.copy()
+        if included_columns and feeds_df is not None:
+            columns_to_remove = [c for c in feeds_df.columns if c not in included_columns]
+            feeds_df.drop(columns_to_remove, axis=1, inplace=True)
+        timeseries_df = self.timeseries_df.copy()            
+        if included_columns:
+            columns_to_remove = [c for c in timeseries_df.columns if c not in included_columns]
+            timeseries_df.drop(columns_to_remove, axis=1, inplace=True)                    
+        return DataframeSignal(
+            name=self.name,
+            metadata=self.metadata.copy(),
+            timeseries_df=timeseries_df,
+            feeds_df=feeds_df,
+            ts_column=self.ts_column
+        )    
+    
     def __call__(self, start, end, freq='D'):
         start = self.normalize_timestamp(start, freq)
         end = self.normalize_timestamp(end, freq)
@@ -612,6 +666,28 @@ class AylienSignal(Signal):
             ts_column=data['ts_column'],
         )
 
+    def copy(self, included_columns=None):
+        if self.feeds_df is None:
+            feeds_df = None
+        else:
+            feeds_df = self.feeds_df.copy()
+        if included_columns and feeds_df is not None:
+            columns_to_remove = [c for c in feeds_df.columns if c not in included_columns]
+            feeds_df.drop(columns_to_remove, axis=1, inplace=True)
+        timeseries_df = self.timeseries_df.copy()            
+        if included_columns:
+            columns_to_remove = [c for c in timeseries_df.columns if c not in included_columns]
+            timeseries_df.drop(columns_to_remove, axis=1, inplace=True)                    
+        return AylienSignal(
+            name=self.name,
+            metadata=self.metadata.copy(),
+            params=self.params.copy(),
+            aql=self.aql,            
+            timeseries_df=timeseries_df,
+            feeds_df=feeds_df,
+            ts_column=self.ts_column
+        )
+    
     def __call__(self, start, end, freq='D'):
         start = self.normalize_timestamp(start, freq)
         end = self.normalize_timestamp(end, freq)
@@ -624,7 +700,6 @@ class AylienSignal(Signal):
 
         return self
 
-
     @staticmethod
     def pd_freq_to_aylien_period(freq):
         if freq == 'D':
@@ -634,7 +709,17 @@ class AylienSignal(Signal):
         else:
             raise UnknownFrequencyArgument
 
-    def update(self, start=None, end=None, freq='D', ts_endpoint=None):
+    def update(
+        self,
+        start=None,
+        end=None,
+        freq='D',
+        ts_endpoint=None,
+        summarizer=None,
+        summarization_params=None,
+        wikidata_client=None,
+        wikimedia_endpoint=None        
+    ):
         """
         This method should eventually update all of the data in the signal, not just 
         the timeseries_df. This is a work in progress.
@@ -643,7 +728,7 @@ class AylienSignal(Signal):
         any new data while retaining the existing information as well
         :param start: datetime
         :param end: datetime
-        """        
+        """
         if end is None:
             end = self.normalize_timestamp(datetime.datetime.now(), freq)
         # if start is None, we look up to 30 days ago
@@ -662,6 +747,8 @@ class AylienSignal(Signal):
                     f'end date was more than 30 days ago, so we are using '
                     f'default update interval of 30 days --> {start} to {end}'
                 )
+        start = self.normalize_timestamp(start, freq)
+        end = self.normalize_timestamp(end, freq)
         if ts_endpoint is None:
             ts_endpoint = self.ts_endpoint
 
@@ -677,21 +764,52 @@ class AylienSignal(Signal):
             # we're only going to be clever about extending to the right,
             # if user wants historical data (before the data we already have),
             # everything's getting retrieved
-            if self.timeseries_df is not None and start in self.timeseries_df.index:
+            if self.timeseries_df is not None and start in self.timeseries_df.index:                
                 r = Signal.date_range(start, end, freq=freq)
                 # find the first index that doesn't match
-                for dt, idx_dt in zip(r, self.timeseries_df[start:].index):
-                    if dt != idx_dt:
-                        start = dt
+                for dt, idx_dt in zip_longest(r, self.timeseries_df[start:].index):
+                    if idx_dt is None:                                                                        
                         break
+                    start = dt
+                # for dt, idx_dt in zip(r, self.timeseries_df[start:].index):
+                #     if dt != idx_dt:
+                #         start = dt                        
+                #         break
             period = self.pd_freq_to_aylien_period(freq)
             aylien_ts_df = self.query_news_signals(start, end, period, ts_endpoint)
             if self.timeseries_df is None:
                 self.timeseries_df = aylien_ts_df
-            else:
+            else:                
                 # note new values _do not_ overwrite old ones if index values
                 # are the same
                 self.timeseries_df = self.timeseries_df.combine_first(aylien_ts_df)
+
+            # also update other types of data if present
+            if "anomalies" in self.timeseries_df:
+                logger.info("Updating anomalies")
+                self.anomaly_signal(
+                    start=start, end=end
+                )            
+            if "wikimedia_pageviews" in self.timeseries_df:
+                # note that self.end is one day before specified
+                logger.info("Updating wikimedia pageviews")
+                self.wikimedia_pageviews_timeseries(
+                    start=start, end=end,
+                    wikidata_client=wikidata_client,
+                    wikimedia_endpoint=wikimedia_endpoint
+                )
+            if self.feeds_df is not None and "stories" in self.feeds_df:
+                logger.info("Updating sample stories")
+                self.sample_stories_in_window(
+                    start=start, end=end
+                )                
+                if "summary" in  self.feeds_df:
+                    logger.info("Updating summaries")
+                    self.summarize(
+                        start=start, end=end,
+                        summarizer=summarizer,
+                        summarization_params=summarization_params
+                    )
 
     def make_query(self, start, end, period='+1DAY'):
         _start = arrow_to_aylien_date(arrow.get(start))
@@ -708,9 +826,6 @@ class AylienSignal(Signal):
         if ts_endpoint is None:
             ts_endpoint = self.ts_endpoint
         params = self.make_query(start, end, period=period)
-        if ts_endpoint != self.ts_endpoint:
-            print("PARAMS")
-            print(params)
         aylien_ts = ts_endpoint(params)
         ts_df = aylien_ts_to_df(
             aylien_ts, dt_index=True
@@ -730,9 +845,12 @@ class AylienSignal(Signal):
         stories is a list of dicts, each dict is a story
         """
         # this is needed because arrow cannot serialize empty dicts
-        for e in story['entities']:
-            if 'external_ids' in e and len(e['external_ids']) == 0:
-                del e['external_ids']
+        # and depending upon user's enabled NewsAPI feature flags, the external_ids field
+        # may be empty
+        if 'entities' in story:
+            for e in story['entities']:
+                if 'external_ids' in e and len(e['external_ids']) == 0:
+                    del e['external_ids']
         return story
 
     def sample_stories_in_window(self, start, end,
@@ -764,8 +882,10 @@ class AylienSignal(Signal):
             for start, end in tqdm.tqdm(start_end_tups):
                 # note we check if the type is a list instead of pd.isna because
                 # the polymorphic .isna check in pandas is weird
-                if type(self.feeds_df.loc[start][stories_column]) is list and not overwrite_existing:
-                    logger.info(f'Already have stories for {start} to {end}')
+                if start in self.feeds_df \
+                    and type(self.feeds_df.loc[start][stories_column]) is list \
+                    and not overwrite_existing:
+                    logger.info(f'Already have stories for {start} to {end}')        
                     continue
                 else:
                     logger.info(f'Getting stories for {start} to {end}')
@@ -798,16 +918,25 @@ class AylienSignal(Signal):
         """
         pass
 
-    def summarize(self,
-                  summarizer: Summarizer,
-                  summarization_params=None,
-                  cache_summaries=True,
-                  overwrite_existing=False):
-
+    def summarize(
+        self,
+        start=None,
+        end=None,
+        freq='D',
+        summarizer: Summarizer=None,
+        summarization_params=None,
+        cache_summaries=True,
+        summary_column="summary",
+        overwrite_existing=False
+    ):
+        """
+        Adds summary to each story bucket in signal within specified time range.
+        """                               
         # don't summarize if summaries already exist in df
-        if "summary" in self.feeds_df.columns and not overwrite_existing:
-            logger.info("summaries already exist, not summarizing")
-            return self.feeds_df["summary"]
+        if summary_column in self.feeds_df.columns and not overwrite_existing:
+            if not self.feeds_df[summary_column].isnull().values.any():
+                logger.info("summaries already exist, not summarizing")
+                return self.feeds_df[summary_column]
 
         if self.feeds_df is None:
             raise NoStoriesException(
@@ -815,23 +944,47 @@ class AylienSignal(Signal):
                 "stories, run signal.sample_stories_in_window(start, end) "
                 "with cache_stories=True."
             )
-        if summarization_params is None:
-            summarization_params = {}
-        summaries = []
-        for date_idx in tqdm.tqdm(self.feeds_df.index):
-            stories = self.feeds_df["stories"][date_idx]
-            summary = summarizer(stories, **summarization_params)
-            # summaries are always json-serializable dicts
-            summaries.append(summary.to_dict())
+        summarizer = summarizer or CentralTitleSummarizer()
+        summarization_params = summarization_params or {}
 
+        if start is None:
+            start = self.feeds_df.index.min()
+        elif isinstance(start, str):
+            start = self.normalize_timestamp(start, freq)
+        if end is None:
+            end = self.feeds_df.index.max()
+        elif isinstance(end, str):
+            end = self.normalize_timestamp(end, freq)
+        end = min(end, self.feeds_df.index.max())
+
+        summaries = []
+        for dt in tqdm.tqdm(list(self.date_range(start, end))):            
+            if dt in self.feeds_df \
+                and self.feeds_df.loc[dt].get(summary_column) is not None \
+                and not overwrite_existing:
+                logger.info(f'Already have summary for {start} to {end}')
+                continue
+            else:
+                logger.info(f'Creating summary for {start} to {end}')
+                try:
+                    stories = self.feeds_df["stories"][dt]
+                except:
+                    raise NoStoriesException(
+                        f"Cannot summarize this timestamp because no stories could be found: {dt}"
+                    )
+                summary = summarizer(stories, **summarization_params).to_dict()
+                summaries.append(summary)
         # side effect
         if cache_summaries:
-            self.feeds_df["summary"] = summaries
-        
+            if summary_column not in self.feeds_df:
+                self.feeds_df["summary"] = None                       
+            self.feeds_df.loc[start: end, "summary"] = summaries            
         return summaries
 
-    def add_wikimedia_pageviews_timeseries(
+    def wikimedia_pageviews_timeseries(
         self,
+        start=None,
+        end=None,
         wikimedia_endpoint=None,
         wikidata_client=None,
         overwrite_existing=False,
@@ -841,11 +994,12 @@ class AylienSignal(Signal):
         a query to the wikimedia pageviews API from that. 
 
         For example, if there's no wikidata id in the NewsAPI query, this function should
-        fail noisyly.
-        """
+        fail noisily.
+        """        
         if not overwrite_existing and "wikimedia_pageviews" in self.timeseries_df.columns:
-            logger.info("wikimedia pageviews already exist, not adding")
-            return self
+            if start is None and end is None:
+                logger.info("wikimedia pageviews already exist, not adding")
+                return self
         try:
             wikidata_id = self.params['entity_ids'][0]
         except KeyError:                
@@ -856,17 +1010,26 @@ class AylienSignal(Signal):
                 raise WikidataIDNotFound(
                     "No Wikidata ID found in signal.params or signal.aql"
                 )
-        start = self.timeseries_df.index.min().to_pydatetime()
-        end = self.timeseries_df.index.max().to_pydatetime()
+        start = start or self.start
+        end = end or self.end + pd.Timedelta(days=1)
+        if isinstance(start, str):
+            start = pd.Timestamp(start).tz_localize(tz='UTC')
+        if isinstance(end, str):
+            end = pd.Timestamp(end).tz_localize(tz='UTC')
         pageviews_df = wikimedia_pageviews_timeseries_from_wikidata_id(
-                wikidata_id,
-                start,
-                end,
-                granularity='daily',
-                wikidata_client=wikidata_client,
-                wikimedia_endpoint=wikimedia_endpoint,
-        )        
-        self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].values
+            wikidata_id,
+            start,
+            end,
+            granularity='daily',
+            wikidata_client=wikidata_client,
+            wikimedia_endpoint=wikimedia_endpoint,
+        )
+        if "wikimedia_pageviews" in self.timeseries_df:
+            # assuming this is an update run
+            new_values = pageviews_df["wikimedia_pageviews"].to_list()
+            self.timeseries_df.loc[start: end, "wikimedia_pageviews"] = new_values
+        else:            
+            self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].tolist()
         return self
 
 
