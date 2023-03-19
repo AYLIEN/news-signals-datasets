@@ -4,7 +4,7 @@
 
 These notebooks let you try out `news-signals` without installing anything!
 
-[Find Emerging Categories in a Newsfeed](https://drive.google.com/file/d/1dxDb8oglCoJFnMhhdoUylmMsuchZI9QC/view?usp=share_link)      
+[Find Emerging Categories in a Newsfeed](https://drive.google.com/file/d/1NVBdCfKL3qdSIGITcLsewGETTqn-V9j6/view?usp=share_link)      
 [Searching the Aylien NewsAPI Using An Entity Name](https://drive.google.com/file/d/1zKCSjWqxRJCPWBaGKXt5oQwkOzT8aDSg/view?usp=share_link)      
 [An Overview of News Signals Datasets](https://drive.google.com/file/d/1zM4J3jFA9v2LDTFKOpaa3EUUGhOdQieo/view?usp=share_link)      
 
