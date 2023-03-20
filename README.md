@@ -74,7 +74,7 @@ python bin/generate_dataset.py \
 
 ```
 
-## Transform a Dataset
+## Transforming a Dataset
 
 ```shell
 
