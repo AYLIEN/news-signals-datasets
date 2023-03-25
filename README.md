@@ -76,7 +76,7 @@ python bin/generate_dataset.py \
 
 ## Transforming a Dataset
 
-This example adds anomaly scores, summary headlines and Wikimedia pageviews to each signal in an existing dataset (the transformation is configured via a [config file](resources/default_transform_config.json)). 
+This example adds anomaly scores, summary headlines and Wikimedia pageview counts to each signal in an existing dataset (the transformation is configured via a [config file](resources/default_transform_config.json)). 
 
 
 
