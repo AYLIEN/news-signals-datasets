@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument(
         '--end',
         required=True,
-        help="end date, e.g. 2020-1-1"
+        help="end date, e.g. 2021-1-1"
     )
     parser.add_argument(
         '--input-csv',
@@ -44,7 +44,7 @@ def parse_args():
     parser.add_argument(
         '--name-field',
         default="Wikidata Label",
-        help="column in csv which indicates Wikidata id"
+        help="column in csv which indicates Wikidata Label"
     )
     parser.add_argument(
         '--output-dataset-dir',

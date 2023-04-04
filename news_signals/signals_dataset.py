@@ -423,7 +423,6 @@ def generate_dataset(
     """
     Turn list of signals into a dataset by populating each signal with time
     series and stories using Aylien Newsapi endpoints.
-    The dataset is stored in an SqliteDict database.
     """
 
     if isinstance(input, Path):

@@ -281,16 +281,13 @@ class Signal:
 
         Anomaly detection methods have a threshold
         For aggregate signals, we may sometimes want to set _different_ thresholds
-        for each anomaly signal
 
-        :param: history_length: history length
-        :param: history_interval: history interval (months, days, hours, ...)
         """
 
         # if user didn't supply start and end, we want signal to have enough data that 
         # we can take the first part and use it to compute necessary stats to do the 
         # anomaly transformation on the rest of the signal
-        if not overwrite_existing and 'anomalies' in self.timeseries_df.columns:
+        if not overwrite_existing and self.timeseries_df is not None and 'anomalies' in self.timeseries_df.columns:
             return self
             
         if start is None:
