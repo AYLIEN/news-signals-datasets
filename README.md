@@ -70,6 +70,8 @@ Use the provided Make task and specify the dataset generation settings in the co
 make create-dataset DATASET_CONFIG=resources/sample-dataset-config.json
 ```
 
+Note that this requires a NewsAPI subscription because we retrieve and store news articles from the NewsAPI `stories` endpoint when generating a dataset.
+
 Here are the configurations of our example datasets:
 - [dataset-config-nasdaq100.json](resources/dataset-config-nasdaq100.json)
 - [dataset-config-smp500.json](resources/dataset-config-smp500.json)
@@ -78,7 +80,6 @@ This is how these datasets were created:
 ```shell
 make create-dataset DATASET_CONFIG=resources/dataset-config-nasdaq100.json
 make create-dataset DATASET_CONFIG=resources/dataset-config-smp500.json
-
 ```
 
 
