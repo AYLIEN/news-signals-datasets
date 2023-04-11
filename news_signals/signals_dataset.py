@@ -418,6 +418,7 @@ def generate_dataset(
     stories_endpoint=newsapi.retrieve_stories,
     ts_endpoint=newsapi.retrieve_timeseries,
     post_process_story=None,
+    compress=True,
 ):
 
     """
@@ -500,4 +501,8 @@ def generate_dataset(
             ts_path.unlink()
             stories_path.unlink()
 
-    return SignalsDataset.load(output_dataset_dir)
+    dataset = SignalsDataset.load(output_dataset_dir)
+    if compress:
+        shutil.rmtree(output_dataset_dir)
+        dataset.save(output_dataset_dir, compress=compress)
+    return dataset

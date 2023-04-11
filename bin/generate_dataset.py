@@ -16,6 +16,7 @@ def main(args):
         name_field=args.name_field,
         overwrite=args.overwrite,
         delete_tmp_files=True,
+        compress=True,
     )
 
 
