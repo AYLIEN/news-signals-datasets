@@ -64,28 +64,21 @@ make test   # run tests
 
 ## Generating a new Dataset
 
-```shell
+Use the provided Make task and specify the dataset generation settings in the config json file:
 
-python bin/generate_dataset.py \
-    --start 2022/01/01 \
-    --end 2022/02/01 \
-    --input-csv resources/test/nasdaq100.small.csv \
-    --id-field "Wikidata ID" \
-    --name-field "Wikidata Label" \
-    --output-dataset-dir sample_dataset_output
+```shell
+make create-dataset DATASET_CONFIG=resources/sample-dataset-config.json
+```
+
+Here are the configurations of our example datasets:
+- [dataset-config-nasdaq100.json](resources/dataset-config-nasdaq100.json)
+- [dataset-config-smp500.json](resources/dataset-config-smp500.json)
+
+This is how these datasets were created:
+```shell
+make create-dataset DATASET_CONFIG=resources/dataset-config-nasdaq100.json
+make create-dataset DATASET_CONFIG=resources/dataset-config-smp500.json
 
 ```
 
-## Transforming a Dataset
 
-This example adds anomaly scores, summary headlines and Wikimedia pageview counts to each signal in an existing dataset (the transformation is configured via a [config file](resources/default_transform_config.json)). 
-
-
-
-```shell
-
-python bin/transform_dataset.py \
-    --input-dataset-dir sample_dataset_output \
-    --config resources/default_transform_config.json
-
-```
