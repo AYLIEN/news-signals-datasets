@@ -1,0 +1,33 @@
+{
+    "dataset_generation": {
+        "start": "2020-01-01",
+        "end": "2023-01-01",
+        "input": "resources/nasdaq100wiki.csv",
+        "output_dataset_dir": "dataset-nasdaq100",
+        "id_field": "Wikidata ID",
+        "name_field": "Wikidata Label",
+        "compress": true
+    },
+    "dataset_transformation": [
+        {
+            "transform": "add_anomalies",
+            "params": {
+                "overwrite_existing": true
+            }
+        },
+        {
+            "transform": "add_summaries",
+            "params": {
+                "summarizer": "CentralTitleSummarizer",
+                "summarization_params": {},
+                "overwrite_existing": true
+            }
+        },
+        {
+            "transform": "add_wikimedia_pageviews",
+            "params": {
+                "overwrite_existing": true
+            }
+        }   
+    ]    
+}
