@@ -70,6 +70,9 @@ Generate a new signals dataset as follows:
 make create-dataset DATASET_CONFIG=resources/sample-dataset-config.json
 ```
 
-The config file specifies all relevant settings for a dataset, e.g. time range.
+The config file specifies all relevant settings for a dataset, e.g. time range. Some examples that we used to create our provided example datasets:
+- [dataset-config-nasdaq100.json](resources/dataset-config-nasdaq100.json)
+- [dataset-config-smp500.json](resources/dataset-config-smp500.json)
+
 
 A more detailed guide on generating new datasets is here: [dataset-generation.md](dataset-generation.md)
