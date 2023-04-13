@@ -67,7 +67,7 @@ make test   # run tests
 Generate a new signals dataset as follows:
 
 ```shell
-make create-dataset DATASET_CONFIG=resources/sample-dataset-config.json
+make create-dataset DATASET_CONFIG=resources/dataset-config-example.json
 ```
 
 The config file specifies all relevant settings for a dataset, e.g. time range. Some examples that we used to create our provided example datasets:
