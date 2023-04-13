@@ -19,8 +19,8 @@ The `make create-dataset` task runs [bin/generate_dataset.py](bin/generate_datas
 Example of a dataset generation config file:
 ```json
 {
-    "start": "2023-01-01",
-    "end": "2023-01-07",
+    "start": "2020-01-01",
+    "end": "2023-01-01",
     "input": "resources/nasdaq100wiki.csv",
     "output_dataset_dir": "dataset-nasdaq100",
     "id_field": "Wikidata ID",
