@@ -1,14 +1,12 @@
 {
-    "dataset_generation": {
-        "start": "2020-01-01",
-        "end": "2023-01-01",
-        "input": "resources/smp500wiki.csv",
-        "output_dataset_dir": "dataset-smp500",
-        "id_field": "Wikidata ID",
-        "name_field": "Wikidata Label",
-        "compress": true
-    },
-    "dataset_transformation": [
+    "start": "2020-01-01",
+    "end": "2023-01-01",
+    "input": "resources/smp500wiki.csv",
+    "output_dataset_dir": "dataset-smp500",
+    "id_field": "Wikidata ID",
+    "name_field": "Wikidata Label",
+    "compress": true,
+    "transformations": [
         {
             "transform": "add_anomalies",
             "params": {
