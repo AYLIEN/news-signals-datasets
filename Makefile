@@ -53,7 +53,7 @@ docs-serve:
 # DATASET GENERATION #
 ######################
 
-DATASET_CONFIG ?= "resources/sample-dataset-config.json"
+DATASET_CONFIG ?= "resources/dataset-config-example.json"
 
 .PHONY: create-dataset
 create-dataset:
