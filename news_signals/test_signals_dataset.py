@@ -106,7 +106,8 @@ class TestDatasetGeneration(unittest.TestCase):
             name_field="Wikidata Label",
             delete_tmp_files=True,
             stories_endpoint=self.stories_endpoint,
-            ts_endpoint=self.ts_endpoint,            
+            ts_endpoint=self.ts_endpoint,
+            compress=False
         )
 
     def test_generate_dataset(self):

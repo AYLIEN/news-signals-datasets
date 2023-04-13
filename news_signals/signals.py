@@ -419,8 +419,7 @@ class Signal:
                 v.to_parquet(datadir / f'{signal_id}.{k}.parquet', index=True)
 
     @staticmethod
-    def load(signals_path):
-
+    def load(signals_path):        
         signals_dir = Path(signals_path)
         assert os.path.isdir(signals_dir), 'Signals load paths must be directories'
 

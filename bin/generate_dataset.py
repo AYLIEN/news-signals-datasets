@@ -18,7 +18,7 @@ def main(args):
         config = json.load(f)
 
     output_dataset_path = Path(config["output_dataset_dir"])
-
+    logger.info(f"Beginning dataset generation with config {config}") 
     dataset = generate_dataset(
         input=Path(config["input"]),
         output_dataset_dir=output_dataset_path,
@@ -30,7 +30,7 @@ def main(args):
         overwrite=args.overwrite,
         delete_tmp_files=True,
         compress=True,
-    )
+    )    
 
     if config.get("transformations"):
         for t in config["transformations"]:
@@ -38,10 +38,8 @@ def main(args):
             transform = get_dataset_transform(t['transform'])
             transform(dataset, **t['params'])
     
-    if config.get("compress"):
-        dataset.save(output_dataset_path, overwrite=True, compress=True)
-    else:
-        dataset.save(output_dataset_path, overwrite=True)
+    dataset.save(output_dataset_path, overwrite=True, compress=True)
+    logger.info(f"Finished dataset generation, dataset saved here: {output_dataset_path}.tar.gz")
 
 
 def parse_args():

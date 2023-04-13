@@ -5,7 +5,7 @@
     "output_dataset_dir": "sample_dataset_output",
     "id_field": "Wikidata ID",
     "name_field": "Wikidata Label",
-    "compress": true,
+    "stories_per_day": 10,
     "transformations": [
         {
             "transform": "add_anomalies",

@@ -6,7 +6,6 @@
     "id_field": "Wikidata ID",
     "name_field": "Wikidata Label",
     "stories_per_day": 20,
-    "compress": true, 
     "transformations": [
         {
             "transform": "add_anomalies",
