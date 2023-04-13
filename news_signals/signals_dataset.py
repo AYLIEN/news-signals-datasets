@@ -122,7 +122,7 @@ class SignalsDataset:
 
     def save(self, dataset_path, compress=True, overwrite=False):
         dataset_path = Path(dataset_path)
-        if overwrite and not dataset_path.is_dir():
+        if (overwrite and dataset_path.exists()) and not dataset_path.is_dir():
             dataset_path.unlink()
         dataset_path.mkdir(parents=True, exist_ok=overwrite)
         for signal in self.signals.values():
@@ -138,7 +138,8 @@ class SignalsDataset:
                 root_dir=dataset_path.parent,
                 base_dir=dataset_path.name
             )
-            shutil.rmtree(dataset_path)
+            if dataset_path.exists():
+                shutil.rmtree(dataset_path)
             logger.info(f'Saved compressed dataset to {dataset_path}.tar.gz')
             return f'{dataset_path}.tar.gz'
         else:

@@ -54,9 +54,16 @@ def add_wikimedia_pageviews(
     return dataset
 
 
+REGISTRY = {
+    "add_anomalies": add_anomalies,
+    "add_summaries": add_summaries,
+    "add_wikimedia_pageviews": add_wikimedia_pageviews
+}
+
+
 def get_dataset_transform(func_name):
     try:
-        func = globals()[func_name]
+        func = REGISTRY[func_name]
     except:
         raise NotImplementedError(f'Unknown transformation function: {func_name}')
     return func

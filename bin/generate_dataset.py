@@ -1,61 +1,59 @@
 import argparse
+import json
+import logging
 from pathlib import Path
 
 import arrow
 
 from news_signals.signals_dataset import generate_dataset
+from news_signals.dataset_transformations import get_dataset_transform
+from news_signals.log import create_logger
+
+
+logger = create_logger(__name__, level=logging.INFO)
 
 
 def main(args):
-    generate_dataset(
-        input=Path(args.input_csv),
-        output_dataset_dir=Path(args.output_dataset_dir),
-        start=arrow.get(args.start).datetime,
-        end=arrow.get(args.end).datetime,
-        id_field=args.id_field,
-        name_field=args.name_field,
+    with open(args.config) as f:
+        config = json.load(f)
+
+    output_dataset_path = Path(config["output_dataset_dir"])
+    logger.info(f"Beginning dataset generation with config {config}") 
+    dataset = generate_dataset(
+        input=Path(config["input"]),
+        output_dataset_dir=output_dataset_path,
+        start=arrow.get(config["start"]).datetime,
+        end=arrow.get(config["end"]).datetime,
+        stories_per_day=config["stories_per_day"],
+        id_field=config["id_field"],
+        name_field=config["name_field"],
         overwrite=args.overwrite,
         delete_tmp_files=True,
         compress=True,
-    )
+    )    
+
+    if config.get("transformations"):
+        for t in config["transformations"]:
+            logger.info(f"Applying transformation to dataset: {t['transform']}")
+            transform = get_dataset_transform(t['transform'])
+            transform(dataset, **t['params'])
+    
+    dataset.save(output_dataset_path, overwrite=True, compress=True)
+    logger.info(f"Finished dataset generation, dataset saved here: {output_dataset_path}.tar.gz")
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--start',
+        '--config',
         required=True,
-        help="start date, e.g. 2020-1-1"
-    )
-    parser.add_argument(
-        '--end',
-        required=True,
-        help="end date, e.g. 2021-1-1"
-    )
-    parser.add_argument(
-        '--input-csv',
-        required=True,
-        help="csv file with entities"
-    )
-    parser.add_argument(
-        '--id-field',
-        default="Wikidata ID",
-        help="column in csv which indicates Wikidata id"
-    )
-    parser.add_argument(
-        '--name-field',
-        default="Wikidata Label",
-        help="column in csv which indicates Wikidata Label"
-    )
-    parser.add_argument(
-        '--output-dataset-dir',
-        required=True,
-        help="dir where dataset is stored"
-    )
+        help="config json file containing all settings to create new dataset"
+    ),
     parser.add_argument(
         '--overwrite',
         action="store_true",
-    )
+        help="whether to overwrite previous dataset if present at output_dataset_dir"
+    )    
     return parser.parse_args()
 
 

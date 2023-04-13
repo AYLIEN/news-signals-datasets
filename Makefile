@@ -49,30 +49,12 @@ docs-serve:
 	mkdocs serve
 
 
-############################################
-# Datascience Project Quickstarter Tooling #
-############################################
+######################
+# DATASET GENERATION #
+######################
 
-# see https://github.com/AYLIEN/datascience-project-quickstarter for more info
-# on these Makefile commands
-PROJECT_DIR ?= new-project
-PKG_NAME ?= new_pkg
-PORT ?= 8000
-CONTAINER := news_signals
-VERSION ?= `cat VERSION`
-DEMO_NAME ?= new-demo
+DATASET_CONFIG ?= "resources/dataset-config-example.json"
 
-# initialize a new project
-.PHONY: new-project
-new-project:
-	python templates/create_project.py \
-		--project-dir $(PROJECT_DIR) \
-		--pkg-name $(PKG_NAME)
-
-
-# initialize a new demo within current project
-.PHONY: new-demo
-new-demo:
-	python templates/create_demo.py --dirname $(DEMO_NAME)
-	echo "Finished creating new demo: $(DEMO_NAME)"
-	echo "To run, do: cd demos/$(DEMO_NAME) && make run"
+.PHONY: create-dataset
+create-dataset:
+	python bin/generate_dataset.py --config $(DATASET_CONFIG)

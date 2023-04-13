@@ -1,0 +1,31 @@
+{
+    "start": "2020-01-01",
+    "end": "2023-01-01",
+    "input": "resources/smp500wiki.csv",
+    "output_dataset_dir": "dataset-smp500",
+    "id_field": "Wikidata ID",
+    "name_field": "Wikidata Label",
+    "stories_per_day": 20,
+    "transformations": [
+        {
+            "transform": "add_anomalies",
+            "params": {
+                "overwrite_existing": true
+            }
+        },
+        {
+            "transform": "add_summaries",
+            "params": {
+                "summarizer": "CentralTitleSummarizer",
+                "summarization_params": {},
+                "overwrite_existing": true
+            }
+        },
+        {
+            "transform": "add_wikimedia_pageviews",
+            "params": {
+                "overwrite_existing": true
+            }
+        }   
+    ]    
+}
