@@ -17,27 +17,27 @@ def main(args):
     with open(args.config) as f:
         config = json.load(f)
 
-    output_dataset_path = Path(config["dataset_generation"]["output_dataset_dir"])
+    output_dataset_path = Path(config["output_dataset_dir"])
 
     dataset = generate_dataset(
-        input=Path(config["dataset_generation"]["input"]),
+        input=Path(config["input"]),
         output_dataset_dir=output_dataset_path,
-        start=arrow.get(config["dataset_generation"]["start"]).datetime,
-        end=arrow.get(config["dataset_generation"]["end"]).datetime,
-        id_field=config["dataset_generation"]["id_field"],
-        name_field=config["dataset_generation"]["name_field"],
+        start=arrow.get(config["start"]).datetime,
+        end=arrow.get(config["end"]).datetime,
+        id_field=config["id_field"],
+        name_field=config["name_field"],
         overwrite=args.overwrite,
         delete_tmp_files=True,
         compress=True,
     )
 
-    if config.get("dataset_transformation"):
-        for t in config["dataset_transformation"]:
+    if config.get("transformations"):
+        for t in config["transformations"]:
             logger.info(f"Applying transformation to dataset: {t['transform']}")
             transform = get_dataset_transform(t['transform'])
             transform(dataset, **t['params'])
     
-    if config["dataset_generation"].get("compress"):    
+    if config.get("compress"):
         dataset.save(output_dataset_path, overwrite=True, compress=True)
     else:
         dataset.save(output_dataset_path, overwrite=True)
