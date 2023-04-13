@@ -24,6 +24,7 @@ def main(args):
         output_dataset_dir=output_dataset_path,
         start=arrow.get(config["start"]).datetime,
         end=arrow.get(config["end"]).datetime,
+        stories_per_day=config["stories_per_day"],
         id_field=config["id_field"],
         name_field=config["name_field"],
         overwrite=args.overwrite,
