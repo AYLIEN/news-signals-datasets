@@ -64,22 +64,12 @@ make test   # run tests
 
 ## Generating a new Dataset
 
-Use the provided Make task and specify the dataset generation settings in the config json file:
+Generate a new signals dataset as follows:
 
 ```shell
 make create-dataset DATASET_CONFIG=resources/sample-dataset-config.json
 ```
 
-Note that this requires a NewsAPI subscription because we retrieve and store news articles from the NewsAPI `stories` endpoint when generating a dataset.
+The config file specifies all relevant settings for a dataset, e.g. time range.
 
-Here are the configurations of our example datasets:
-- [dataset-config-nasdaq100.json](resources/dataset-config-nasdaq100.json)
-- [dataset-config-smp500.json](resources/dataset-config-smp500.json)
-
-This is how these datasets were created:
-```shell
-make create-dataset DATASET_CONFIG=resources/dataset-config-nasdaq100.json
-make create-dataset DATASET_CONFIG=resources/dataset-config-smp500.json
-```
-
-
+A more detailed guide on generating new datasets is here: [dataset-generation.md](dataset-generation.md)
