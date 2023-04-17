@@ -64,6 +64,6 @@ REGISTRY = {
 def get_dataset_transform(func_name):
     try:
         func = REGISTRY[func_name]
-    except:
+    except KeyError as _:
         raise NotImplementedError(f'Unknown transformation function: {func_name}')
     return func
