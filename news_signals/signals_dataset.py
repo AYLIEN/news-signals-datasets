@@ -476,10 +476,12 @@ def generate_dataset(
         # we save TS and stories to make continuation of the 
         # dataset generation process easier if it gets interrupted
         # by an error.
+        logger.info("retrieving time series")
         ts = retrieve_and_write_timeseries(
             params, start, end, ts_path,
             ts_endpoint=ts_endpoint
         )
+        logger.info("retrieving stories")
         retrieve_and_write_stories(
             params,
             start, end,
@@ -492,10 +494,13 @@ def generate_dataset(
 
         # now this signal is completely realized
         stories_df = df_from_jsonl_buckets(stories_path)
-        ts_df = aylien_ts_to_df({"time_series": ts}, dt_index=True)        
+        ts_df = aylien_ts_to_df({"time_series": ts}, dt_index=True)
         signal.timeseries_df = ts_df
         signal.feeds_df = stories_df
+        logger.info(f"saving signal: {signal.name}")
         signal.save(output_dataset_dir)
+        # clear memory
+        del signal.feeds_df, signal.timeseries_df
 
         # delete temporary files
         if delete_tmp_files:
