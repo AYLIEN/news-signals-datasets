@@ -86,8 +86,11 @@ def make_newsapi_request(
                 f" Waiting {wait_seconds} seconds. Trial: {i}/{trials}"
             )
             time.sleep(wait_seconds)
+        except json.decoder.JSONDecodeError as e:
+            logger.error(f"exception from decoding this json: {response.text}")
+            raise e
         except Exception as e:
-            logger.error("uncaught exception validating request: {e}")
+            logger.error("uncaught exception validating request")
             raise e
 
 
