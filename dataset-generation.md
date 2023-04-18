@@ -1,6 +1,9 @@
-## Generating a New Signals-Dataset
+## Generating a new Signals Dataset
 
-Generate a new signals dataset as follows:
+A signals dataset groups multiple signals together.
+Signals dataset generation can be controlled via json config files. 
+
+For example:
 
 ```shell
 make create-dataset DATASET_CONFIG=resources/dataset-config-example.json
