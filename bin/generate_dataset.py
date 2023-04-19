@@ -5,7 +5,7 @@ from pathlib import Path
 
 import arrow
 
-from news_signals.signals_dataset import generate_dataset
+from news_signals.signals_dataset import generate_dataset, reduce_aylien_story
 from news_signals.dataset_transformations import get_dataset_transform
 from news_signals.log import create_logger
 
@@ -30,6 +30,7 @@ def main(args):
         overwrite=args.overwrite,
         delete_tmp_files=True,
         compress=True,
+        post_process_story=reduce_aylien_story
     )    
 
     if config.get("transformations"):
