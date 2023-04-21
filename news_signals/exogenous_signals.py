@@ -123,10 +123,10 @@ def wikimedia_pageviews_timeseries_from_wikipedia_link(
 
     url_date_format = "%Y%m%d00"
     assert granularity in ["daily", "monthly"]
-    start = start.strftime(url_date_format)
-    end = end.strftime(url_date_format)
+    start_ = start.strftime(url_date_format)
+    end_ = end.strftime(url_date_format)
     page_name = wikipedia_link.split("/")[-1]
-    url = f"https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/{language}.wikipedia/all-access/all-agents/{page_name}/{granularity}/{start}/{end}"
+    url = f"https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/{language}.wikipedia/all-access/all-agents/{page_name}/{granularity}/{start_}/{end_}"
     df = None
     try:
         response = endpoint(url, headers=wikimedia_headers)        
@@ -138,6 +138,8 @@ def wikimedia_pageviews_timeseries_from_wikipedia_link(
             for item in response["items"]
         ]
         df = ts_records_to_ts_df(records)
+        date_range = pd.date_range(start=start, end=end, freq="D")
+        df = df.reindex(date_range, fill_value=0)
     except KeyError:
         logger.error(response)
     return df
