@@ -100,7 +100,7 @@ def wikipedia_link_from_wikidata_id(
         entity_data = client(wikidata_id)
         url = entity_data['sitelinks']['enwiki']['url']
     except KeyError:
-        logger.error(f'Error: no wikipedia url found for entity data: {entity.data}')
+        logger.error(f'Error: no wikipedia url found for entity data: {entity_data}')
     except urllib.error.HTTPError as e:
         logger.error(f'Error retrieving wikidata entity: {wikidata_id}')    
     return url
