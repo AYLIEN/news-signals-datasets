@@ -1,8 +1,8 @@
 {
     "start": "2020-01-01",
     "end": "2023-01-01",
-    "input": "resources/entity-lists/smp500.csv",
-    "output_dataset_dir": "dataset-smp500",
+    "input": "resources/entity-lists/us-politicians.csv",
+    "output_dataset_dir": "dataset-us-politicians",
     "id_field": "Wikidata ID",
     "name_field": "Wikidata Label",
     "stories_per_day": 20,

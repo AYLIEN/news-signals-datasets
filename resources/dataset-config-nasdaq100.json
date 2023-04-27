@@ -1,7 +1,7 @@
 {
     "start": "2020-01-01",
     "end": "2023-01-01",
-    "input": "resources/nasdaq100wiki.csv",
+    "input": "resources/entity-lists/nasdaq100.csv",
     "output_dataset_dir": "dataset-nasdaq100",
     "id_field": "Wikidata ID",
     "name_field": "Wikidata Label",
