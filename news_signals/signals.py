@@ -432,29 +432,44 @@ class Signal:
         for k, v in signal_dict.items():
             if type(v) is pd.DataFrame:
                 v.to_parquet(datadir / f'{signal_id}.{k}.parquet', index=True)
+        
+        signal_prefix = str(datadir / signal_id)
+        return signal_prefix
+    
+    @staticmethod
+    def load_from_signal_config(signal_config_path):
+        signal_config_path = Path(signal_config_path)
+        assert signal_config_path.is_file(), f'signal config {signal_config_path} not found'
+        with open(signal_config_path) as f:
+            signal_config = json.load(f)
+        signal_id = str(signal_config_path.name).split('.')[0]
+        # load signal dataframes from parquet files
+        parent_dir = signal_config_path.parent
+        df_paths = [p.name for p in parent_dir.glob(f'{signal_id}.*.parquet')]
+        for df_path in df_paths:
+            df_key = str(df_path).split('.')[1]
+            df = pd.read_parquet(parent_dir / df_path)
+            # if the df index is not already datetime64, cast it
+            if not df.index.inferred_type == "datetime64":
+                df.index = pd.to_datetime(df.index)
+            signal_config[df_key] = df
+        return Signal.from_dict(signal_config)
 
     @staticmethod
     def load(signals_path):        
-        signals_dir = Path(signals_path)
-        assert os.path.isdir(signals_dir), 'Signals load paths must be directories'
+        signals_path = Path(signals_path)
+        if os.path.isdir(signals_path):
+            signals_dir = Path(signals_path)
 
-        static_config_paths = signals_dir.glob('*.static_fields.json')
-        signals = []
-        for signal_config_path in static_config_paths:
-            with open(signal_config_path) as f:
-                signal_config = json.load(f)
-            signal_id = str(signal_config_path.name).split('.')[0]
-            # load signal dataframes from parquet files
-            df_paths = [p.name for p in signals_dir.glob(f'{signal_id}.*.parquet')]
-            for df_path in df_paths:
-                df_key = str(df_path).split('.')[1]
-                df = pd.read_parquet(signals_dir / df_path)
-                # if the df index is not already datetime64, cast it
-                if not df.index.inferred_type == "datetime64":
-                    df.index = pd.to_datetime(df.index)
-                signal_config[df_key] = df
-            signals.append(Signal.from_dict(signal_config))            
-        return signals
+            static_config_paths = signals_dir.glob('*.static_fields.json')
+            signals = []
+            for signal_config_path in static_config_paths:
+                signals.append(Signal.load_from_signal_config(signal_config_path))            
+            return signals
+        else:
+            assert str(signals_path).endswith('.static_fields.json'), f'expected a static_fields.json file, got {signals_path}'
+            assert signals_path.is_file(), f'signal config {signals_path} not found'
+            return Signal.load_from_signal_config(signals_path)
 
     @property
     def id(self):
