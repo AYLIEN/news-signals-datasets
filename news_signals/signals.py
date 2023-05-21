@@ -132,6 +132,14 @@ class Signal:
         df['signal_name'] = self.name
         df['freq'] = self.infer_freq()
         return df
+    
+    @property
+    def start(self):
+        return self.df.index.min()
+
+    @property
+    def end(self):
+        return self.df.index.max()
 
     @abstractmethod
     def inputs(self):
@@ -190,14 +198,21 @@ class Signal:
             )
 
     def infer_freq(self):
-        if getattr(self, 'timeseries_df', None) is not None:
-            return pd.infer_freq(self.timeseries_df.index)
-        elif getattr(self, 'feeds_df', None) is not None:
-            return pd.infer_freq(self.feeds_df.index)
-        else:
-            raise NotImplementedError(
-                'infer_freq() is not implemented for this signal type'
+        try:
+            if getattr(self, 'timeseries_df', None) is not None:
+                return pd.infer_freq(self.timeseries_df.index)
+            elif getattr(self, 'feeds_df', None) is not None:
+                return pd.infer_freq(self.feeds_df.index)
+            else:
+                raise NotImplementedError(
+                    'infer_freq() is not implemented for this signal type'
+                )
+        except ValueError as e:
+            logger.warning(
+                f'Could not infer frequency for signal {self.name}, '
+                'this may be because the signal has no data, returning default freq = \'D\''
             )
+            return 'D'
 
     def significant_windows(
             self, min_value=1., min_delta=3, window_range=1,
@@ -470,6 +485,13 @@ class Signal:
         Return the start timestamp of the signal
         """
         return self.timeseries_df.index.max()
+    
+    @property
+    def freq(self):
+        """
+        Return the frequency of the signal
+        """
+        return pd.infer_freq(self.timeseries_df.index)
 
 
 class DataframeSignal(Signal):
@@ -620,7 +642,6 @@ class AylienSignal(Signal):
 
         return self
 
-
     @staticmethod
     def pd_freq_to_aylien_period(freq):
         if freq == 'D':
@@ -719,6 +740,17 @@ class AylienSignal(Signal):
             start, end, sample_per_tick=True
         )
         return self.to_dict()
+    
+    def sample_stories(self, num_stories=10, **kwargs):
+        """
+        sample stories for every tick of this signal
+        """
+        self.sample_stories_in_window(
+            self.start, self.end,
+            sample_per_tick=True, freq=self.freq, num_stories=num_stories,
+            **kwargs
+        )
+        return self
 
     @staticmethod
     def normalize_aylien_story(story):
@@ -759,16 +791,22 @@ class AylienSignal(Signal):
             date_range = self.date_range(start, end)
             start_end_tups = [(s, e) for s, e in zip(list(date_range), list(date_range)[1:])]
             for start, end in tqdm.tqdm(start_end_tups):
-                # note we check if the type is a list instead of pd.isna because
-                # the polymorphic .isna check in pandas is weird
-                if type(self.feeds_df.loc[start][stories_column]) is list and not overwrite_existing:
-                    logger.info(f'Already have stories for {start} to {end}')
-                    continue
-                else:
-                    logger.info(f'Getting stories for {start} to {end}')
-                    params = self.make_query(start, end)
-                    stories = [self.normalize_aylien_story(s) for s in self.stories_endpoint(params)]
-                    story_bucket_records.append({'timestamp': start, stories_column: stories})
+                # Note the polymorphic .isnull check from pandas won't work with arrays, thus try/except
+                if not overwrite_existing:
+                    try:
+                        current_value = self.feeds_df.loc[start][stories_column]
+                        # nans will be floats
+                        if not type(current_value) is float:
+                            if len(current_value) > 0:
+                                raise ValueError
+                    except ValueError:
+                        logger.info(f'Already have stories for {start} to {end}')
+                        continue
+                
+                logger.info(f'Getting stories for {start} to {end}')
+                params = self.make_query(start, end)
+                stories = [self.normalize_aylien_story(s) for s in self.stories_endpoint(params)]
+                story_bucket_records.append({'timestamp': start, stories_column: stories})
         else:
             params = self.make_query(start, end)
             stories = [self.normalize_aylien_story(s) for s in self.stories_endpoint(params)]

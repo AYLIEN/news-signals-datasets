@@ -103,6 +103,20 @@ class TestSignal(SignalTest):
         # these dates aren't cached on the signal
         df = signal[start:end]
         assert len(df) == 0
+
+    def test_signal_start_end_properties(self):
+        """
+        Test that we can get the start and end dates of a signal
+        """
+        signal = self.aylien_signals()[0]
+        assert len(signal.date_range(signal.start, signal.end)) == len(signal) == len(signal.df)
+
+    def test_freq_property(self):
+        """
+        Test that we can access the frequency of a signal
+        """
+        signal = self.aylien_signals()[0]
+        assert signal.freq == 'D'
     
 
 class TestDataframeSignal(SignalTest):
@@ -393,6 +407,33 @@ class TestAylienSignal(SignalTest):
         date_range = signals.Signal.date_range(start, end)
         assert all(len(s) == stories_per_tick for s in signal_with_stories.feeds_df['stories'] if type(s) is list)
         assert len(signal_with_stories) == len(date_range) - 1
+
+    def test_sampling_stories_for_all_ticks(self):
+        signal = self.aylien_signals()[0]
+        # dynamically set mock endpoint payload
+        stories_per_tick = 3
+        payload = {
+            'stories': [
+                {'title': 'title', 'body': 'body', 'published_at': '2021-08-02T01:05:00Z'}
+                for _ in range(stories_per_tick)
+            ]
+        }
+        signal.params = payload
+
+        # we should already have stories for most ticks
+        # so the endpoint should not be called for most ticks
+        num_ticks_without_stories = len([s for s in signal.df['stories'] if len(s) == 0])
+        stories_endpoint_mock = MockEndpoint()
+        signal.stories_endpoint = stories_endpoint_mock
+        _ = signal.sample_stories()
+        assert stories_endpoint_mock.num_calls == num_ticks_without_stories
+
+        # reset mock endpoint
+        stories_endpoint_mock.num_calls = 0
+
+        _ = signal.sample_stories(overwrite_existing=True)
+        assert stories_endpoint_mock.num_calls == \
+            len(signal.date_range(signal.start, signal.end, freq=signal.freq)) - 1
 
     def test_summarize(self):
         signal, _, _, stories = self.setup_summarization_tests()
