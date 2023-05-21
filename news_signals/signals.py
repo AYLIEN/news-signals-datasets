@@ -425,16 +425,15 @@ class Signal:
         }
         # make type json serializable
         static_fields['type'] = type(self).__name__
-        with open(datadir / f'{signal_id}.static_fields.json', 'w') as out:
+        signal_config_file = datadir / f'{signal_id}.static_fields.json'
+        with open(signal_config_file, 'w') as out:
             out.write(json.dumps(static_fields, indent=2))
 
         # "time indexed columns" are ones that are in dfs in the original signal
         for k, v in signal_dict.items():
             if type(v) is pd.DataFrame:
                 v.to_parquet(datadir / f'{signal_id}.{k}.parquet', index=True)
-        
-        signal_prefix = str(datadir / signal_id)
-        return signal_prefix
+        return signal_config_file
     
     @staticmethod
     def load_from_signal_config(signal_config_path):
