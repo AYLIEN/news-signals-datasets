@@ -62,6 +62,25 @@ pip install -e . # install in editable mode
 make test   # run tests
 ```
 
+## Setting up Aylien NewsAPI credentials
+
+The news-signals library looks for environment variables called 
+`'NEWSAPI_APP_ID'` and `'NEWSAPI_APP_KEY'` - these are used to authenticate to the NewsAPI. 
+
+One way to set these variables up for local development is to 
+Put your Aylien NewsAPI credentials in a file called `~/.aylienconfig`
+`.aylienconfig`
+```
+app-id=<your-app-id>
+app-key=<your-app-key>
+```
+
+Then put the following in your `.bashrc` or similar shell config file:
+```
+export NEWSAPI_APP_ID=$(cat ~/.aylienconfig | grep "app-id" | cut -d'=' -f2)
+export NEWSAPI_APP_KEY=$(cat ~/.aylienconfig| grep "app-key" | cut -d'=' -f2)
+```
+
 ## Generating a new Dataset
 
 Generate a new signals dataset as follows:
