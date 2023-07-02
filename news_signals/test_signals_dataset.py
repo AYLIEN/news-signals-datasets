@@ -146,7 +146,6 @@ class TestDatasetGeneration(unittest.TestCase):
             'source.locations.country[]': 'US',
             'language': 'en'
         }
-        # TODO: mock newsapi
         signal = signals.AylienSignal(
             name=name,
             params=params
