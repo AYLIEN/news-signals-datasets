@@ -460,6 +460,8 @@ def generate_dataset(
                 f"Unknown function for processing stories: {post_process_story}"
             )
 
+    # Note this function creates queries from signals, but it
+    # does not use the __call__ method implemented on Signal objects.
     for signal in tqdm.tqdm(signals_):
         if signal_exists(signal, output_dataset_dir):
             logger.info("signal exists already, skipping to next")

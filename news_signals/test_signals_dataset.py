@@ -134,6 +134,40 @@ class TestDatasetGeneration(unittest.TestCase):
             assert signal.params is not None
             assert signal.name is not None
             assert signal.id is not None              
+ 
+    def test_signals_dataset_from_initialized_signals(self):
+        # test that we can create a dataset from signals initialized
+        # elsewhere
+        start = datetime.datetime(2023, 3, 1)
+        end = datetime.datetime(2023, 5, 20)
+        name = 'biz-crime-usa-constrained'
+        params = {
+            'categories': ['ay.biz.crime'],
+            'source.locations.country[]': 'US',
+            'language': 'en'
+        }
+        # TODO: mock newsapi
+        signal = signals.AylienSignal(
+            name=name,
+            params=params
+        )
+  
+        signals_dataset.generate_dataset(
+            input=[signal],
+            output_dataset_dir=Path(self.output_dataset_dir),
+            start=start,
+            end=end,
+            stories_per_day=50,
+            delete_tmp_files=True,
+            stories_endpoint=self.stories_endpoint,
+            ts_endpoint=self.ts_endpoint,
+            compress=False
+        )
+        dataset = signals_dataset.SignalsDataset.load(self.output_dataset_dir)
+        assert list(dataset.signals.values())[0].name == name
+        difference = end - start
+        days = difference.days + 1  # to include the start date
+        assert len(list(dataset.signals.values())[0]) == days
 
     def test_signal_exists(self):
         self.generate_sample_dataset()

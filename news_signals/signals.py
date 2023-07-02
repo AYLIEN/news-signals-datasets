@@ -974,7 +974,7 @@ class AggregateSignal(Signal):
             ts_df.set_index('normalized_index', drop=True, inplace=True)
         assert all(len(c) == len(realized_components[0]) for c in realized_components)
         return pd.concat(
-            [s.timeseries_df for s in realized_components],
+            [s.timeseries_df[s.ts_column] for s in realized_components],
             axis=1
         )
 
