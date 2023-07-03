@@ -9,7 +9,7 @@ from pathlib import Path
 import arrow
 import pandas as pd
 
-from news_signals.data import aylien_ts_to_df, datetime_to_aylien_str
+from news_signals.data import datetime_to_aylien_str
 from news_signals.log import create_logger
 from news_signals import signals, test_signals
 from news_signals import signals_dataset
@@ -225,6 +225,35 @@ class TestSignalsDataset(test_signals.SignalTest):
             assert d1[k].name == d2[k].name
         assert json.dumps(d1.metadata) == json.dumps(d2.metadata)
         shutil.rmtree(tmp_dir)
+
+    def test_save_to_gcs(self):
+        d1 = SignalsDataset(self.aylien_signals())
+        tmp_dir = Path('/tmp/test_signals_dataset')
+        fake_gcs_bucket = 'fake-path'
+        
+        class upload_from_filename:
+            @classmethod
+            def set_args(cls, args):
+                cls.args = args
+            def __call__(self, *args):
+                self.set_args(args)
+
+        class MockGCStorage:
+            def Client(self):
+                class get_bucket:
+                    def __init__(self, bucket_name):
+                        self.bucket_name = bucket_name
+                    def blob(self, path):
+                        self.path = path
+                        self.upload_from_filename = upload_from_filename()
+                        return self
+                self.get_bucket = get_bucket 
+                return self
+        
+        mock_storage = MockGCStorage()
+        signals_dataset.storage = mock_storage
+        save_path = d1.save(tmp_dir, compress=True, gcs_bucket_name=fake_gcs_bucket)
+        assert upload_from_filename.args[0] == save_path
     
     def test_load_from_url(self):
         cache_dir = Path('/tmp/test_signals_dataset')
@@ -249,7 +278,7 @@ class TestSignalsDataset(test_signals.SignalTest):
 
         class download_to_filename:
             args = None
-            def __call__(self, *args, **kwds):
+            def __call__(self, *args):
                 self.args = args
 
         class MockGCStorage:

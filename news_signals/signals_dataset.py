@@ -133,7 +133,9 @@ class SignalsDataset:
             metadata=metadata
         )
 
-    def save(self, dataset_path, compress=True, overwrite=False):
+    def save(self, dataset_path, compress=True, overwrite=False, gcs_bucket_name=None):
+        if gcs_bucket_name is not None:
+            assert compress, 'Datasets uploaded to GCS must be compressed.'
         dataset_path = Path(dataset_path)
         if (overwrite and dataset_path.exists()) and not dataset_path.is_dir():
             dataset_path.unlink()
@@ -154,12 +156,26 @@ class SignalsDataset:
             if dataset_path.exists():
                 shutil.rmtree(dataset_path)
             logger.info(f'Saved compressed dataset to {dataset_path}.tar.gz')
+            if gcs_bucket_name is not None:
+                self.upload_to_gcs(
+                    bucket_name=gcs_bucket_name,
+                    source_file_name=f'{dataset_path}.tar.gz',
+                    destination_blob_name=f'{dataset_path.name}.tar.gz'
+                )
             return f'{dataset_path}.tar.gz'
         else:
             logger.info(
                 f'Saved {len(self.signals)} signals in dataset to {dataset_path}.'
             )
             return dataset_path
+    
+    @staticmethod
+    def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
+        gcs_client = storage.Client()
+        bucket = gcs_client.get_bucket(bucket_name)
+        blob = bucket.blob(destination_blob_name)
+        blob.upload_from_filename(source_file_name)
+        logger.info(f"File {source_file_name} uploaded to gs://{bucket_name}/{destination_blob_name}.")
     
     def aggregate_signal(self, name=None):
         if name is None:
