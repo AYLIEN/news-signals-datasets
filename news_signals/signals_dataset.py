@@ -133,10 +133,10 @@ class SignalsDataset:
         )
         if compress:
             shutil.make_archive(
-                base_name=dataset_path,
-                format='gztar',
+                base_name=str(dataset_path),
                 root_dir=dataset_path.parent,
-                base_dir=dataset_path.name
+                base_dir=dataset_path.name,
+                format='gztar'
             )
             if dataset_path.exists():
                 shutil.rmtree(dataset_path)

@@ -20,8 +20,8 @@ tag:
 
 .PHONY: dev
 dev:
-	pip --use-deprecated=legacy-resolver install -e .
 	pip install -r requirements.txt
+	pip install -e .
 
 ###########
 ## TESTS ##
@@ -34,10 +34,36 @@ test: $(resources-test)
 	#flake8 aylien_timeseries --exclude schema_pb2.py
 
 
-# build docker container
+##########################
+## DEV BUILD AND DEPLOY ##
+##########################
+
+# this is Aylien private repo, public users can
+# modify args as needed
+REGION          ?= europe-west1
+PROJECT_ID      ?= aylien-science
+REPOSITORY_NAME ?= aylien-science
+IMAGE_NAME      ?= news-signals
+
+TAG       ?= $(shell git describe --tags --dirty --always)
+IMAGE_URI ?= $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE_NAME):$(TAG)
+
 .PHONY: build
 build:
-	docker build --no-cache -t $(CONTAINER):$(VERSION) -f Dockerfile .
+	docker build -t $(IMAGE_URI) -f Dockerfile .
+
+.PHONY: container-test
+container-test:
+	mkdir -p sample_dataset_output/
+	docker run \
+	 	-u $(shell id -u):$(shell id -g) \
+		-v $(shell pwd)/resources/dataset-config-example.json:/dataset-config-example.json \
+		-e DATASET_CONFIG=resources/dataset-config-example.json \
+		-v $(shell pwd)/sample_dataset_output:/sample_dataset_output \
+		-e DATASET_CONFIG=/dataset-config-example.json \
+		-e NEWSAPI_APP_ID=$(NEWSAPI_APP_ID) \
+		-e NEWSAPI_APP_KEY=${NEWSAPI_APP_KEY} \
+		$(IMAGE_URI)
 
 ################# 
 # DOCUMENTATION #

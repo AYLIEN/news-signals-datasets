@@ -2,7 +2,7 @@
     "start": "2023-01-01",
     "end": "2023-01-05",
     "input": "resources/test/nasdaq100.small.csv",
-    "output_dataset_dir": "sample_dataset_output",
+    "output_dataset_dir": "/sample_dataset_output/sample_dataset",
     "id_field": "Wikidata ID",
     "name_field": "Wikidata Label",
     "stories_per_day": 10,

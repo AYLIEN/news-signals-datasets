@@ -1,15 +1,16 @@
-FROM python:3.7.9-stretch
+FROM python:3.10-bullseye
 
 WORKDIR /srv
 
 RUN pip install --upgrade pip
 
+# files and packages required for installation
 ADD news_signals ./news_signals
 ADD requirements.txt ./
-ADD VERSION ./
-ADD setup.py ./
-ADD Makefile ./
+ADD resources ./resources
+ADD bin ./bin
+ADD setup.py Makefile VERSION README.md ./
 
-RUN pip install -e .
+RUN make dev
 
-CMD make run
+CMD make create-dataset
