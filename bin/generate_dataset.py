@@ -5,6 +5,7 @@ from pathlib import Path
 
 import arrow
 
+from news_signals.signals import AylienSignal
 from news_signals.signals_dataset import generate_dataset, reduce_aylien_story
 from news_signals.dataset_transformations import get_dataset_transform
 from news_signals.log import create_logger
@@ -19,14 +20,21 @@ def main(args):
 
     output_dataset_path = Path(config["output_dataset_dir"])
     logger.info(f"Beginning dataset generation with config {config}") 
+    if config.get('signal_configs', None) is not None and config.get('input', None) is not None:
+        raise AssertionError("Cannot specify both signal_configs and input file path in dataset generation config")
+    if config.get('signal_configs', None) is not None:
+        aylien_signals = [AylienSignal(**signal_config) for signal_config in config["signal_configs"]]
+        input = aylien_signals
+    else:
+        input = Path(config["input"])
     dataset = generate_dataset(
-        input=Path(config["input"]),
+        input=input,
         output_dataset_dir=output_dataset_path,
         start=arrow.get(config["start"]).datetime,
         end=arrow.get(config["end"]).datetime,
         stories_per_day=config["stories_per_day"],
-        id_field=config["id_field"],
-        name_field=config["name_field"],
+        id_field=config.get("id_field", None),
+        name_field=config.get("name_field", None),
         overwrite=args.overwrite,
         delete_tmp_files=True,
         compress=True,
