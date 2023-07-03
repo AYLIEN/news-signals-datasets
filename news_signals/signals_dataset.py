@@ -14,6 +14,7 @@ import arrow
 import gdown
 import pandas as pd
 import tqdm
+from google.cloud import storage
 
 import news_signals.signals as signals
 import news_signals.newsapi as newsapi
@@ -56,35 +57,47 @@ class SignalsDataset:
         
     @classmethod
     def load(cls, dataset_path, cache_dir=None):       
-
-        # handle downloading from url
-        if type(dataset_path) is str and dataset_path.startswith('https://drive.google.com'):
+        # handle downloading from urls
+        if type(dataset_path) is str \
+            and (dataset_path.startswith('https://drive.google.com') or dataset_path.startswith('gs://')):
             basename = base64.b64encode(dataset_path.encode()).decode()
             if cache_dir is None:
                 cache_dir = cls.DEFAULT_CACHE_DIR
 
             local_dataset_dir = cache_dir / basename
             if not local_dataset_dir.exists():
-                if 'folders' in dataset_path:
-                    local_dataset_dir = Path(cache_dir) / basename
-                    local_dataset_dir.mkdir(parents=True, exist_ok=True)
-                    logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_dir}.')
-                    status = gdown.download_folder(
-                        url=dataset_path,
-                        output=str(local_dataset_dir),
-                        remaining_ok=True
-                    )
-                    dataset_path = local_dataset_dir
-                else:
+                if dataset_path.startswith('https://drive.google.com'):
+                    # folder vs file download from gdrive
+                    if 'folders' in dataset_path:
+                        local_dataset_dir = Path(cache_dir) / basename
+                        local_dataset_dir.mkdir(parents=True, exist_ok=True)
+                        logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_dir}.')
+                        status = gdown.download_folder(
+                            url=dataset_path,
+                            output=str(local_dataset_dir),
+                            remaining_ok=True
+                        )
+                        dataset_path = local_dataset_dir
+                    else:
+                        local_dataset_path = Path(str(local_dataset_dir) + '.tar.gz')
+                        logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_path}.')
+                        status = gdown.download(url=dataset_path, output=str(local_dataset_path))
+                        assert status is not None, 'Download as file failed.'
+                        dataset_path = local_dataset_path
+                elif dataset_path.startswith('gs://'):
+                    assert dataset_path.endswith('.tar.gz'), \
+                        'Datasets stored in GCS currently must be in .tar.gz format'
                     local_dataset_path = Path(str(local_dataset_dir) + '.tar.gz')
-                    logger.info(f'Downloading dataset from {dataset_path} to {local_dataset_path}.')
-                    status = gdown.download(url=dataset_path, output=str(local_dataset_path))
-                    assert status is not None, 'Download as file failed.'
+                    gcs_client = storage.Client()
+                    bucket_name, blob_name = dataset_path.replace("gs://", "").split("/", 1)
+                    bucket = gcs_client.bucket(bucket_name)
+                    blob = bucket.blob(blob_name)
+                    blob.download_to_filename(str(local_dataset_path))
+                    print(f'GCS blob {blob_name} downloaded to {local_dataset_path}.')
                     dataset_path = local_dataset_path
             else:
                 logger.info(f'Using cached dataset at {local_dataset_dir}.') 
                 dataset_path = local_dataset_dir
-
 
         # handle decompressing tar.gz
         dataset_path = Path(dataset_path)

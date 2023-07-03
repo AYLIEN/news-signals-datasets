@@ -238,7 +238,39 @@ class TestSignalsDataset(test_signals.SignalTest):
         d2 = SignalsDataset.load(fake_gdrive_path, cache_dir=cache_dir)
         assert len(d1) == len(d2)
         shutil.rmtree(cache_dir)
+
+        # test loading from GCS urls
+        cache_dir.mkdir(parents=True)
+        fake_gcs_path = 'gs://fake-path'
+        # this should break because GCS bucket download requires tar.gz
+        with self.assertRaises(AssertionError):
+            _ = SignalsDataset.load(fake_gcs_path, cache_dir=cache_dir)
+        shutil.rmtree(cache_dir)
+
+        class download_to_filename:
+            args = None
+            def __call__(self, *args, **kwds):
+                self.args = args
+
+        class MockGCStorage:
+            def Client(self):
+                class bucket:
+                    def __init__(self, bucket_name):
+                        self.bucket_name = bucket_name
+                    def blob(self, path):
+                        self.path = path
+                        self.download_to_filename = download_to_filename()
+                        return self
+                self.bucket = bucket 
+                return self
         
+        signals_dataset.storage = MockGCStorage()
+        fake_gcs_path = 'gs://fake-path/dataset.tar.gz'
+        basename = base64.b64encode(fake_gcs_path.encode()).decode()
+        with self.assertRaises(FileNotFoundError):
+            _ = SignalsDataset.load(fake_gcs_path, cache_dir=cache_dir)
+            assert download_to_filename.args[0] == cache_dir / basename + '.tar.gz'
+
     def test_plot_dataset(self):
         dataset = SignalsDataset(self.aylien_signals())
         savedir = Path('/tmp/test_plot_dataset')
