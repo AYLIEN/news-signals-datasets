@@ -92,6 +92,8 @@ class SignalsDataset:
                     bucket_name, blob_name = dataset_path.replace("gs://", "").split("/", 1)
                     bucket = gcs_client.bucket(bucket_name)
                     blob = bucket.blob(blob_name)
+                    ds_cache_dir = Path(os.path.dirname(local_dataset_path))
+                    ds_cache_dir.mkdir(parents=True, exist_ok=True)
                     blob.download_to_filename(str(local_dataset_path))
                     print(f'GCS blob {blob_name} downloaded to {local_dataset_path}.')
                     dataset_path = local_dataset_path
@@ -438,6 +440,7 @@ def signal_exists(signal, dataset_output_dir):
 def generate_dataset(
     input: Union[List[signals.Signal], Path],
     output_dataset_dir: Path,
+    gcs_bucket: str,
     start: datetime,
     end: datetime,
     id_field: str = "",
@@ -541,5 +544,9 @@ def generate_dataset(
     dataset = SignalsDataset.load(output_dataset_dir)
     if compress:
         shutil.rmtree(output_dataset_dir)
-        dataset.save(output_dataset_dir, compress=compress)
+        dataset.save(
+            output_dataset_dir,
+            compress=compress,
+            gcs_bucket_name=gcs_bucket
+        )
     return dataset

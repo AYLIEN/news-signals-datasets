@@ -52,6 +52,11 @@ IMAGE_URI ?= $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE_N
 build:
 	docker build -t $(IMAGE_URI) -f Dockerfile .
 
+.PHONY: push
+push:
+	docker push $(IMAGE_URI)
+
+
 .PHONY: container-test
 container-test:
 	mkdir -p sample_dataset_output/

@@ -30,6 +30,7 @@ def main(args):
     dataset = generate_dataset(
         input=input,
         output_dataset_dir=output_dataset_path,
+        gcs_bucket=config.get("gcs_bucket", None),
         start=arrow.get(config["start"]).datetime,
         end=arrow.get(config["end"]).datetime,
         stories_per_day=config["stories_per_day"],
