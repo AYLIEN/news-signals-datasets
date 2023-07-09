@@ -9,6 +9,7 @@ from pathlib import Path
 import arrow
 import pandas as pd
 
+import news_signals.data as news_signals_data
 from news_signals.data import datetime_to_aylien_str
 from news_signals.log import create_logger
 from news_signals import signals, test_signals
@@ -100,6 +101,7 @@ class TestDatasetGeneration(unittest.TestCase):
         signals_dataset.generate_dataset(
             input=Path(self.input_csv),
             output_dataset_dir=Path(self.output_dataset_dir),
+            gcs_bucket=None,
             start=datetime.datetime(2023, 1, 1),
             end=datetime.datetime(2023, 1, 4),
             id_field="Wikidata ID",
@@ -154,6 +156,7 @@ class TestDatasetGeneration(unittest.TestCase):
         signals_dataset.generate_dataset(
             input=[signal],
             output_dataset_dir=Path(self.output_dataset_dir),
+            gcs_bucket=None,
             start=start,
             end=end,
             stories_per_day=50,
@@ -184,6 +187,11 @@ class TestSignalsDataset(test_signals.SignalTest):
     @classmethod
     def tearDownClass(cls):
         pass
+
+    def tearDown(self):
+        tmp_dir = '/tmp/test_signals_dataset'
+        if Path(tmp_dir).exists():
+            shutil.rmtree(tmp_dir)
     
     def test_signals_dataset_dict_interface(self):
         """
@@ -224,7 +232,6 @@ class TestSignalsDataset(test_signals.SignalTest):
         for k in d1:
             assert d1[k].name == d2[k].name
         assert json.dumps(d1.metadata) == json.dumps(d2.metadata)
-        shutil.rmtree(tmp_dir)
 
     def test_save_to_gcs(self):
         d1 = SignalsDataset(self.aylien_signals())
@@ -251,8 +258,8 @@ class TestSignalsDataset(test_signals.SignalTest):
                 return self
         
         mock_storage = MockGCStorage()
-        signals_dataset.storage = mock_storage
-        save_path = d1.save(tmp_dir, compress=True, gcs_bucket_name=fake_gcs_bucket)
+        news_signals_data.storage = mock_storage
+        save_path = d1.save(tmp_dir, compress=True, overwrite=True, gcs_bucket_name=fake_gcs_bucket)
         assert upload_from_filename.args[0] == save_path
     
     def test_load_from_url(self):
@@ -293,19 +300,19 @@ class TestSignalsDataset(test_signals.SignalTest):
                 self.bucket = bucket 
                 return self
         
-        signals_dataset.storage = MockGCStorage()
+        news_signals_data.storage = MockGCStorage()
         fake_gcs_path = 'gs://fake-path/dataset.tar.gz'
         basename = base64.b64encode(fake_gcs_path.encode()).decode()
         with self.assertRaises(FileNotFoundError):
             _ = SignalsDataset.load(fake_gcs_path, cache_dir=cache_dir)
             assert download_to_filename.args[0] == cache_dir / basename + '.tar.gz'
+        shutil.rmtree(cache_dir)
 
     def test_plot_dataset(self):
         dataset = SignalsDataset(self.aylien_signals())
         savedir = Path('/tmp/test_plot_dataset')
         dataset.plot(savedir=savedir)
         assert os.path.exists(savedir / f'{dataset.metadata["name"]}.png')
-        shutil.rmtree(savedir)
     
     def test_corr(self):
         dataset = SignalsDataset(self.aylien_signals())

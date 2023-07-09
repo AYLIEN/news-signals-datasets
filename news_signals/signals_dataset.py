@@ -14,11 +14,11 @@ import arrow
 import gdown
 import pandas as pd
 import tqdm
-from google.cloud import storage
 
 import news_signals.signals as signals
 import news_signals.newsapi as newsapi
-from news_signals.data import aylien_ts_to_df, arrow_to_aylien_date
+from news_signals.data import (aylien_ts_to_df, arrow_to_aylien_date,
+                               load_from_gcs, save_to_gcs)
 from news_signals.aql_builder import params_to_aql
 from news_signals.log import create_logger
 
@@ -88,14 +88,14 @@ class SignalsDataset:
                     assert dataset_path.endswith('.tar.gz'), \
                         'Datasets stored in GCS currently must be in .tar.gz format'
                     local_dataset_path = Path(str(local_dataset_dir) + '.tar.gz')
-                    gcs_client = storage.Client()
                     bucket_name, blob_name = dataset_path.replace("gs://", "").split("/", 1)
-                    bucket = gcs_client.bucket(bucket_name)
-                    blob = bucket.blob(blob_name)
                     ds_cache_dir = Path(os.path.dirname(local_dataset_path))
                     ds_cache_dir.mkdir(parents=True, exist_ok=True)
-                    blob.download_to_filename(str(local_dataset_path))
-                    print(f'GCS blob {blob_name} downloaded to {local_dataset_path}.')
+                    load_from_gcs(
+                        bucket_name=bucket_name,
+                        blob_name=blob_name, 
+                        local_dataset_path=local_dataset_path
+                    )
                     dataset_path = local_dataset_path
             else:
                 logger.info(f'Using cached dataset at {local_dataset_dir}.') 
@@ -159,7 +159,7 @@ class SignalsDataset:
                 shutil.rmtree(dataset_path)
             logger.info(f'Saved compressed dataset to {dataset_path}.tar.gz')
             if gcs_bucket_name is not None:
-                self.upload_to_gcs(
+                save_to_gcs(
                     bucket_name=gcs_bucket_name,
                     source_file_name=f'{dataset_path}.tar.gz',
                     destination_blob_name=f'{dataset_path.name}.tar.gz'
@@ -170,14 +170,6 @@ class SignalsDataset:
                 f'Saved {len(self.signals)} signals in dataset to {dataset_path}.'
             )
             return dataset_path
-    
-    @staticmethod
-    def upload_to_gcs(bucket_name, source_file_name, destination_blob_name):
-        gcs_client = storage.Client()
-        bucket = gcs_client.get_bucket(bucket_name)
-        blob = bucket.blob(destination_blob_name)
-        blob.upload_from_filename(source_file_name)
-        logger.info(f"File {source_file_name} uploaded to gs://{bucket_name}/{destination_blob_name}.")
     
     def aggregate_signal(self, name=None):
         if name is None:
