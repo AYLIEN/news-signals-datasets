@@ -34,7 +34,7 @@ DEFAULT_METADATA = {
 class SignalsDataset:
     DEFAULT_CACHE_DIR = Path(appdirs.user_cache_dir('news-signals/datasets'))
 
-    def __init__(self, signals=None, metadata=None, cache_dir=None):
+    def __init__(self, signals=None, metadata=None):
         if metadata is None:
             metadata = {
                 # default dataset name
@@ -63,6 +63,8 @@ class SignalsDataset:
             basename = base64.b64encode(dataset_path.encode()).decode()
             if cache_dir is None:
                 cache_dir = cls.DEFAULT_CACHE_DIR
+            else:
+                cache_dir = Path(cache_dir)
 
             local_dataset_dir = cache_dir / basename
             if not local_dataset_dir.exists():
