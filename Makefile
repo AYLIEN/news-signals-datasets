@@ -59,7 +59,7 @@ container-test:
 	 	-u $(shell id -u):$(shell id -g) \
 		-v $(shell pwd)/resources/dataset-config-example.json:/dataset-config-example.json \
 		-e DATASET_CONFIG=resources/dataset-config-example.json \
-		-v $(shell pwd)/sample_dataset_output:/sample_dataset_output \
+		-v $(shell pwd)/sample_dataset_output:/srv/sample_dataset_output \
 		-e DATASET_CONFIG=/dataset-config-example.json \
 		-e NEWSAPI_APP_ID=$(NEWSAPI_APP_ID) \
 		-e NEWSAPI_APP_KEY=${NEWSAPI_APP_KEY} \
