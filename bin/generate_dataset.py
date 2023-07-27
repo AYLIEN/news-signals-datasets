@@ -58,7 +58,7 @@ def parse_args():
         '--config',
         required=True,
         help="config json file containing all settings to create new dataset"
-    ),
+    )
     parser.add_argument(
         '--overwrite',
         action="store_true",

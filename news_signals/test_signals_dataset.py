@@ -329,3 +329,23 @@ class TestSignalsDataset(test_signals.SignalTest):
             return signal.anomaly_signal()
         dataset.map(anomaly_transform)
         assert all('anomalies' in s.columns for s in dataset.signals.values())
+
+    def test_reduce_aylien_story(self):
+        sample_stories = json.load(open(resources / 'tesla_stories.json'))
+        max_body_tokens = 100
+        for s in sample_stories:
+            reduced_s = signals_dataset.reduce_aylien_story(s, max_body_tokens=max_body_tokens)
+            assert len(s['body'].split()) >= len(reduced_s['body'].split())
+            if len(s['body'].split()) > max_body_tokens:
+                assert len(reduced_s['body'].split()) == max_body_tokens
+        
+        s_without_entities = \
+            signals_dataset.reduce_aylien_story(
+                sample_stories[0]
+            )
+        assert 'entities' not in s_without_entities
+        s_with_entities = \
+            signals_dataset.reduce_aylien_story(
+                sample_stories[0], additional_fields=['entities']
+            )
+        assert 'entities' in s_with_entities

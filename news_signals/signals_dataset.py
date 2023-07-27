@@ -308,18 +308,27 @@ def make_aylien_newsapi_query(params, start, end, period="+1DAY"):
     return new_params
 
 
-def reduce_aylien_story(s):
-    body = " ".join(s["body"].split()[:MAX_BODY_TOKENS])
+def reduce_aylien_story(
+        s,
+        max_body_tokens=MAX_BODY_TOKENS,
+        additional_fields=None
+    ):
+    if additional_fields is None:
+        additional_fields = []
+    body = " ".join(s["body"].split()[:max_body_tokens])
     smart_cats = extract_aylien_smart_tagger_categories(s)
-    reduced = {
-        "title": s["title"],
-        "body": body,
-        "id": s["id"],
-        "published_at": s["published_at"],
-        "language": s["language"],
-        "url": s["links"]["permalink"],
-        "smart_tagger_categories": smart_cats,
-    }
+    reduced = dict(
+        {
+            "title": s["title"],
+            "body": body,
+            "id": s["id"],
+            "published_at": s["published_at"],
+            "language": s["language"],
+            "url": s["links"]["permalink"],
+            "smart_tagger_categories": smart_cats,
+            "clusters": s["clusters"]
+        }, **{f: s[f] for f in additional_fields}
+    )
     return reduced
 
 
