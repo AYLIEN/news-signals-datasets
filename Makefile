@@ -33,8 +33,8 @@ test: $(resources-test)
 ## DEV BUILD AND DEPLOY ##
 ##########################
 
-# this is Aylien private repo, public users can
-# modify args as needed
+# this is for our private repo, public users can
+# modify args as needed for their artifact registries
 REGION          ?= europe-west1
 PROJECT_ID      ?= aylien-science
 REPOSITORY_NAME ?= aylien-science
