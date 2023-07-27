@@ -1,10 +1,5 @@
 VERSION       ?= `cat VERSION`
 
-# Resources
-RESOURCES_ROOT    := gs://aylien-science-files/aylien_timeseries
-RESOURCES_VERSION ?= 1
-RESOURCE_PATH     ?= resources/$(RESOURCES_VERSION)
-
 TEST_RESOURCES_VERSION ?= test
 TEST_STORAGE            = test_storage
 STORAGE                ?= storage/$(TEST_STORAGE)
