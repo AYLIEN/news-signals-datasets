@@ -1,0 +1,8 @@
+{
+    "train_ratio": 0.8,
+    "dev_ratio": 0.1,
+    "num_positive_train_samples": 10000,
+    "num_negative_train_samples": 10000,
+    "anomaly_threshold": 3.0,
+    "target_signal": "wikimedia_pageviews"
+}
