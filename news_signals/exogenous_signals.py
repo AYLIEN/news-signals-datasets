@@ -2,9 +2,10 @@ import json
 import requests
 import datetime
 import urllib
+import pytz
 
 import pandas as pd
-from ratelimit import limits, sleep_and_retry
+
 from wikidata.client import Client
 
 from news_signals.log import create_logger
@@ -133,7 +134,10 @@ def wikimedia_pageviews_timeseries_from_wikipedia_link(
         records = [
             {
                 "wikimedia_pageviews": item["views"],
-                "timestamp": datetime.datetime.strptime(item["timestamp"], url_date_format)
+                "timestamp": datetime.datetime.strptime(
+                    item["timestamp"],
+                    url_date_format
+                ).replace(tzinfo=pytz.timezone('UTC'))
             }
             for item in response["items"]
         ]
