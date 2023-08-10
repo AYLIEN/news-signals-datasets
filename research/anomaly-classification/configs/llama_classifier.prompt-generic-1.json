@@ -1,0 +1,7 @@
+{
+    "model_id": "meta-llama/Llama-2-13b-chat-hf",
+    "prompt_template": "<s>[INST] <<SYS>> You are an anomaly detector for news. <</SYS>> Headlines:\n\n{{text}}\n\n The stories above all involve {{aspect}} and were published on the same day. Do these news stories indicate one of the most significant events for {{aspect}}? Respond with 'no' or 'yes'. [/INST]",
+    "temperature": 0.1,
+    "top_p": 1.0,
+    "max_tokens": 10
+}
