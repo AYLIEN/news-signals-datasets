@@ -7,10 +7,11 @@ data combined with feeds of textual data. Explore these docs to find out how to 
 ## Quickstart
 
 ```
-conda create -n test-signals-pypi python=3.8
+# create an environment, for example:
+conda create -n news-signals python=3.10
+conda activate news-signals
 
-conda activate test-signals-pypi
-
+# install news-signals
 pip install news-signals
 ```
 
@@ -20,15 +21,18 @@ from news_signals import signals
 # Create a signal from a dataframe
 df = pd.DataFrame({'date': ['2020-01-01', '2020-01-02', '2020-01-03'], 'value': [1, 2, 3]})
 signal = signals.DataFrameSignal(df, date_column='date', value_column='value')
-
-
-
 ```
 
+## API Documentation
+
+- [signals API][signals]
+- [signals dataset API][signals_dataset]
+
+[signals]: api/signals.md 
+[signals_dataset]: api/signals_dataset.md
 
 
-
-# Welcome to MkDocs
+# MkDocs Info
 
 For full documentation visit [mkdocs.org](https://www.mkdocs.org).
 

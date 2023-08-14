@@ -51,7 +51,6 @@ build:
 push:
 	docker push $(IMAGE_URI)
 
-
 .PHONY: container-test
 container-test:
 	mkdir -p sample_dataset_output/
