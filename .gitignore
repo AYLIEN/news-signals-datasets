@@ -7,4 +7,7 @@
 *.egg-info
 .ipynb_checkpoints
 .deps
+.vscode/
+datasets/
+sample_dataset_output/
 .idea/
