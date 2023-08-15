@@ -46,6 +46,8 @@ fig = dataset.plot()
 plt.show()
 ```
 
+See the [API Documentation](https://aylien.github.io/news-signals-datasets/) for more info.
+
 ## Installation from source
 
 #### Install news-signals in a new environment

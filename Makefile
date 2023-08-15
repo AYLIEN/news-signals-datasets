@@ -73,6 +73,10 @@ container-test:
 docs-serve:
 	mkdocs serve
 
+# builds docs and pushes to gh-pages branch of repository
+.PHONY: docs-deploy
+docs-deploy:
+	mkdocs deploy
 
 ######################
 # DATASET GENERATION #
