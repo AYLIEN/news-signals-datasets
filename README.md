@@ -97,3 +97,7 @@ The config file specifies all relevant settings for a dataset, e.g. time range. 
 
 
 A more detailed guide on generating new datasets is here: [dataset-generation.md](dataset-generation.md)
+
+## Anomaly Classification Experiments
+
+These currently [live here](https://github.com/AYLIEN/news-signals-datasets/tree/add-anomaly-experiments/research/anomaly-classification).
