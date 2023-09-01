@@ -62,8 +62,10 @@ class Config:
 
     def set_params_from_args(self, args, overwriting_args):
         for key in self.key_to_param:
-            if key in self.key_to_param:
+            if key in args:
                 self.set_param(key, args[key])
+            else:
+                self.set_param(key, self.key_to_param[key].default)
         if overwriting_args:
             for key, value in overwriting_args.items():
                 self.set_param(key, value)

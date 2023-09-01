@@ -7,7 +7,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics import classification_report
 from ac.config import Config
 from ac.classifier import Classifier
-from ac.utils import load_variable
 from ac.log import create_logger
 
 
@@ -169,7 +168,8 @@ class SparseRandomForestClassifier(Classifier):
 
         model = RandomForestClassifier(
             n_estimators=config.n_estimators,
-            max_depth=config.max_depth
+            max_depth=config.max_depth,
+            random_state=24
         )
 
         X_train = vectorizer.fit_transform(train_texts)
@@ -178,13 +178,13 @@ class SparseRandomForestClassifier(Classifier):
         logger.info("training model")
         model = model.fit(X_train, Y_train)
 
-        P_train = model.predict(X_train)
-        P_dev = model.predict(X_dev)
+        # P_train = model.predict(X_train)
+        # P_dev = model.predict(X_dev)
 
-        logger.info("Eval on training data:")
-        logger.info("\n" + str(classification_report(Y_train, P_train)))
-        logger.info("Eval on dev data:")
-        logger.info("\n" + str(classification_report(Y_dev, P_dev)))
+        # logger.info("Eval on training data:")
+        # logger.info("\n" + str(classification_report(Y_train, P_train)))
+        # logger.info("Eval on dev data:")
+        # logger.info("\n" + str(classification_report(Y_dev, P_dev)))
 
         joblib.dump(model, model_dir / "model.pkl")
         joblib.dump(vectorizer, model_dir / "vectorizer.pkl")    

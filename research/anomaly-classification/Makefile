@@ -30,7 +30,8 @@ create_classification_datasets:
 
 .PHONY: sparse_experiments
 sparse_experiments:
-	bash bin/run_sparse_experiments.sh $(TARGET_NAME)
+	bash bin/run_sparse_experiments.sh count
+	bash bin/run_sparse_experiments.sh wikimedia_pageviews
 
 
 TRANSFORMER_CONFIG ?= configs/transformer_classifier.json
@@ -42,6 +43,30 @@ transformer_experiments:
 	bash bin/run_transformer_experiments.sh $(TARGET_NAME) $(TRANSFORMER_CONFIG) $(TRANSFORMER_OUTPUT_SUFFIX)
 
 
+.PHONY: random_experiments
+random_experiments:
+	bash bin/run_random_experiments.sh count configs/random-target.json random-target
+	bash bin/run_random_experiments.sh count configs/random-uniform.json random-uniform
+	bash bin/run_random_experiments.sh wikimedia_pageviews configs/random-target.json random-target
+	bash bin/run_random_experiments.sh wikimedia_pageviews configs/random-uniform.json random-uniform
+
+
+LLM_CONFIG = configs/llm_classifier.json
+LLM_OUTPUT_SUFFIX ?= llm_classifier
+
+
+.PHONY: llm_experiments
+llm_experiments:
+	bash bin/run_llm_experiments.sh $(TARGET_NAME) $(LLM_CONFIG) $(LLM_OUTPUT_SUFFIX)
+
+.PHONY: llm_wiki_experiments
+llm_wiki_experiments:
+	bash bin/run_llm_experiments.sh wikimedia_pageviews configs/llama_classifier.prompt-generic-1.json llm_classifier.prompt-wiki-1
+
+.PHONY: llm_count_experiments
+llm_count_experiments:
+	bash bin/run_llm_experiments.sh count configs/llama_classifier.prompt-generic-1.json llm_classifier.prompt-generic-1
+
 .PHONY: try_llama
 try_llama:
 	python bin/predict_evaluate.py \
@@ -49,4 +74,5 @@ try_llama:
 		--config configs/llm_classifier.json \
 		--dataset-path data/classification_datasets/dataset-us-politicians.wikimedia_pageviews.tar.gz \
 		--output-path data/predictions/us-politicians.wikimedia_pageviews.llm \
-		--dataset-split test
+		--dataset-split test \
+		--first-k 100

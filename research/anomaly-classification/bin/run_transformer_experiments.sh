@@ -12,15 +12,15 @@ output_suffix=$3
 
 for dataset_name in "${dataset_names[@]}"
 do
-    dataset_path="data/classification_datasets/dataset-"$dataset_name".tar.gz"
-    model_path="data/models/"$dataset_name".transformer_classifier"
+    dataset_path="data/classification_datasets/dataset-$dataset_name.tar.gz"
+    model_path="data/models/$dataset_name.$output_suffix"
     predictions_path="data/predictions/$dataset_name.$output_suffix"
 
     python bin/train.py \
         --model-class TransformerClassifier \
         --config $config_path \
         --dataset-path $dataset_path \
-        --output-path data/models/$dataset_name.$output_suffix 
+        --output-path $model_path
 
     python bin/predict_evaluate.py \
         --model-class TransformerClassifier \

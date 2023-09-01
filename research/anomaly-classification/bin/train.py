@@ -1,6 +1,7 @@
 import logging
 import argparse
 import pandas as pd
+from pathlib import Path
 
 from ac.log import create_logger
 from ac.utils import load_variable
@@ -32,7 +33,7 @@ def main(args, unknown_args):
     model_cls = load_variable(args.model_class, MODEL_CLASSES)
     config_cls = load_variable(args.model_class + 'Config', CONFIG_CLASSES)
     config = load_config(config_cls, args.config, unknown_args)
-
+    logger.info(f'Training dataset: {Path(args.dataset_path).name}')
     logger.info("Configuration:")
     logger.info(config)
     dataset_df = pd.read_parquet(args.dataset_path)

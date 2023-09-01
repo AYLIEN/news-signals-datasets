@@ -11,6 +11,7 @@ from ac.utils import load_variable
 from ac.evaluation import evaluate
 from ac.transformer_classifier import TransformerClassifier, TransformerClassifierConfig
 from ac.llm_classifier import LLMClassifier, LLMClassifierConfig
+from ac.random_baseline import RandomClassifier, RandomClassifierConfig
 from ac.sparse_classifiers import (
     SparseRandomForestClassifier,
     SparseRandomForestClassifierConfig,
@@ -23,13 +24,15 @@ MODEL_CLASSES = [
     TransformerClassifier,
     LLMClassifier,
     SparseLinearClassifier,
-    SparseRandomForestClassifier
+    SparseRandomForestClassifier,
+    RandomClassifier,
 ]
 CONFIG_CLASSES = [
     TransformerClassifierConfig,
     LLMClassifierConfig,
     SparseLinearClassifierConfig,
-    SparseRandomForestClassifierConfig
+    SparseRandomForestClassifierConfig,
+    RandomClassifierConfig
 ]
 
 
@@ -41,6 +44,7 @@ def main(args, unknown_args):
     config_cls = load_variable(args.model_class + 'Config', CONFIG_CLASSES)
     config = load_config(config_cls, args.config, unknown_args)
 
+    logger.info(f'Test dataset: {Path(args.dataset_path).name}')
     logger.info("Configuration:")
     logger.info("\n" + str(config))
     
@@ -49,7 +53,7 @@ def main(args, unknown_args):
     dataset = df_to_dataset(dataset_df)[args.dataset_split]
     examples = [dataset[i] for i in range(dataset.num_rows)]
     if args.first_k is not None:
-        examples = examples[:config.first_k]
+        examples = examples[:args.first_k]
 
     # Note this is aspect-based text classification, i.e.
     # each example is a {"text": "...", "aspect": "..."} item.    

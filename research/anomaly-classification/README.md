@@ -8,10 +8,9 @@ Activate a new conda environment and run:
 make dev
 ```
 
-Exception: to run `make llm_experiments`, make another env and install:
+To run `make llm_experiments`, additionally install:
 ```
 pip install -r llm-requirements.txt
-pip install -e .
 ```
 
 

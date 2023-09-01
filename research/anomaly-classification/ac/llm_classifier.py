@@ -7,14 +7,13 @@ from ac.config import Config
 from ac.log import create_logger
 
 
+logger = create_logger(__name__,  level=logging.INFO)
+
+
 try:
     from vllm import LLM, SamplingParams
 except ImportError:
-    pass
-
-
-logger = create_logger(__name__,  level=logging.INFO)
-
+    logger.info('vllm not installed, ignoring - only necessary for LLMClassifier')
 
 
 class LLMClassifierConfig(Config):
@@ -56,7 +55,7 @@ class LLMClassifier(Classifier):
                 text=x['text']
             )
             output = self.llm.generate([prompt], self.sampling_params)[0]
-            generated_text = output.outputs[0].text.lower()
+            generated_text = output.outputs[0].text.lower().strip()
             if generated_text.startswith('yes'):
                 predicted_label = 1
             else:
