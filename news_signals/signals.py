@@ -81,7 +81,9 @@ class Signal:
     
     @staticmethod
     def assert_df_index_type(df):
-        assert str(df.index.dtype) == 'datetime64[ns, UTC]', \
+        assert hasattr(df.index, 'tz'), \
+            'we expect dataframes with timezone-aware index dtypes'
+        assert str(df.index.tz) == 'UTC', \
             'we expect dataframes with timezone-aware index dtypes in UTC timezone'
 
     @abstractmethod
