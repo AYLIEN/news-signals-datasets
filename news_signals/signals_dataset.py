@@ -325,6 +325,8 @@ def reduce_aylien_story(
             "published_at": s["published_at"],
             "language": s["language"],
             "url": s["links"]["permalink"],
+            "categories": s["categories"],
+            "industries": s["industries"],
             "smart_tagger_categories": smart_cats,
             "clusters": s["clusters"]
         }, **{f: s[f] for f in additional_fields}
