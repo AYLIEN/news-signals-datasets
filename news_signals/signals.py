@@ -899,7 +899,7 @@ class AylienSignal(Signal):
             return self
         try:
             wikidata_id = self.params['entity_ids'][0]
-        except KeyError:                
+        except (KeyError, IndexError):                
             try:
                 wikidata_id = self.aql.split("id:")[1].split(")")[0]
                 assert wikidata_id.startswith("Q")
