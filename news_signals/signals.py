@@ -22,7 +22,10 @@ from .data import aylien_ts_to_df, datetime_to_aylien_str
 from .anomaly_detection import SigmaAnomalyDetector
 from .aql_builder import params_to_aql
 from .summarization import Summarizer
-from .exogenous_signals import wikimedia_pageviews_timeseries_from_wikidata_id
+from .exogenous_signals import (
+    wikimedia_pageviews_timeseries_from_wikidata_id,
+    wikidata_id_to_current_events
+)
 
 logger = create_logger(__name__)
 
@@ -878,8 +881,59 @@ class AylienSignal(Signal):
         # side effect
         if cache_summaries:
             self.feeds_df["summary"] = summaries
-        
+
         return summaries
+
+    def add_wikipedia_current_events(
+        self,
+        overwrite_existing=False,
+        wikipedia_current_events_column='wikipedia_current_events',
+        freq='D',
+    ):
+        if self.feeds_df is None:
+            date_range = self.date_range(self.start, self.end, freq=freq)
+            # init with UTC datetime index
+            # we use only start dates thus the cutoff
+            self.feeds_df = pd.DataFrame(
+                columns=[wikipedia_current_events_column],
+                index=pd.DatetimeIndex(date_range[:-1], tz='UTC')
+            )
+        elif not overwrite_existing:
+            if "wikipedia_current_events" in self.feeds_df.columns:
+                logger.info("wikipedia current events already exist, not adding")
+                return self
+        try:
+            wikidata_id = self.params['entity_ids'][0]
+        except (KeyError, IndexError):
+            try:
+                wikidata_id = self.aql.split("id:")[1].split(")")[0]
+                assert wikidata_id.startswith("Q")
+            except Exception:
+                raise WikidataIDNotFound(
+                    "No Wikidata ID found in signal.params or signal.aql"
+                )
+
+        start = self.start.to_pydatetime()
+        end = self.end.to_pydatetime()
+        event_items = wikidata_id_to_current_events(
+            wikidata_id,
+            start,
+            end
+        )
+
+        event_bucket_records = []
+        for event in event_items:
+            ts = self.normalize_timestamp(event['date'], freq)
+            event_bucket_records.append(
+                {'timestamp': ts, wikipedia_current_events_column: event}
+            )
+        # now merge the events into self.feeds_df at the correct timestamps
+        events_bucket_df = pd.DataFrame(
+            event_bucket_records,
+            index=pd.DatetimeIndex([r['timestamp'] for r in event_bucket_records], tz='UTC')
+        )
+        self.feeds_df = self.feeds_df.combine_first(events_bucket_df)
+
 
     def add_wikimedia_pageviews_timeseries(
         self,
@@ -899,7 +953,7 @@ class AylienSignal(Signal):
             return self
         try:
             wikidata_id = self.params['entity_ids'][0]
-        except (KeyError, IndexError):                
+        except (KeyError, IndexError):
             try:
                 wikidata_id = self.aql.split("id:")[1].split(")")[0]
                 assert wikidata_id.startswith("Q")
