@@ -2,9 +2,9 @@ import unittest
 import datetime
 
 from news_signals.exogenous_signals import (
-    wikipedia_link_from_wikidata_id,
-    wikimedia_pageviews_timeseries_from_wikipedia_link,
-    wikimedia_pageviews_timeseries_from_wikidata_id
+    wikidata_id_to_wikipedia_link,
+    wikipedia_link_to_wikimedia_pageviews_timeseries,
+    wikidata_id_to_wikimedia_pageviews_timeseries
 )
 from news_signals.log import create_logger
 
@@ -54,12 +54,12 @@ class TestExogenousSignals(unittest.TestCase):
                 ]
             }
         )
-        cls.wikidata_client = MockWikidataClient(cls.wikipedia_link)        
+        cls.wikidata_client = MockWikidataClient(cls.wikipedia_link)
         cls.start = datetime.datetime(2023, 1, 1)
         cls.end = datetime.datetime(2023, 1, 5)
 
     def test_wikimedia_pageviews_timeseries_from_wikidata_id(self):
-        pageviews_df = wikimedia_pageviews_timeseries_from_wikidata_id(
+        pageviews_df = wikidata_id_to_wikimedia_pageviews_timeseries(
             "Q95",
             start=self.start,
             end=self.end,
@@ -69,15 +69,15 @@ class TestExogenousSignals(unittest.TestCase):
         values = list(pageviews_df["wikimedia_pageviews"].values)
         assert values == [3, 4, 1, 2, 3]
     
-    def test_wikipedia_link_from_wikidata_id(self):
-        wikipedia_link = wikipedia_link_from_wikidata_id(
+    def test_wikidata_id_to_wikipedia_link(self):
+        wikipedia_link = wikidata_id_to_wikipedia_link(
             "Q95",
             client=self.wikidata_client,
         )
         self.assertEqual(wikipedia_link, self.wikipedia_link)
     
     def test_wikimedia_pageviews_timeseries_from_wikipedia_link(self):
-        pageviews_df = wikimedia_pageviews_timeseries_from_wikipedia_link(
+        pageviews_df = wikipedia_link_to_wikimedia_pageviews_timeseries(
             self.wikipedia_link,
             start=self.start,
             end=self.end,

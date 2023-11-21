@@ -2,9 +2,15 @@ import json
 import requests
 import datetime
 import urllib
+import collections
+import arrow
+import tqdm
+import requests
+import calendar
+from dataclasses import dataclass, field, asdict
 
 import pandas as pd
-from ratelimit import limits, sleep_and_retry
+from bs4 import BeautifulSoup
 from wikidata.client import Client
 
 from news_signals.log import create_logger
@@ -15,19 +21,7 @@ logger = create_logger(__name__)
 # TODO: set ratelimits; but sequential requests are probably too to slow hit them
 
 
-class WikidataClient:
-    """
-    Mainly exists to replace it with Mock version in tests.
-    """    
-    def __init__(self):
-        self.client = Client()        
-    
-    def __call__(self, wikidata_id):
-        entity = self.client.get(wikidata_id, load=True)
-        return entity.data
-
-
-class RequestsEndpoint:
+class GetRequestEndpoint:
     """
     Mainly exists to replace it with Mock version in tests.
     """
@@ -41,7 +35,24 @@ class RequestsEndpoint:
         data = json.loads(r.text)
         return data
 
+
+##############################################################
+########## TOOLS FOR REQUESTING WIKIMEDIA PAGEVIEWS ##########
+##############################################################
+
+
+class WikidataClient:
+    """
+    Mainly exists to replace it with Mock version in tests.
+    """    
+    def __init__(self):
+        self.client = Client()
     
+    def __call__(self, wikidata_id):
+        entity = self.client.get(wikidata_id, load=True)
+        return entity.data
+
+
 def ts_records_to_ts_df(ts_records, time_field='timestamp'):
     df = pd.DataFrame(ts_records)
     df[time_field] = pd.to_datetime(df[time_field])
@@ -49,7 +60,7 @@ def ts_records_to_ts_df(ts_records, time_field='timestamp'):
     return df
 
 
-def wikimedia_pageviews_timeseries_from_wikidata_id(
+def wikidata_id_to_wikimedia_pageviews_timeseries(
     wikidata_id: str,
     start: datetime.datetime,
     end: datetime.datetime,
@@ -65,9 +76,9 @@ def wikimedia_pageviews_timeseries_from_wikidata_id(
     if wikidata_client is None:
         wikidata_client = WikidataClient()
     if wikimedia_endpoint is None:
-        wikimedia_endpoint = RequestsEndpoint()
+        wikimedia_endpoint = GetRequestEndpoint()
 
-    wikipedia_link = wikipedia_link_from_wikidata_id(
+    wikipedia_link = wikidata_id_to_wikipedia_link(
         wikidata_id,
         client=wikidata_client
     )
@@ -75,7 +86,7 @@ def wikimedia_pageviews_timeseries_from_wikidata_id(
         logger.error(f"No Wikipedia link found for entity {wikidata_id}; page views set to None.")
         return None
         
-    page_views_df = wikimedia_pageviews_timeseries_from_wikipedia_link(
+    page_views_df = wikipedia_link_to_wikimedia_pageviews_timeseries(
         wikipedia_link,
         start,
         end,
@@ -86,7 +97,7 @@ def wikimedia_pageviews_timeseries_from_wikidata_id(
     return page_views_df
 
 
-def wikipedia_link_from_wikidata_id(
+def wikidata_id_to_wikipedia_link(
     wikidata_id: str,
     client=None,
 ) -> str:
@@ -106,7 +117,7 @@ def wikipedia_link_from_wikidata_id(
     return url
 
 
-def wikimedia_pageviews_timeseries_from_wikipedia_link(
+def wikipedia_link_to_wikimedia_pageviews_timeseries(
     wikipedia_link: str,
     start: datetime.datetime,
     end: datetime.datetime,
@@ -119,7 +130,7 @@ def wikimedia_pageviews_timeseries_from_wikipedia_link(
     Requests pageviews timeseries of a Wikipedia page for a given time range from Wikimedia API.
     """
     if endpoint is None:
-        endpoint = RequestsEndpoint()
+        endpoint = GetRequestEndpoint()
 
     url_date_format = "%Y%m%d00"
     assert granularity in ["daily", "monthly"]
@@ -133,12 +144,14 @@ def wikimedia_pageviews_timeseries_from_wikipedia_link(
         records = [
             {
                 "wikimedia_pageviews": item["views"],
+                # timestamp is timezone-naive
                 "timestamp": datetime.datetime.strptime(item["timestamp"], url_date_format)
             }
             for item in response["items"]
         ]
         df = ts_records_to_ts_df(records)
-        date_range = pd.date_range(start=start, end=end, freq="D")
+        # making range also timezone-naive
+        date_range = pd.date_range(start=start, end=end, freq="D").tz_localize(None)
         df = df.reindex(date_range, fill_value=0)
     except KeyError:
         logger.error(response)
@@ -148,17 +161,6 @@ def wikimedia_pageviews_timeseries_from_wikipedia_link(
 #########################################################################
 ########## TOOLS FOR SEARCHING WIKIPEDIA CURRENT EVENTS PORTAL ##########
 #########################################################################
-
-
-import datetime
-import calendar
-import collections
-import arrow
-import tqdm
-import requests
-import calendar
-from bs4 import BeautifulSoup
-from dataclasses import dataclass, field, asdict
 
 
 MONTH_NAMES = list(calendar.month_name)[1:]
@@ -341,9 +343,15 @@ def process_month_page_from_2018(html):
     return events
 
 
-def wikidata_id_to_current_events(wikidata_id, start, end):
+def wikidata_id_to_current_events(
+    wikidata_id,
+    start,
+    end,
+    wikidata_client=None,
+    wikipedia_endpoint=None,
+):
 
-    wikipedia_link = wikipedia_link_from_wikidata_id(wikidata_id)
+    wikipedia_link = wikidata_id_to_wikipedia_link(wikidata_id, wikidata_client)
     wikipedia_id = wiki_link_to_id(wikipedia_link)
     wcep_links = get_wcep_links_linking_here(wikipedia_id)
 
