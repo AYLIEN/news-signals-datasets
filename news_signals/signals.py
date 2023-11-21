@@ -12,6 +12,7 @@ import tqdm
 import pandas as pd
 import arrow
 import datetime
+import matplotlib.pyplot as plt
 from sqlitedict import SqliteDict
 from dataclasses import dataclass
 
@@ -23,7 +24,7 @@ from .anomaly_detection import SigmaAnomalyDetector
 from .aql_builder import params_to_aql
 from .summarization import Summarizer
 from .exogenous_signals import (
-    wikimedia_pageviews_timeseries_from_wikidata_id,
+    wikidata_id_to_wikimedia_pageviews_timeseries,
     wikidata_id_to_current_events
 )
 
@@ -935,6 +936,46 @@ class AylienSignal(Signal):
         self.feeds_df = self.feeds_df.combine_first(events_bucket_df)
 
 
+    def plot(self, *args, **kwargs):
+        if getattr(self, 'timeseries_df', None) is not None:
+            if self.feeds_df is not None and 'wikipedia_current_events' in self.feeds_df:
+                pass
+            if 'wikimedia_pageviews' in self.timeseries_df:
+                pageview_series = self.timeseries_df['wikimedia_pageviews']
+                count_series = self.timeseries_df['count']
+                fig, ax1 = plt.subplots(*args, **kwargs)
+                
+                color = 'tab:red'
+                ax1.set_xlabel('Date')
+                ax1.set_ylabel('NewsAPI Publication Count', color=color)
+                ax1.plot(
+                    self.timeseries_df.index,
+                    count_series,
+                    color=color,
+                    **kwargs
+                )
+                ax1.tick_params(axis='y', labelcolor=color)
+
+                # Creating a twin of the first axis for the second time series
+                ax2 = ax1.twinx()  
+                color = 'tab:blue'
+                ax2.set_ylabel('Wikimedia Pageviews', color=color)  
+                ax2.plot(
+                    self.timeseries_df['count'].index,
+                    pageview_series,
+                    color=color,
+                    **kwargs
+                )
+                ax2.tick_params(axis='y', labelcolor=color)
+                return
+            
+            return self.timeseries_df.plot(*args, **kwargs)
+        else:
+            raise NotImplementedError(
+                'plot() is not implemented for this signal type'
+            )
+
+
     def add_wikimedia_pageviews_timeseries(
         self,
         wikimedia_endpoint=None,
@@ -963,7 +1004,7 @@ class AylienSignal(Signal):
                 )
         start = self.timeseries_df.index.min().to_pydatetime()
         end = self.timeseries_df.index.max().to_pydatetime()
-        pageviews_df = wikimedia_pageviews_timeseries_from_wikidata_id(
+        pageviews_df = wikidata_id_to_wikimedia_pageviews_timeseries(
                 wikidata_id,
                 start,
                 end,
