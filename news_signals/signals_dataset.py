@@ -25,7 +25,7 @@ from news_signals.log import create_logger
 
 logger = create_logger(__name__, level=logging.INFO)
 
-MAX_BODY_TOKENS = 500
+MAX_BODY_TOKENS = 1000
 DEFAULT_METADATA = {
     'name': 'News Signals Dataset'
 }
@@ -328,6 +328,7 @@ def reduce_aylien_story(
             "categories": s["categories"],
             "industries": s["industries"],
             "smart_tagger_categories": smart_cats,
+            "media": s["media"],
             "clusters": s["clusters"]
         }, **{f: s[f] for f in additional_fields}
     )
