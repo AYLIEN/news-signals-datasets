@@ -45,7 +45,7 @@ IMAGE_URI ?= $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE_N
 
 .PHONY: build
 build:
-	docker build -t $(IMAGE_URI) -f Dockerfile .
+	docker build --network host -t $(IMAGE_URI) -f Dockerfile .
 
 .PHONY: push
 push:
