@@ -745,9 +745,6 @@ class AylienSignal(Signal):
         if ts_endpoint is None:
             ts_endpoint = self.ts_endpoint
         params = self.make_query(start, end, period=period)
-        if ts_endpoint != self.ts_endpoint:
-            print("PARAMS")
-            print(params)
         aylien_ts = ts_endpoint(params)
         ts_df = aylien_ts_to_df(
             aylien_ts, dt_index=True
@@ -885,57 +882,6 @@ class AylienSignal(Signal):
 
         return summaries
 
-    def add_wikipedia_current_events(
-        self,
-        overwrite_existing=False,
-        wikipedia_current_events_column='wikipedia_current_events',
-        freq='D',
-    ):
-        if self.feeds_df is None:
-            date_range = self.date_range(self.start, self.end, freq=freq)
-            # init with UTC datetime index
-            # we use only start dates thus the cutoff
-            self.feeds_df = pd.DataFrame(
-                columns=[wikipedia_current_events_column],
-                index=pd.DatetimeIndex(date_range[:-1], tz='UTC')
-            )
-        elif not overwrite_existing:
-            if "wikipedia_current_events" in self.feeds_df.columns:
-                logger.info("wikipedia current events already exist, not adding")
-                return self
-        try:
-            wikidata_id = self.params['entity_ids'][0]
-        except (KeyError, IndexError):
-            try:
-                wikidata_id = self.aql.split("id:")[1].split(")")[0]
-                assert wikidata_id.startswith("Q")
-            except Exception:
-                raise WikidataIDNotFound(
-                    "No Wikidata ID found in signal.params or signal.aql"
-                )
-
-        start = self.start.to_pydatetime()
-        end = self.end.to_pydatetime()
-        event_items = wikidata_id_to_current_events(
-            wikidata_id,
-            start,
-            end
-        )
-
-        event_bucket_records = []
-        for event in event_items:
-            ts = self.normalize_timestamp(event['date'], freq)
-            event_bucket_records.append(
-                {'timestamp': ts, wikipedia_current_events_column: event}
-            )
-        # now merge the events into self.feeds_df at the correct timestamps
-        events_bucket_df = pd.DataFrame(
-            event_bucket_records,
-            index=pd.DatetimeIndex([r['timestamp'] for r in event_bucket_records], tz='UTC')
-        )
-        self.feeds_df = self.feeds_df.combine_first(events_bucket_df)
-
-
     def plot(self, *args, **kwargs):
         if getattr(self, 'timeseries_df', None) is not None:
             if self.feeds_df is not None and 'wikipedia_current_events' in self.feeds_df:
@@ -975,7 +921,6 @@ class AylienSignal(Signal):
                 'plot() is not implemented for this signal type'
             )
 
-
     def add_wikimedia_pageviews_timeseries(
         self,
         wikimedia_endpoint=None,
@@ -1013,6 +958,294 @@ class AylienSignal(Signal):
                 wikimedia_endpoint=wikimedia_endpoint,
         )        
         self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].values
+        return self
+
+    def add_wikipedia_current_events(
+        self,
+        overwrite_existing=False,
+        feeds_column='wikipedia_current_events',
+        freq='D',
+    ):
+        if self.feeds_df is None:
+            date_range = self.date_range(self.start, self.end, freq=freq)
+            # init with UTC datetime index
+            # we use only start dates thus the cutoff
+            self.feeds_df = pd.DataFrame(
+                columns=[feeds_column],
+                index=pd.DatetimeIndex(date_range[:-1], tz='UTC')
+            )
+        elif not overwrite_existing:
+            if "wikipedia_current_events" in self.feeds_df.columns:
+                logger.info("wikipedia current events already exist, not adding")
+                return self
+        try:
+            wikidata_id = self.params['entity_ids'][0]
+        except (KeyError, IndexError):
+            try:
+                wikidata_id = self.aql.split("id:")[1].split(")")[0]
+                assert wikidata_id.startswith("Q")
+            except Exception:
+                raise WikidataIDNotFound(
+                    "No Wikidata ID found in signal.params or signal.aql"
+                )
+
+        start = self.start.to_pydatetime()
+        end = self.end.to_pydatetime()
+        event_items = wikidata_id_to_current_events(
+            wikidata_id,
+            start,
+            end
+        )
+
+        event_bucket_records = []
+        for event in event_items:
+            ts = self.normalize_timestamp(event['date'], freq)
+            event_bucket_records.append(
+                {'timestamp': ts, feeds_column: event}
+            )
+        # now merge the events into self.feeds_df at the correct timestamps
+        events_bucket_df = pd.DataFrame(
+            event_bucket_records,
+            index=pd.DatetimeIndex([r['timestamp'] for r in event_bucket_records], tz='UTC')
+        )
+        self.feeds_df = self.feeds_df.combine_first(events_bucket_df)
+        return self
+
+
+class WikimediaSignal(Signal):
+    """
+    A Wikimedia signal uses Wikimedia-related sources,
+    i.e. Wikipedia, Wikidata etc. to gather time series and text
+    related to entities.
+    """
+    def __init__(
+        self,
+        name,
+        metadata=None,
+        timeseries_df=None,
+        feeds_df=None,
+        wikidata_id=None,
+        ts_column='wikimedia_pageviews',
+        wikidata_client=None,
+        wikimedia_endpoint=None,
+        wikipedia_endpoint=None
+    ):
+        super().__init__(
+            name,
+            metadata=metadata,
+            timeseries_df=timeseries_df,
+            feeds_df=feeds_df,
+            ts_column=ts_column
+        )
+        self.wikidata_id = wikidata_id
+        self.wikidata_client = wikidata_client
+        self.wikimedia_endpoint = wikimedia_endpoint
+        self.wikipedia_endpoint = wikipedia_endpoint
+
+    def to_dict(self):
+        return {
+            'type': type(self),
+            'name': self.name,
+            'metadata': self.metadata,
+            'wikidata_id': self.wikidata_id,
+            'timeseries_df': self.timeseries_df,
+            'feeds_df': self.feeds_df,
+            'ts_column': self.ts_column
+        }
+
+    @staticmethod
+    def from_dict(data):
+        return WikimediaSignal(
+            name=data['name'],
+            metadata=data['metadata'],
+            wikidata_id=data['wikidata_id'],
+            timeseries_df=data['timeseries_df'],
+            feeds_df=data['feeds_df'],
+            ts_column=data['ts_column'],
+        )
+
+    def __call__(self, start, end, freq='D'):
+        start = self.normalize_timestamp(start, freq)
+        end = self.normalize_timestamp(end, freq)
+        if freq not in ['D']:
+            # currently we only support daily ticks on Wikimedia timeseries
+            raise UnknownFrequencyArgument
+        self.update(start=start, end=end, freq=freq)
+        return self
+
+    def update(self, start=None, end=None, freq='D', wikimedia_endpoint=None, wikidata_client=None):
+        """
+        This method should eventually update all of the data in the signal, not just 
+        the timeseries_df. This is a work in progress.
+
+        Side effect: we may have other already data in the state, we want to upsert
+        any new data while retaining the existing information as well
+        :param start: datetime
+        :param end: datetime
+        """
+        if wikimedia_endpoint is None:
+            wikimedia_endpoint = self.wikimedia_endpoint
+        if wikimedia_endpoint is None:
+            wikimedia_endpoint = self.wikimedia_endpoint
+
+        if end is None:
+            end = self.normalize_timestamp(datetime.datetime.now(), freq)
+        # if start is None, we look up to 30 days ago
+        if start is None:
+            default_interval = self.normalize_timestamp(
+                end - datetime.timedelta(days=30),
+                freq
+            )
+            current_end = self.timeseries_df.index.max()
+            if current_end > default_interval:
+                start = current_end
+            else:
+                start = default_interval
+                logger.warning(
+                    f'When updating signal, signal was either empty or the maximum, ' 
+                    f'end date was more than 30 days ago, so we are using '
+                    f'default update interval of 30 days --> {start} to {end}'
+                )
+
+        # first check if we already have this time range,
+        # if so, we don't need to query again
+        range_exists = \
+            self.range_in_df(
+                self.timeseries_df, start, end,
+                freq=freq
+            )
+        if not range_exists:
+            # update start and end to just get the data we don't have
+            # we're only going to be clever about extending to the right,
+            # if user wants historical data (before the data we already have),
+            # everything's getting retrieved
+            if self.timeseries_df is not None and start in self.timeseries_df.index:
+                r = Signal.date_range(start, end, freq=freq)
+                # find the first index that doesn't match
+                for dt, idx_dt in zip(r, self.timeseries_df[start:].index):
+                    if dt != idx_dt:
+                        start = dt
+                        break
+            pageviews_df = self.query_wikipedia_pageviews_timeseries(
+                start, end,
+                wikimedia_endpoint=wikimedia_endpoint,
+                wikidata_client=wikidata_client
+            )
+            if self.timeseries_df is None:
+                self.timeseries_df = pageviews_df
+            else:
+                # note new values _do not_ overwrite old ones if index values
+                # are the same
+                self.timeseries_df = self.timeseries_df.combine_first(pageviews_df)
+
+    def query_wikipedia_pageviews_timeseries(
+        self,
+        start,
+        end,
+        wikimedia_endpoint=None,
+        wikidata_client=None,
+    ):
+        if wikimedia_endpoint is None:
+            wikimedia_endpoint = self.wikimedia_endpoint
+        if wikimedia_endpoint is None:
+            wikimedia_endpoint = self.wikimedia_endpoint
+
+        pageviews_df = wikidata_id_to_wikimedia_pageviews_timeseries(
+            self.wikidata_id,
+            start,
+            end,
+            granularity='daily',
+            wikidata_client=wikidata_client,
+            wikimedia_endpoint=wikimedia_endpoint,
+        )
+        return pageviews_df
+
+    def add_wikimedia_pageviews_timeseries(
+        self,
+        wikimedia_endpoint=None,
+        wikidata_client=None,
+        overwrite_existing=False,
+    ):
+        if wikimedia_endpoint is None:
+            wikimedia_endpoint = self.wikimedia_endpoint
+        if wikimedia_endpoint is None:
+            wikimedia_endpoint = self.wikimedia_endpoint
+        """
+        look at the params that were used to query the NewsAPI, and try to derive
+        a query to the wikimedia pageviews API from that. 
+
+        For example, if there's no wikidata id in the NewsAPI query, this function should
+        fail noisyly.
+        """
+        if not overwrite_existing and "wikimedia_pageviews" in self.timeseries_df.columns:
+            logger.info("wikimedia pageviews already exist, not adding")
+            return self
+        start = self.timeseries_df.index.min().to_pydatetime()
+        end = self.timeseries_df.index.max().to_pydatetime()
+        pageviews_df = self.query_wikipedia_pageviews_timeseries(
+            start, end,
+            wikimedia_endpoint=wikimedia_endpoint,
+            wikidata_client=wikidata_client
+        )
+        self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].values
+        return self
+
+    def add_wikipedia_current_events(
+        self,
+        overwrite_existing=False,
+        feeds_column='wikipedia_current_events',
+        freq='D',
+        filter_by_wikidata_id=True,
+        wikidata_client=None,
+        wikipedia_endpoint=None,
+    ):
+        if wikipedia_endpoint is None:
+            wikipedia_endpoint = self.wikipedia_endpoint
+        if wikidata_client is None:
+            wikidata_client = self.wikidata_client
+        if self.feeds_df is None:
+            date_range = self.date_range(self.start, self.end, freq=freq)
+            # init with UTC datetime index
+            # we use only start dates thus the cutoff
+            self.feeds_df = pd.DataFrame(
+                columns=[feeds_column],
+                index=pd.DatetimeIndex(date_range[:-1], tz='UTC')
+            )
+        elif not overwrite_existing:
+            if "wikipedia_current_events" in self.feeds_df.columns:
+                logger.info("wikipedia_current_events already exist, not adding")
+                return self
+
+        start = self.start.to_pydatetime()
+        end = self.end.to_pydatetime()
+        event_items = wikidata_id_to_current_events(
+            self.wikidata_id,
+            start,
+            end,
+            filter_by_wikidata_id=filter_by_wikidata_id,
+            wikipedia_endpoint=wikipedia_endpoint,
+            wikidata_client=wikidata_client
+        )
+
+        date_to_events = defaultdict(list)
+        for event in event_items:
+            date_to_events[event['date']].append(event)
+
+        records = []
+        timestamps = []
+        for date, events in sorted(date_to_events.items(), key=lambda x: x[0]):
+            ts = self.normalize_timestamp(date, freq)
+            timestamps.append(ts)
+            records.append(
+                {feeds_column: events}
+            )
+
+        # now merge the events into self.feeds_df at the correct timestamps
+        events_bucket_df = pd.DataFrame(
+            records,
+            index=pd.DatetimeIndex(timestamps, tz='UTC')
+        )
+        self.feeds_df = self.feeds_df.combine_first(events_bucket_df)
         return self
 
 
