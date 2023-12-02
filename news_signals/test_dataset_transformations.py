@@ -1,6 +1,7 @@
 import os
 import unittest
 import shutil
+import json
 from pathlib import Path
 
 from news_signals import signals
@@ -79,12 +80,12 @@ class TestDatasetTransformations(unittest.TestCase):
         start = signals_[0].start
         end = signals_[0].end
         url_date_format = "%Y%m%d00"
-        mock_response = {
+        mock_response = json.dumps({
             "items": [
                 {"views": 42, "timestamp": dt.strftime(url_date_format)}
                 for dt in signals.Signal.date_range(start, end)
             ]
-        }
+        })
         dataset_transformations.add_wikimedia_pageviews(
             self.dataset,
             wikidata_client=MockWikidataClient("https://en.wikipedia.org/wiki/Apple_Inc."),
@@ -93,3 +94,15 @@ class TestDatasetTransformations(unittest.TestCase):
         assert all('wikimedia_pageviews' in s.columns for s in self.dataset.signals.values())
         dataset = self.save_and_load_dataset()
         assert all('wikimedia_pageviews' in s.columns for s in dataset.signals.values())
+
+    def test_add_wikipedia_current_events(self):
+        html_path = resources / 'wiki-current-events-portal/example_monthly_page_jan_2023.html'
+        example_html = html_path.read_text()
+        dataset_transformations.add_wikipedia_current_events(
+            self.dataset,
+            wikidata_client=MockWikidataClient('https://en.wikipedia.org/wiki/COVID-19_pandemic'),
+            wikipedia_endpoint=MockRequestsEndpoint(response=example_html)
+        )
+        assert all('wikipedia_current_events' in s.feeds_df.columns for s in self.dataset.signals.values())
+        dataset = self.save_and_load_dataset()
+        assert all('wikipedia_current_events' in s.feeds_df.columns for s in dataset.signals.values())

@@ -42,7 +42,7 @@ class MockWikidataClient:
         return response
 
 
-class MockGetRequestEndpoint:
+class MockRequestEndpoint:
     def __init__(self, response):
         self.response = response
 
@@ -60,7 +60,7 @@ class TestWikidataTools(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.wikipedia_link = "https://en.wikipedia.org/wiki/Apple_Inc."
-        cls.wikimedia_endpoint = MockGetRequestEndpoint(
+        cls.wikimedia_endpoint = MockRequestEndpoint(
             response=json.dumps(
                 {
                     "items": [

@@ -95,7 +95,7 @@ class TestSignal(SignalTest):
         df = signal.df
         assert tuple(df.columns) == ('count', 'published_at', 'stories', 'signal_name', 'freq')
     
-    # TODO: this test does not work
+    # TODO: this test fails
     # def test_getitem(self):
     #     """
     #     Test that we can get a slice of a signal
@@ -213,7 +213,7 @@ class MockWikidataClient:
         }
 
 
-class MockGetRequestsEndpoint:
+class MockRequestsEndpoint:
     def __init__(self, response):
         self.response = response
 
@@ -480,7 +480,7 @@ class TestAylienSignal(SignalTest):
         )
         signal.add_wikimedia_pageviews_timeseries(
             wikidata_client=MockWikidataClient("wiki-link-placeholder"),
-            wikimedia_endpoint = MockGetRequestsEndpoint(
+            wikimedia_endpoint = MockRequestsEndpoint(
                 response=json.dumps(
                     {
                         "items": [
@@ -499,6 +499,32 @@ class TestAylienSignal(SignalTest):
         dtype =  signal.timeseries_df.dtypes["wikimedia_pageviews"]
         assert dtype == np.int64
 
+    def test_add_wikipedia_current_events(self):
+        html_path = resources / 'wiki-current-events-portal/example_monthly_page_jan_2023.html'
+        example_html = html_path.read_text()
+        signal = signals.AylienSignal(
+            name='test',
+            params={'entity_ids': ['Q81068910']}
+        )
+        start = '2023-01-01'
+        end = '2023-01-30'
+        ts_signal = signal(start=start, end=end)
+        ts_signal.add_wikipedia_current_events(
+            wikidata_client=MockWikidataClient('https://en.wikipedia.org/wiki/COVID-19_pandemic'),
+            wikipedia_endpoint=MockRequestsEndpoint(response=example_html)
+        )
+        assert 'wikipedia_current_events' in ts_signal.feeds_df
+        assert not ts_signal.feeds_df['wikipedia_current_events'].isnull().all()
+        df = ts_signal.feeds_df
+        n = 0
+        for events in df['wikipedia_current_events'].values:
+            if isinstance(events, list):
+                n += 1
+                for e in events:
+                    assert 'text' in e
+                    assert 'date' in e
+                    assert 'wiki_links' in e
+        assert n > 0
 
 class TestWikimediaSignal(SignalTest):
 
@@ -518,12 +544,15 @@ class TestWikimediaSignal(SignalTest):
         signal = signals.WikimediaSignal(
             name='test',
             wikidata_id='Q123',
-            wikimedia_endpoint=MockGetRequestsEndpoint(json.dumps(self.pageview_items)),
-            wikidata_client=MockWikidataClient('test')
         )
         start = '2023-01-01'
         end = '2023-01-05'
-        ts_signal = signal(start=start, end=end)
+        ts_signal = signal(
+            start=start,
+            end=end,
+            wikimedia_endpoint=MockRequestsEndpoint(json.dumps(self.pageview_items)),
+            wikidata_client=MockWikidataClient('test')
+        )
         assert not ts_signal.timeseries_df['wikimedia_pageviews'].isnull().any()
 
     def test_update(self):
@@ -557,11 +586,14 @@ class TestWikimediaSignal(SignalTest):
         signal = signals.WikimediaSignal(
             name='test-signal',
             wikidata_id='Q123',
-            wikimedia_endpoint=MockGetRequestsEndpoint(json.dumps(self.pageview_items)),
-            wikidata_client=MockWikidataClient('test'),
             timeseries_df=timeseries_df[t1:t2]
         )
-        signal.update(start=t1, end=t2)
+        signal.update(
+            start=t1,
+            end=t2,
+            wikimedia_endpoint=MockRequestsEndpoint(json.dumps(self.pageview_items)),
+            wikidata_client=MockWikidataClient('test'),
+        )
         assert signal.start == t1
         assert signal.end == t2
         signal.params = {'timeseries_df': timeseries_df[t1:t3]}
@@ -575,14 +607,14 @@ class TestWikimediaSignal(SignalTest):
         signal = signals.WikimediaSignal(
             name='test',
             wikidata_id='Q81068910',
-            wikimedia_endpoint=MockGetRequestsEndpoint(json.dumps(self.pageview_items)),
-            wikidata_client=MockWikidataClient('https://en.wikipedia.org/wiki/COVID-19_pandemic'),
-            wikipedia_endpoint=MockGetRequestsEndpoint(response=example_html)
         )
         start = '2023-01-01'
         end = '2023-01-30'
         ts_signal = signal(start=start, end=end)
-        ts_signal.add_wikipedia_current_events()
+        ts_signal.add_wikipedia_current_events(
+            wikidata_client=MockWikidataClient('https://en.wikipedia.org/wiki/COVID-19_pandemic'),
+            wikipedia_endpoint=MockRequestsEndpoint(response=example_html)
+        )
         assert 'wikipedia_current_events' in ts_signal.feeds_df
         assert not ts_signal.feeds_df['wikipedia_current_events'].isnull().all()
         df = ts_signal.feeds_df
@@ -590,7 +622,6 @@ class TestWikimediaSignal(SignalTest):
         for events in df['wikipedia_current_events'].values:
             if isinstance(events, list):
                 n += 1
-                assert isinstance(events, list)
                 for e in events:
                     assert 'text' in e
                     assert 'date' in e

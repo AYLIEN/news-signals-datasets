@@ -882,44 +882,6 @@ class AylienSignal(Signal):
 
         return summaries
 
-    def plot(self, *args, **kwargs):
-        if getattr(self, 'timeseries_df', None) is not None:
-            if self.feeds_df is not None and 'wikipedia_current_events' in self.feeds_df:
-                pass
-            if 'wikimedia_pageviews' in self.timeseries_df:
-                pageview_series = self.timeseries_df['wikimedia_pageviews']
-                count_series = self.timeseries_df['count']
-                fig, ax1 = plt.subplots(*args, **kwargs)
-                
-                color = 'tab:red'
-                ax1.set_xlabel('Date')
-                ax1.set_ylabel('NewsAPI Publication Count', color=color)
-                ax1.plot(
-                    self.timeseries_df.index,
-                    count_series,
-                    color=color,
-                    **kwargs
-                )
-                ax1.tick_params(axis='y', labelcolor=color)
-
-                # Creating a twin of the first axis for the second time series
-                ax2 = ax1.twinx()  
-                color = 'tab:blue'
-                ax2.set_ylabel('Wikimedia Pageviews', color=color)  
-                ax2.plot(
-                    self.timeseries_df['count'].index,
-                    pageview_series,
-                    color=color,
-                    **kwargs
-                )
-                ax2.tick_params(axis='y', labelcolor=color)
-                return
-            
-            return self.timeseries_df.plot(*args, **kwargs)
-        else:
-            raise NotImplementedError(
-                'plot() is not implemented for this signal type'
-            )
 
     def add_wikimedia_pageviews_timeseries(
         self,
@@ -965,6 +927,10 @@ class AylienSignal(Signal):
         overwrite_existing=False,
         feeds_column='wikipedia_current_events',
         freq='D',
+        wikidata_client=None,
+        wikipedia_endpoint=None,
+        filter_by_wikidata_id=True
+        
     ):
         if self.feeds_df is None:
             date_range = self.date_range(self.start, self.end, freq=freq)
@@ -994,19 +960,29 @@ class AylienSignal(Signal):
         event_items = wikidata_id_to_current_events(
             wikidata_id,
             start,
-            end
+            end,
+            filter_by_wikidata_id=filter_by_wikidata_id,
+            wikipedia_endpoint=wikipedia_endpoint,
+            wikidata_client=wikidata_client
         )
 
-        event_bucket_records = []
+        date_to_events = defaultdict(list)
         for event in event_items:
-            ts = self.normalize_timestamp(event['date'], freq)
-            event_bucket_records.append(
-                {'timestamp': ts, feeds_column: event}
+            date_to_events[event['date']].append(event)
+
+        records = []
+        timestamps = []
+        for date, events in sorted(date_to_events.items(), key=lambda x: x[0]):
+            ts = self.normalize_timestamp(date, freq)
+            timestamps.append(ts)
+            records.append(
+                {feeds_column: events}
             )
+
         # now merge the events into self.feeds_df at the correct timestamps
         events_bucket_df = pd.DataFrame(
-            event_bucket_records,
-            index=pd.DatetimeIndex([r['timestamp'] for r in event_bucket_records], tz='UTC')
+            records,
+            index=pd.DatetimeIndex(timestamps, tz='UTC')
         )
         self.feeds_df = self.feeds_df.combine_first(events_bucket_df)
         return self
@@ -1016,7 +992,11 @@ class WikimediaSignal(Signal):
     """
     A Wikimedia signal uses Wikimedia-related sources,
     i.e. Wikipedia, Wikidata etc. to gather time series and text
-    related to entities.
+    related to entities based on their Wikidata ID. Currently this includes:
+    - Wikimedia pageviews timeseries (pageviews of Wikipedia articles)
+    - Wikipedia Current Events entries
+    NOTE: This signal does not require any sign-up to NewsAPI or similar,
+    so it works for anyone out-of-the-box.
     """
     def __init__(
         self,
@@ -1026,9 +1006,9 @@ class WikimediaSignal(Signal):
         feeds_df=None,
         wikidata_id=None,
         ts_column='wikimedia_pageviews',
-        wikidata_client=None,
-        wikimedia_endpoint=None,
-        wikipedia_endpoint=None
+        # wikidata_client=None,
+        # wikimedia_endpoint=None,
+        # wikipedia_endpoint=None
     ):
         super().__init__(
             name,
@@ -1038,9 +1018,9 @@ class WikimediaSignal(Signal):
             ts_column=ts_column
         )
         self.wikidata_id = wikidata_id
-        self.wikidata_client = wikidata_client
-        self.wikimedia_endpoint = wikimedia_endpoint
-        self.wikipedia_endpoint = wikipedia_endpoint
+        # self.wikidata_client = wikidata_client
+        # self.wikimedia_endpoint = wikimedia_endpoint
+        # self.wikipedia_endpoint = wikipedia_endpoint
 
     def to_dict(self):
         return {
@@ -1064,13 +1044,17 @@ class WikimediaSignal(Signal):
             ts_column=data['ts_column'],
         )
 
-    def __call__(self, start, end, freq='D'):
+    def __call__(self, start, end, freq='D', wikimedia_endpoint=None, wikidata_client=None):
         start = self.normalize_timestamp(start, freq)
         end = self.normalize_timestamp(end, freq)
         if freq not in ['D']:
             # currently we only support daily ticks on Wikimedia timeseries
             raise UnknownFrequencyArgument
-        self.update(start=start, end=end, freq=freq)
+        self.update(
+            start=start, end=end, freq=freq,
+            wikimedia_endpoint=wikimedia_endpoint,
+            wikidata_client=wikidata_client
+        )
         return self
 
     def update(self, start=None, end=None, freq='D', wikimedia_endpoint=None, wikidata_client=None):
@@ -1083,11 +1067,6 @@ class WikimediaSignal(Signal):
         :param start: datetime
         :param end: datetime
         """
-        if wikimedia_endpoint is None:
-            wikimedia_endpoint = self.wikimedia_endpoint
-        if wikimedia_endpoint is None:
-            wikimedia_endpoint = self.wikimedia_endpoint
-
         if end is None:
             end = self.normalize_timestamp(datetime.datetime.now(), freq)
         # if start is None, we look up to 30 days ago
@@ -1145,11 +1124,6 @@ class WikimediaSignal(Signal):
         wikimedia_endpoint=None,
         wikidata_client=None,
     ):
-        if wikimedia_endpoint is None:
-            wikimedia_endpoint = self.wikimedia_endpoint
-        if wikimedia_endpoint is None:
-            wikimedia_endpoint = self.wikimedia_endpoint
-
         pageviews_df = wikidata_id_to_wikimedia_pageviews_timeseries(
             self.wikidata_id,
             start,
