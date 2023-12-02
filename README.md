@@ -11,6 +11,7 @@ These notebooks let you try out `news-signals` without installing anything!
 
 The Colab notebooks above are also available as jupyter notebooks in [research/news-signals-example-notebooks](research/news-signals-example-notebooks)
 
+**NEW**: [Create_Wikimedia_Signals.ipynb](research/news-signals-example-notebooks/Create_Wikimedia_Signals.ipynb) shows how to build and explore a `WikimediaSignal` which does not a NewsAPI account and works out-of-the-box for anyone.
 
 ## Quickstart
 
