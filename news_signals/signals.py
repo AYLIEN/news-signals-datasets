@@ -3,7 +3,7 @@ import os
 import sys
 from abc import abstractmethod
 from collections import Counter, defaultdict
-from typing import List
+from typing import List, Optional
 import json
 import base64
 from pathlib import Path
@@ -918,8 +918,13 @@ class AylienSignal(Signal):
                 granularity='daily',
                 wikidata_client=wikidata_client,
                 wikimedia_endpoint=wikimedia_endpoint,
-        )        
-        self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].values
+        ) 
+        try:
+            self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].values
+        except TypeError as e:
+            logger.error(e)
+            logger.warning('Retrieved wikimedia pageviews dataframe is None, not adding to signal')
+            
         return self
 
     def add_wikipedia_current_events(
@@ -1214,7 +1219,7 @@ class AggregateSignal(Signal):
         self,
         name: str,
         components: List[Signal],
-        metadata: dict = None
+        metadata: Optional[dict] = None
     ):
         super().__init__(name, metadata=metadata)
         self.components = components
