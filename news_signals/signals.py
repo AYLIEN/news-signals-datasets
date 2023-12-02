@@ -980,11 +980,11 @@ class AylienSignal(Signal):
             )
 
         # now merge the events into self.feeds_df at the correct timestamps
-        events_bucket_df = pd.DataFrame(
+        events_df = pd.DataFrame(
             records,
             index=pd.DatetimeIndex(timestamps, tz='UTC')
         )
-        self.feeds_df = self.feeds_df.combine_first(events_bucket_df)
+        self.feeds_df = self.feeds_df.combine_first(events_df)
         return self
 
 
@@ -1006,9 +1006,6 @@ class WikimediaSignal(Signal):
         feeds_df=None,
         wikidata_id=None,
         ts_column='wikimedia_pageviews',
-        # wikidata_client=None,
-        # wikimedia_endpoint=None,
-        # wikipedia_endpoint=None
     ):
         super().__init__(
             name,
@@ -1018,9 +1015,6 @@ class WikimediaSignal(Signal):
             ts_column=ts_column
         )
         self.wikidata_id = wikidata_id
-        # self.wikidata_client = wikidata_client
-        # self.wikimedia_endpoint = wikimedia_endpoint
-        # self.wikipedia_endpoint = wikipedia_endpoint
 
     def to_dict(self):
         return {
@@ -1140,10 +1134,6 @@ class WikimediaSignal(Signal):
         wikidata_client=None,
         overwrite_existing=False,
     ):
-        if wikimedia_endpoint is None:
-            wikimedia_endpoint = self.wikimedia_endpoint
-        if wikimedia_endpoint is None:
-            wikimedia_endpoint = self.wikimedia_endpoint
         """
         look at the params that were used to query the NewsAPI, and try to derive
         a query to the wikimedia pageviews API from that. 
@@ -1173,10 +1163,6 @@ class WikimediaSignal(Signal):
         wikidata_client=None,
         wikipedia_endpoint=None,
     ):
-        if wikipedia_endpoint is None:
-            wikipedia_endpoint = self.wikipedia_endpoint
-        if wikidata_client is None:
-            wikidata_client = self.wikidata_client
         if self.feeds_df is None:
             date_range = self.date_range(self.start, self.end, freq=freq)
             # init with UTC datetime index
@@ -1215,11 +1201,11 @@ class WikimediaSignal(Signal):
             )
 
         # now merge the events into self.feeds_df at the correct timestamps
-        events_bucket_df = pd.DataFrame(
+        events_df = pd.DataFrame(
             records,
             index=pd.DatetimeIndex(timestamps, tz='UTC')
         )
-        self.feeds_df = self.feeds_df.combine_first(events_bucket_df)
+        self.feeds_df = self.feeds_df.combine_first(events_df)
         return self
 
 
