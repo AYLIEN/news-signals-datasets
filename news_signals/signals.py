@@ -1143,7 +1143,7 @@ class WikimediaSignal(Signal):
         look at the params that were used to query the NewsAPI, and try to derive
         a query to the wikimedia pageviews API from that. 
 
-        For example, if there's no wikidata id in the NewsAPI query, this function should
+        For example, if there's no wikidata id, this function should
         fail noisyly.
         """
         if not overwrite_existing and "wikimedia_pageviews" in self.timeseries_df.columns:

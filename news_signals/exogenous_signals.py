@@ -164,11 +164,9 @@ def wikipedia_link_to_wikimedia_pageviews_timeseries(
 ########## TOOLS FOR SEARCHING WIKIPEDIA CURRENT EVENTS PORTAL ##########
 #########################################################################
 
-# Parsing the WCEP works with the code below but the page structures can change
-# in the future, including past pages.
-
-
-
+# Parsing the WCEP works with the code below as of 2023-11-30,
+# but note that the page structures can change
+# in the future, including the structure of past pages.
 MONTH_NAMES = list(calendar.month_name)[1:]
 
 
