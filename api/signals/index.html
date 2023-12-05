@@ -424,6 +424,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#news_signals.signals.WikimediaSignal" class="md-nav__link">
+    WikimediaSignal
+  </a>
+  
+    <nav class="md-nav" aria-label="WikimediaSignal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#news_signals.signals.WikimediaSignal.add_wikimedia_pageviews_timeseries" class="md-nav__link">
+    add_wikimedia_pageviews_timeseries()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#news_signals.signals.WikimediaSignal.update" class="md-nav__link">
+    update()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -698,6 +725,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#news_signals.signals.WikimediaSignal" class="md-nav__link">
+    WikimediaSignal
+  </a>
+  
+    <nav class="md-nav" aria-label="WikimediaSignal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#news_signals.signals.WikimediaSignal.add_wikimedia_pageviews_timeseries" class="md-nav__link">
+    add_wikimedia_pageviews_timeseries()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#news_signals.signals.WikimediaSignal.update" class="md-nav__link">
+    update()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -751,109 +805,109 @@
 
         <details class="quote">
           <summary>Source code in <code>news_signals/signals.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 922</span>
-<span class="normal"> 923</span>
-<span class="normal"> 924</span>
-<span class="normal"> 925</span>
-<span class="normal"> 926</span>
-<span class="normal"> 927</span>
-<span class="normal"> 928</span>
-<span class="normal"> 929</span>
-<span class="normal"> 930</span>
-<span class="normal"> 931</span>
-<span class="normal"> 932</span>
-<span class="normal"> 933</span>
-<span class="normal"> 934</span>
-<span class="normal"> 935</span>
-<span class="normal"> 936</span>
-<span class="normal"> 937</span>
-<span class="normal"> 938</span>
-<span class="normal"> 939</span>
-<span class="normal"> 940</span>
-<span class="normal"> 941</span>
-<span class="normal"> 942</span>
-<span class="normal"> 943</span>
-<span class="normal"> 944</span>
-<span class="normal"> 945</span>
-<span class="normal"> 946</span>
-<span class="normal"> 947</span>
-<span class="normal"> 948</span>
-<span class="normal"> 949</span>
-<span class="normal"> 950</span>
-<span class="normal"> 951</span>
-<span class="normal"> 952</span>
-<span class="normal"> 953</span>
-<span class="normal"> 954</span>
-<span class="normal"> 955</span>
-<span class="normal"> 956</span>
-<span class="normal"> 957</span>
-<span class="normal"> 958</span>
-<span class="normal"> 959</span>
-<span class="normal"> 960</span>
-<span class="normal"> 961</span>
-<span class="normal"> 962</span>
-<span class="normal"> 963</span>
-<span class="normal"> 964</span>
-<span class="normal"> 965</span>
-<span class="normal"> 966</span>
-<span class="normal"> 967</span>
-<span class="normal"> 968</span>
-<span class="normal"> 969</span>
-<span class="normal"> 970</span>
-<span class="normal"> 971</span>
-<span class="normal"> 972</span>
-<span class="normal"> 973</span>
-<span class="normal"> 974</span>
-<span class="normal"> 975</span>
-<span class="normal"> 976</span>
-<span class="normal"> 977</span>
-<span class="normal"> 978</span>
-<span class="normal"> 979</span>
-<span class="normal"> 980</span>
-<span class="normal"> 981</span>
-<span class="normal"> 982</span>
-<span class="normal"> 983</span>
-<span class="normal"> 984</span>
-<span class="normal"> 985</span>
-<span class="normal"> 986</span>
-<span class="normal"> 987</span>
-<span class="normal"> 988</span>
-<span class="normal"> 989</span>
-<span class="normal"> 990</span>
-<span class="normal"> 991</span>
-<span class="normal"> 992</span>
-<span class="normal"> 993</span>
-<span class="normal"> 994</span>
-<span class="normal"> 995</span>
-<span class="normal"> 996</span>
-<span class="normal"> 997</span>
-<span class="normal"> 998</span>
-<span class="normal"> 999</span>
-<span class="normal">1000</span>
-<span class="normal">1001</span>
-<span class="normal">1002</span>
-<span class="normal">1003</span>
-<span class="normal">1004</span>
-<span class="normal">1005</span>
-<span class="normal">1006</span>
-<span class="normal">1007</span>
-<span class="normal">1008</span>
-<span class="normal">1009</span>
-<span class="normal">1010</span>
-<span class="normal">1011</span>
-<span class="normal">1012</span>
-<span class="normal">1013</span>
-<span class="normal">1014</span>
-<span class="normal">1015</span>
-<span class="normal">1016</span>
-<span class="normal">1017</span>
-<span class="normal">1018</span>
-<span class="normal">1019</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">AggregateSignal</span><span class="p">(</span><span class="n">Signal</span><span class="p">):</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1217</span>
+<span class="normal">1218</span>
+<span class="normal">1219</span>
+<span class="normal">1220</span>
+<span class="normal">1221</span>
+<span class="normal">1222</span>
+<span class="normal">1223</span>
+<span class="normal">1224</span>
+<span class="normal">1225</span>
+<span class="normal">1226</span>
+<span class="normal">1227</span>
+<span class="normal">1228</span>
+<span class="normal">1229</span>
+<span class="normal">1230</span>
+<span class="normal">1231</span>
+<span class="normal">1232</span>
+<span class="normal">1233</span>
+<span class="normal">1234</span>
+<span class="normal">1235</span>
+<span class="normal">1236</span>
+<span class="normal">1237</span>
+<span class="normal">1238</span>
+<span class="normal">1239</span>
+<span class="normal">1240</span>
+<span class="normal">1241</span>
+<span class="normal">1242</span>
+<span class="normal">1243</span>
+<span class="normal">1244</span>
+<span class="normal">1245</span>
+<span class="normal">1246</span>
+<span class="normal">1247</span>
+<span class="normal">1248</span>
+<span class="normal">1249</span>
+<span class="normal">1250</span>
+<span class="normal">1251</span>
+<span class="normal">1252</span>
+<span class="normal">1253</span>
+<span class="normal">1254</span>
+<span class="normal">1255</span>
+<span class="normal">1256</span>
+<span class="normal">1257</span>
+<span class="normal">1258</span>
+<span class="normal">1259</span>
+<span class="normal">1260</span>
+<span class="normal">1261</span>
+<span class="normal">1262</span>
+<span class="normal">1263</span>
+<span class="normal">1264</span>
+<span class="normal">1265</span>
+<span class="normal">1266</span>
+<span class="normal">1267</span>
+<span class="normal">1268</span>
+<span class="normal">1269</span>
+<span class="normal">1270</span>
+<span class="normal">1271</span>
+<span class="normal">1272</span>
+<span class="normal">1273</span>
+<span class="normal">1274</span>
+<span class="normal">1275</span>
+<span class="normal">1276</span>
+<span class="normal">1277</span>
+<span class="normal">1278</span>
+<span class="normal">1279</span>
+<span class="normal">1280</span>
+<span class="normal">1281</span>
+<span class="normal">1282</span>
+<span class="normal">1283</span>
+<span class="normal">1284</span>
+<span class="normal">1285</span>
+<span class="normal">1286</span>
+<span class="normal">1287</span>
+<span class="normal">1288</span>
+<span class="normal">1289</span>
+<span class="normal">1290</span>
+<span class="normal">1291</span>
+<span class="normal">1292</span>
+<span class="normal">1293</span>
+<span class="normal">1294</span>
+<span class="normal">1295</span>
+<span class="normal">1296</span>
+<span class="normal">1297</span>
+<span class="normal">1298</span>
+<span class="normal">1299</span>
+<span class="normal">1300</span>
+<span class="normal">1301</span>
+<span class="normal">1302</span>
+<span class="normal">1303</span>
+<span class="normal">1304</span>
+<span class="normal">1305</span>
+<span class="normal">1306</span>
+<span class="normal">1307</span>
+<span class="normal">1308</span>
+<span class="normal">1309</span>
+<span class="normal">1310</span>
+<span class="normal">1311</span>
+<span class="normal">1312</span>
+<span class="normal">1313</span>
+<span class="normal">1314</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">AggregateSignal</span><span class="p">(</span><span class="n">Signal</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">components</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Signal</span><span class="p">],</span>
-        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">components</span>
@@ -978,17 +1032,17 @@ is not found on the signal itself.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1009</span>
-<span class="normal">1010</span>
-<span class="normal">1011</span>
-<span class="normal">1012</span>
-<span class="normal">1013</span>
-<span class="normal">1014</span>
-<span class="normal">1015</span>
-<span class="normal">1016</span>
-<span class="normal">1017</span>
-<span class="normal">1018</span>
-<span class="normal">1019</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1304</span>
+<span class="normal">1305</span>
+<span class="normal">1306</span>
+<span class="normal">1307</span>
+<span class="normal">1308</span>
+<span class="normal">1309</span>
+<span class="normal">1310</span>
+<span class="normal">1311</span>
+<span class="normal">1312</span>
+<span class="normal">1313</span>
+<span class="normal">1314</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Try to delegate to the underlying df if the attribute</span>
 <span class="sd">    is not found on the signal itself.</span>
@@ -1035,13 +1089,7 @@ Timeseries endpoint and stores its output</p>
 
         <details class="quote">
           <summary>Source code in <code>news_signals/signals.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">566</span>
-<span class="normal">567</span>
-<span class="normal">568</span>
-<span class="normal">569</span>
-<span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">572</span>
 <span class="normal">573</span>
 <span class="normal">574</span>
 <span class="normal">575</span>
@@ -1388,7 +1436,81 @@ Timeseries endpoint and stores its output</p>
 <span class="normal">916</span>
 <span class="normal">917</span>
 <span class="normal">918</span>
-<span class="normal">919</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">AylienSignal</span><span class="p">(</span><span class="n">Signal</span><span class="p">):</span>
+<span class="normal">919</span>
+<span class="normal">920</span>
+<span class="normal">921</span>
+<span class="normal">922</span>
+<span class="normal">923</span>
+<span class="normal">924</span>
+<span class="normal">925</span>
+<span class="normal">926</span>
+<span class="normal">927</span>
+<span class="normal">928</span>
+<span class="normal">929</span>
+<span class="normal">930</span>
+<span class="normal">931</span>
+<span class="normal">932</span>
+<span class="normal">933</span>
+<span class="normal">934</span>
+<span class="normal">935</span>
+<span class="normal">936</span>
+<span class="normal">937</span>
+<span class="normal">938</span>
+<span class="normal">939</span>
+<span class="normal">940</span>
+<span class="normal">941</span>
+<span class="normal">942</span>
+<span class="normal">943</span>
+<span class="normal">944</span>
+<span class="normal">945</span>
+<span class="normal">946</span>
+<span class="normal">947</span>
+<span class="normal">948</span>
+<span class="normal">949</span>
+<span class="normal">950</span>
+<span class="normal">951</span>
+<span class="normal">952</span>
+<span class="normal">953</span>
+<span class="normal">954</span>
+<span class="normal">955</span>
+<span class="normal">956</span>
+<span class="normal">957</span>
+<span class="normal">958</span>
+<span class="normal">959</span>
+<span class="normal">960</span>
+<span class="normal">961</span>
+<span class="normal">962</span>
+<span class="normal">963</span>
+<span class="normal">964</span>
+<span class="normal">965</span>
+<span class="normal">966</span>
+<span class="normal">967</span>
+<span class="normal">968</span>
+<span class="normal">969</span>
+<span class="normal">970</span>
+<span class="normal">971</span>
+<span class="normal">972</span>
+<span class="normal">973</span>
+<span class="normal">974</span>
+<span class="normal">975</span>
+<span class="normal">976</span>
+<span class="normal">977</span>
+<span class="normal">978</span>
+<span class="normal">979</span>
+<span class="normal">980</span>
+<span class="normal">981</span>
+<span class="normal">982</span>
+<span class="normal">983</span>
+<span class="normal">984</span>
+<span class="normal">985</span>
+<span class="normal">986</span>
+<span class="normal">987</span>
+<span class="normal">988</span>
+<span class="normal">989</span>
+<span class="normal">990</span>
+<span class="normal">991</span>
+<span class="normal">992</span>
+<span class="normal">993</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">AylienSignal</span><span class="p">(</span><span class="n">Signal</span><span class="p">):</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An Aylien signal wraps News API query to the</span>
@@ -1564,9 +1686,6 @@ Timeseries endpoint and stores its output</p>
         <span class="k">if</span> <span class="n">ts_endpoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ts_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts_endpoint</span>
         <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_query</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="n">period</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ts_endpoint</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts_endpoint</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PARAMS&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">aylien_ts</span> <span class="o">=</span> <span class="n">ts_endpoint</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">ts_df</span> <span class="o">=</span> <span class="n">aylien_ts_to_df</span><span class="p">(</span>
             <span class="n">aylien_ts</span><span class="p">,</span> <span class="n">dt_index</span><span class="o">=</span><span class="kc">True</span>
@@ -1704,6 +1823,7 @@ Timeseries endpoint and stores its output</p>
 
         <span class="k">return</span> <span class="n">summaries</span>
 
+
     <span class="k">def</span> <span class="nf">add_wikimedia_pageviews_timeseries</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1722,7 +1842,7 @@ Timeseries endpoint and stores its output</p>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">wikidata_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;entity_ids&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>                
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">wikidata_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aql</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;id:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">assert</span> <span class="n">wikidata_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
@@ -1732,15 +1852,85 @@ Timeseries endpoint and stores its output</p>
                 <span class="p">)</span>
         <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
         <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
-        <span class="n">pageviews_df</span> <span class="o">=</span> <span class="n">wikimedia_pageviews_timeseries_from_wikidata_id</span><span class="p">(</span>
+        <span class="n">pageviews_df</span> <span class="o">=</span> <span class="n">wikidata_id_to_wikimedia_pageviews_timeseries</span><span class="p">(</span>
                 <span class="n">wikidata_id</span><span class="p">,</span>
                 <span class="n">start</span><span class="p">,</span>
                 <span class="n">end</span><span class="p">,</span>
                 <span class="n">granularity</span><span class="o">=</span><span class="s1">&#39;daily&#39;</span><span class="p">,</span>
                 <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span><span class="p">,</span>
                 <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="n">wikimedia_endpoint</span><span class="p">,</span>
-        <span class="p">)</span>        
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pageviews_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="p">)</span> 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pageviews_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Retrieved wikimedia pageviews dataframe is None, not adding to signal&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">add_wikipedia_current_events</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">overwrite_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">feeds_column</span><span class="o">=</span><span class="s1">&#39;wikipedia_current_events&#39;</span><span class="p">,</span>
+        <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span>
+        <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wikipedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filter_by_wikidata_id</span><span class="o">=</span><span class="kc">True</span>
+
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">date_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">)</span>
+            <span class="c1"># init with UTC datetime index</span>
+            <span class="c1"># we use only start dates thus the cutoff</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">feeds_column</span><span class="p">],</span>
+                <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">date_range</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">overwrite_existing</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;wikipedia_current_events&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;wikipedia current events already exist, not adding&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">wikidata_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;entity_ids&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">wikidata_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aql</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;id:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="n">wikidata_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">WikidataIDNotFound</span><span class="p">(</span>
+                    <span class="s2">&quot;No Wikidata ID found in signal.params or signal.aql&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">event_items</span> <span class="o">=</span> <span class="n">wikidata_id_to_current_events</span><span class="p">(</span>
+            <span class="n">wikidata_id</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">,</span>
+            <span class="n">end</span><span class="p">,</span>
+            <span class="n">filter_by_wikidata_id</span><span class="o">=</span><span class="n">filter_by_wikidata_id</span><span class="p">,</span>
+            <span class="n">wikipedia_endpoint</span><span class="o">=</span><span class="n">wikipedia_endpoint</span><span class="p">,</span>
+            <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span>
+        <span class="p">)</span>
+
+        <span class="n">date_to_events</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">event_items</span><span class="p">:</span>
+            <span class="n">date_to_events</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">timestamps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">date</span><span class="p">,</span> <span class="n">events</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">date_to_events</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_timestamp</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+            <span class="n">timestamps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="n">feeds_column</span><span class="p">:</span> <span class="n">events</span><span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># now merge the events into self.feeds_df at the correct timestamps</span>
+        <span class="n">events_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">records</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">events_df</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
         </details>
@@ -1776,11 +1966,7 @@ fail noisyly.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">882</span>
-<span class="normal">883</span>
-<span class="normal">884</span>
-<span class="normal">885</span>
-<span class="normal">886</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">886</span>
 <span class="normal">887</span>
 <span class="normal">888</span>
 <span class="normal">889</span>
@@ -1813,7 +1999,16 @@ fail noisyly.</p>
 <span class="normal">916</span>
 <span class="normal">917</span>
 <span class="normal">918</span>
-<span class="normal">919</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">add_wikimedia_pageviews_timeseries</span><span class="p">(</span>
+<span class="normal">919</span>
+<span class="normal">920</span>
+<span class="normal">921</span>
+<span class="normal">922</span>
+<span class="normal">923</span>
+<span class="normal">924</span>
+<span class="normal">925</span>
+<span class="normal">926</span>
+<span class="normal">927</span>
+<span class="normal">928</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">add_wikimedia_pageviews_timeseries</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1831,7 +2026,7 @@ fail noisyly.</p>
         <span class="k">return</span> <span class="bp">self</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">wikidata_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;entity_ids&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>                
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">wikidata_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aql</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;id:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">assert</span> <span class="n">wikidata_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
@@ -1841,15 +2036,20 @@ fail noisyly.</p>
             <span class="p">)</span>
     <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
     <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
-    <span class="n">pageviews_df</span> <span class="o">=</span> <span class="n">wikimedia_pageviews_timeseries_from_wikidata_id</span><span class="p">(</span>
+    <span class="n">pageviews_df</span> <span class="o">=</span> <span class="n">wikidata_id_to_wikimedia_pageviews_timeseries</span><span class="p">(</span>
             <span class="n">wikidata_id</span><span class="p">,</span>
             <span class="n">start</span><span class="p">,</span>
             <span class="n">end</span><span class="p">,</span>
             <span class="n">granularity</span><span class="o">=</span><span class="s1">&#39;daily&#39;</span><span class="p">,</span>
             <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span><span class="p">,</span>
             <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="n">wikimedia_endpoint</span><span class="p">,</span>
-    <span class="p">)</span>        
-    <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pageviews_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="p">)</span> 
+    <span class="k">try</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pageviews_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Retrieved wikimedia pageviews dataframe is None, not adding to signal&#39;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
       </details>
@@ -1877,17 +2077,17 @@ fail noisyly.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">769</span>
-<span class="normal">770</span>
-<span class="normal">771</span>
-<span class="normal">772</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">772</span>
 <span class="normal">773</span>
 <span class="normal">774</span>
 <span class="normal">775</span>
 <span class="normal">776</span>
 <span class="normal">777</span>
 <span class="normal">778</span>
-<span class="normal">779</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">779</span>
+<span class="normal">780</span>
+<span class="normal">781</span>
+<span class="normal">782</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">normalize_aylien_story</span><span class="p">(</span><span class="n">story</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    stories is a list of dicts, each dict is a story</span>
@@ -1921,12 +2121,12 @@ fail noisyly.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">843</span>
-<span class="normal">844</span>
-<span class="normal">845</span>
-<span class="normal">846</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">846</span>
 <span class="normal">847</span>
-<span class="normal">848</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sample_anomaly_stories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">num_stories</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<span class="normal">848</span>
+<span class="normal">849</span>
+<span class="normal">850</span>
+<span class="normal">851</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sample_anomaly_stories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">num_stories</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    get anomaly windows in range, then for each window, tell us some stories</span>
 <span class="sd">    :return:</span>
@@ -1954,16 +2154,16 @@ fail noisyly.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">758</span>
-<span class="normal">759</span>
-<span class="normal">760</span>
-<span class="normal">761</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">761</span>
 <span class="normal">762</span>
 <span class="normal">763</span>
 <span class="normal">764</span>
 <span class="normal">765</span>
 <span class="normal">766</span>
-<span class="normal">767</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sample_stories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_stories</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="normal">767</span>
+<span class="normal">768</span>
+<span class="normal">769</span>
+<span class="normal">770</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sample_stories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_stories</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    sample stories for every tick of this signal</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1997,10 +2197,7 @@ Otherwise just directly return the stories</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">781</span>
-<span class="normal">782</span>
-<span class="normal">783</span>
-<span class="normal">784</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">784</span>
 <span class="normal">785</span>
 <span class="normal">786</span>
 <span class="normal">787</span>
@@ -2057,7 +2254,10 @@ Otherwise just directly return the stories</p>
 <span class="normal">838</span>
 <span class="normal">839</span>
 <span class="normal">840</span>
-<span class="normal">841</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sample_stories_in_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span>
+<span class="normal">841</span>
+<span class="normal">842</span>
+<span class="normal">843</span>
+<span class="normal">844</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sample_stories_in_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span>
                              <span class="n">num_stories</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                              <span class="n">sample_per_tick</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                              <span class="n">overwrite_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -2145,13 +2345,7 @@ any new data while retaining the existing information as well
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">668</span>
-<span class="normal">669</span>
-<span class="normal">670</span>
-<span class="normal">671</span>
-<span class="normal">672</span>
-<span class="normal">673</span>
-<span class="normal">674</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">674</span>
 <span class="normal">675</span>
 <span class="normal">676</span>
 <span class="normal">677</span>
@@ -2202,7 +2396,13 @@ any new data while retaining the existing information as well
 <span class="normal">722</span>
 <span class="normal">723</span>
 <span class="normal">724</span>
-<span class="normal">725</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">ts_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">725</span>
+<span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span>
+<span class="normal">729</span>
+<span class="normal">730</span>
+<span class="normal">731</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">ts_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This method should eventually update all of the data in the signal, not just </span>
 <span class="sd">    the timeseries_df. This is a work in progress.</span>
@@ -2295,13 +2495,7 @@ any new data while retaining the existing information as well
 
         <details class="quote">
           <summary>Source code in <code>news_signals/signals.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">511</span>
-<span class="normal">512</span>
-<span class="normal">513</span>
-<span class="normal">514</span>
-<span class="normal">515</span>
-<span class="normal">516</span>
-<span class="normal">517</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">517</span>
 <span class="normal">518</span>
 <span class="normal">519</span>
 <span class="normal">520</span>
@@ -2347,7 +2541,13 @@ any new data while retaining the existing information as well
 <span class="normal">560</span>
 <span class="normal">561</span>
 <span class="normal">562</span>
-<span class="normal">563</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">DataframeSignal</span><span class="p">(</span><span class="n">Signal</span><span class="p">):</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">DataframeSignal</span><span class="p">(</span><span class="n">Signal</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Holds static data in a dataframe with a datetime index</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2449,11 +2649,7 @@ using the <code>infer_freq</code> method of pandas DatetimeIndex.</p>
 
         <details class="quote">
           <summary>Source code in <code>news_signals/signals.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 50</span>
-<span class="normal"> 51</span>
-<span class="normal"> 52</span>
-<span class="normal"> 53</span>
-<span class="normal"> 54</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 54</span>
 <span class="normal"> 55</span>
 <span class="normal"> 56</span>
 <span class="normal"> 57</span>
@@ -2907,7 +3103,13 @@ using the <code>infer_freq</code> method of pandas DatetimeIndex.</p>
 <span class="normal">505</span>
 <span class="normal">506</span>
 <span class="normal">507</span>
-<span class="normal">508</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Signal</span><span class="p">:</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Signal</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Signals have names</span>
 <span class="sd">    Signal timeseries are stored in signal.timeseries_df</span>
@@ -2941,7 +3143,9 @@ using the <code>infer_freq</code> method of pandas DatetimeIndex.</p>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">assert_df_index_type</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;datetime64[ns, UTC]&#39;</span><span class="p">,</span> \
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;tz&#39;</span><span class="p">),</span> \
+            <span class="s1">&#39;we expect dataframes with timezone-aware index dtypes&#39;</span>
+        <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;UTC&#39;</span><span class="p">,</span> \
             <span class="s1">&#39;we expect dataframes with timezone-aware index dtypes in UTC timezone&#39;</span>
 
     <span class="nd">@abstractmethod</span>
@@ -3527,13 +3731,7 @@ https://pandas.pydata.org/pandas-docs/dev/user_guide/timeseries.html#timeseries-
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
 <span class="normal"> 94</span>
 <span class="normal"> 95</span>
 <span class="normal"> 96</span>
@@ -3554,7 +3752,13 @@ https://pandas.pydata.org/pandas-docs/dev/user_guide/timeseries.html#timeseries-
 <span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
-<span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
 <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a signal&#39;s data between start time and</span>
@@ -3605,17 +3809,17 @@ is not found on the signal itself.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">380</span>
-<span class="normal">381</span>
-<span class="normal">382</span>
-<span class="normal">383</span>
-<span class="normal">384</span>
-<span class="normal">385</span>
-<span class="normal">386</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">386</span>
 <span class="normal">387</span>
 <span class="normal">388</span>
 <span class="normal">389</span>
-<span class="normal">390</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Try to delegate to the underlying timeseries_df if the attribute</span>
 <span class="sd">    is not found on the signal itself.</span>
@@ -3648,11 +3852,11 @@ is not found on the signal itself.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">392</span>
-<span class="normal">393</span>
-<span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subscript</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subscript</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Delegate slicing semantics to pandas</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3681,16 +3885,16 @@ their weights
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">280</span>
 <span class="normal">281</span>
 <span class="normal">282</span>
-<span class="normal">283</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">anomaly_dates</span><span class="p">(</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">anomaly_dates</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3726,13 +3930,7 @@ For aggregate signals, we may sometimes want to set <em>different</em> threshold
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">291</span>
 <span class="normal">292</span>
 <span class="normal">293</span>
 <span class="normal">294</span>
@@ -3791,7 +3989,13 @@ For aggregate signals, we may sometimes want to set <em>different</em> threshold
 <span class="normal">347</span>
 <span class="normal">348</span>
 <span class="normal">349</span>
-<span class="normal">350</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">anomaly_signal</span><span class="p">(</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">anomaly_signal</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span>
         <span class="n">history_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">history_interval</span><span class="o">=</span><span class="s1">&#39;months&#39;</span><span class="p">,</span>
@@ -3885,13 +4089,7 @@ for holidays, etc... if we eventually need that.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">169</span>
 <span class="normal">170</span>
 <span class="normal">171</span>
 <span class="normal">172</span>
@@ -3901,7 +4099,13 @@ for holidays, etc... if we eventually need that.</p>
 <span class="normal">176</span>
 <span class="normal">177</span>
 <span class="normal">178</span>
-<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">date_range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Note that pandas also supports more flexible date ranges</span>
@@ -3946,14 +4150,14 @@ to give insight into the path that a signal takes</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
 <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    return the inputs to this signal</span>
@@ -3987,15 +4191,15 @@ to give insight into the path that a signal takes</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
 <span class="normal">160</span>
-<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">normalize_timestamp</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">freq</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    rounds timestep down to the nearest interval tick</span>
@@ -4026,13 +4230,7 @@ to give insight into the path that a signal takes</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">414</span>
-<span class="normal">415</span>
-<span class="normal">416</span>
-<span class="normal">417</span>
-<span class="normal">418</span>
-<span class="normal">419</span>
-<span class="normal">420</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">420</span>
 <span class="normal">421</span>
 <span class="normal">422</span>
 <span class="normal">423</span>
@@ -4048,7 +4246,13 @@ to give insight into the path that a signal takes</p>
 <span class="normal">433</span>
 <span class="normal">434</span>
 <span class="normal">435</span>
-<span class="normal">436</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datadir</span><span class="p">):</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datadir</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a signal to disk</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -4106,43 +4310,43 @@ until the interface is more solid.</p>
 
         <details class="quote">
           <summary>Source code in <code>news_signals/signals.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1034</span>
-<span class="normal">1035</span>
-<span class="normal">1036</span>
-<span class="normal">1037</span>
-<span class="normal">1038</span>
-<span class="normal">1039</span>
-<span class="normal">1040</span>
-<span class="normal">1041</span>
-<span class="normal">1042</span>
-<span class="normal">1043</span>
-<span class="normal">1044</span>
-<span class="normal">1045</span>
-<span class="normal">1046</span>
-<span class="normal">1047</span>
-<span class="normal">1048</span>
-<span class="normal">1049</span>
-<span class="normal">1050</span>
-<span class="normal">1051</span>
-<span class="normal">1052</span>
-<span class="normal">1053</span>
-<span class="normal">1054</span>
-<span class="normal">1055</span>
-<span class="normal">1056</span>
-<span class="normal">1057</span>
-<span class="normal">1058</span>
-<span class="normal">1059</span>
-<span class="normal">1060</span>
-<span class="normal">1061</span>
-<span class="normal">1062</span>
-<span class="normal">1063</span>
-<span class="normal">1064</span>
-<span class="normal">1065</span>
-<span class="normal">1066</span>
-<span class="normal">1067</span>
-<span class="normal">1068</span>
-<span class="normal">1069</span>
-<span class="normal">1070</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">SqliteSignalStore</span><span class="p">:</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1329</span>
+<span class="normal">1330</span>
+<span class="normal">1331</span>
+<span class="normal">1332</span>
+<span class="normal">1333</span>
+<span class="normal">1334</span>
+<span class="normal">1335</span>
+<span class="normal">1336</span>
+<span class="normal">1337</span>
+<span class="normal">1338</span>
+<span class="normal">1339</span>
+<span class="normal">1340</span>
+<span class="normal">1341</span>
+<span class="normal">1342</span>
+<span class="normal">1343</span>
+<span class="normal">1344</span>
+<span class="normal">1345</span>
+<span class="normal">1346</span>
+<span class="normal">1347</span>
+<span class="normal">1348</span>
+<span class="normal">1349</span>
+<span class="normal">1350</span>
+<span class="normal">1351</span>
+<span class="normal">1352</span>
+<span class="normal">1353</span>
+<span class="normal">1354</span>
+<span class="normal">1355</span>
+<span class="normal">1356</span>
+<span class="normal">1357</span>
+<span class="normal">1358</span>
+<span class="normal">1359</span>
+<span class="normal">1360</span>
+<span class="normal">1361</span>
+<span class="normal">1362</span>
+<span class="normal">1363</span>
+<span class="normal">1364</span>
+<span class="normal">1365</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">SqliteSignalStore</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    this could also be implemented as a Signal ORM,</span>
 <span class="sd">    would probably be a better design but leaving like this</span>
@@ -4210,19 +4414,19 @@ until the interface is more solid.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1058</span>
-<span class="normal">1059</span>
-<span class="normal">1060</span>
-<span class="normal">1061</span>
-<span class="normal">1062</span>
-<span class="normal">1063</span>
-<span class="normal">1064</span>
-<span class="normal">1065</span>
-<span class="normal">1066</span>
-<span class="normal">1067</span>
-<span class="normal">1068</span>
-<span class="normal">1069</span>
-<span class="normal">1070</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_by_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match_obj</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1353</span>
+<span class="normal">1354</span>
+<span class="normal">1355</span>
+<span class="normal">1356</span>
+<span class="normal">1357</span>
+<span class="normal">1358</span>
+<span class="normal">1359</span>
+<span class="normal">1360</span>
+<span class="normal">1361</span>
+<span class="normal">1362</span>
+<span class="normal">1363</span>
+<span class="normal">1364</span>
+<span class="normal">1365</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_by_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match_obj</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Naive implementation - looks at every item in the store</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -4272,16 +4476,16 @@ until the interface is more solid.</p>
 
         <details class="quote">
           <summary>Source code in <code>news_signals/signals.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1022</span>
-<span class="normal">1023</span>
-<span class="normal">1024</span>
-<span class="normal">1025</span>
-<span class="normal">1026</span>
-<span class="normal">1027</span>
-<span class="normal">1028</span>
-<span class="normal">1029</span>
-<span class="normal">1030</span>
-<span class="normal">1031</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1317</span>
+<span class="normal">1318</span>
+<span class="normal">1319</span>
+<span class="normal">1320</span>
+<span class="normal">1321</span>
+<span class="normal">1322</span>
+<span class="normal">1323</span>
+<span class="normal">1324</span>
+<span class="normal">1325</span>
+<span class="normal">1326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">UserSignal</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A signal owned by a particular user, backed by a persistent datastore</span>
@@ -4305,6 +4509,711 @@ until the interface is more solid.</p>
 
 
 
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="news_signals.signals.WikimediaSignal" class="doc doc-heading">
+        <code>WikimediaSignal</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+      <p class="doc doc-class-bases">
+        Bases: <code><a class="autorefs autorefs-internal" title="news_signals.signals.Signal" href="#news_signals.signals.Signal">Signal</a></code></p>
+
+  
+      <p>A Wikimedia signal uses Wikimedia-related sources,
+i.e. Wikipedia, Wikidata etc. to gather time series and text
+related to entities based on their Wikidata ID. Currently this includes:
+- Wikimedia pageviews timeseries (pageviews of Wikipedia articles)
+- Wikipedia Current Events entries
+NOTE: This signal does not require any sign-up to NewsAPI or similar,
+so it works for anyone out-of-the-box.</p>
+
+
+        <details class="quote">
+          <summary>Source code in <code>news_signals/signals.py</code></summary>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 996</span>
+<span class="normal"> 997</span>
+<span class="normal"> 998</span>
+<span class="normal"> 999</span>
+<span class="normal">1000</span>
+<span class="normal">1001</span>
+<span class="normal">1002</span>
+<span class="normal">1003</span>
+<span class="normal">1004</span>
+<span class="normal">1005</span>
+<span class="normal">1006</span>
+<span class="normal">1007</span>
+<span class="normal">1008</span>
+<span class="normal">1009</span>
+<span class="normal">1010</span>
+<span class="normal">1011</span>
+<span class="normal">1012</span>
+<span class="normal">1013</span>
+<span class="normal">1014</span>
+<span class="normal">1015</span>
+<span class="normal">1016</span>
+<span class="normal">1017</span>
+<span class="normal">1018</span>
+<span class="normal">1019</span>
+<span class="normal">1020</span>
+<span class="normal">1021</span>
+<span class="normal">1022</span>
+<span class="normal">1023</span>
+<span class="normal">1024</span>
+<span class="normal">1025</span>
+<span class="normal">1026</span>
+<span class="normal">1027</span>
+<span class="normal">1028</span>
+<span class="normal">1029</span>
+<span class="normal">1030</span>
+<span class="normal">1031</span>
+<span class="normal">1032</span>
+<span class="normal">1033</span>
+<span class="normal">1034</span>
+<span class="normal">1035</span>
+<span class="normal">1036</span>
+<span class="normal">1037</span>
+<span class="normal">1038</span>
+<span class="normal">1039</span>
+<span class="normal">1040</span>
+<span class="normal">1041</span>
+<span class="normal">1042</span>
+<span class="normal">1043</span>
+<span class="normal">1044</span>
+<span class="normal">1045</span>
+<span class="normal">1046</span>
+<span class="normal">1047</span>
+<span class="normal">1048</span>
+<span class="normal">1049</span>
+<span class="normal">1050</span>
+<span class="normal">1051</span>
+<span class="normal">1052</span>
+<span class="normal">1053</span>
+<span class="normal">1054</span>
+<span class="normal">1055</span>
+<span class="normal">1056</span>
+<span class="normal">1057</span>
+<span class="normal">1058</span>
+<span class="normal">1059</span>
+<span class="normal">1060</span>
+<span class="normal">1061</span>
+<span class="normal">1062</span>
+<span class="normal">1063</span>
+<span class="normal">1064</span>
+<span class="normal">1065</span>
+<span class="normal">1066</span>
+<span class="normal">1067</span>
+<span class="normal">1068</span>
+<span class="normal">1069</span>
+<span class="normal">1070</span>
+<span class="normal">1071</span>
+<span class="normal">1072</span>
+<span class="normal">1073</span>
+<span class="normal">1074</span>
+<span class="normal">1075</span>
+<span class="normal">1076</span>
+<span class="normal">1077</span>
+<span class="normal">1078</span>
+<span class="normal">1079</span>
+<span class="normal">1080</span>
+<span class="normal">1081</span>
+<span class="normal">1082</span>
+<span class="normal">1083</span>
+<span class="normal">1084</span>
+<span class="normal">1085</span>
+<span class="normal">1086</span>
+<span class="normal">1087</span>
+<span class="normal">1088</span>
+<span class="normal">1089</span>
+<span class="normal">1090</span>
+<span class="normal">1091</span>
+<span class="normal">1092</span>
+<span class="normal">1093</span>
+<span class="normal">1094</span>
+<span class="normal">1095</span>
+<span class="normal">1096</span>
+<span class="normal">1097</span>
+<span class="normal">1098</span>
+<span class="normal">1099</span>
+<span class="normal">1100</span>
+<span class="normal">1101</span>
+<span class="normal">1102</span>
+<span class="normal">1103</span>
+<span class="normal">1104</span>
+<span class="normal">1105</span>
+<span class="normal">1106</span>
+<span class="normal">1107</span>
+<span class="normal">1108</span>
+<span class="normal">1109</span>
+<span class="normal">1110</span>
+<span class="normal">1111</span>
+<span class="normal">1112</span>
+<span class="normal">1113</span>
+<span class="normal">1114</span>
+<span class="normal">1115</span>
+<span class="normal">1116</span>
+<span class="normal">1117</span>
+<span class="normal">1118</span>
+<span class="normal">1119</span>
+<span class="normal">1120</span>
+<span class="normal">1121</span>
+<span class="normal">1122</span>
+<span class="normal">1123</span>
+<span class="normal">1124</span>
+<span class="normal">1125</span>
+<span class="normal">1126</span>
+<span class="normal">1127</span>
+<span class="normal">1128</span>
+<span class="normal">1129</span>
+<span class="normal">1130</span>
+<span class="normal">1131</span>
+<span class="normal">1132</span>
+<span class="normal">1133</span>
+<span class="normal">1134</span>
+<span class="normal">1135</span>
+<span class="normal">1136</span>
+<span class="normal">1137</span>
+<span class="normal">1138</span>
+<span class="normal">1139</span>
+<span class="normal">1140</span>
+<span class="normal">1141</span>
+<span class="normal">1142</span>
+<span class="normal">1143</span>
+<span class="normal">1144</span>
+<span class="normal">1145</span>
+<span class="normal">1146</span>
+<span class="normal">1147</span>
+<span class="normal">1148</span>
+<span class="normal">1149</span>
+<span class="normal">1150</span>
+<span class="normal">1151</span>
+<span class="normal">1152</span>
+<span class="normal">1153</span>
+<span class="normal">1154</span>
+<span class="normal">1155</span>
+<span class="normal">1156</span>
+<span class="normal">1157</span>
+<span class="normal">1158</span>
+<span class="normal">1159</span>
+<span class="normal">1160</span>
+<span class="normal">1161</span>
+<span class="normal">1162</span>
+<span class="normal">1163</span>
+<span class="normal">1164</span>
+<span class="normal">1165</span>
+<span class="normal">1166</span>
+<span class="normal">1167</span>
+<span class="normal">1168</span>
+<span class="normal">1169</span>
+<span class="normal">1170</span>
+<span class="normal">1171</span>
+<span class="normal">1172</span>
+<span class="normal">1173</span>
+<span class="normal">1174</span>
+<span class="normal">1175</span>
+<span class="normal">1176</span>
+<span class="normal">1177</span>
+<span class="normal">1178</span>
+<span class="normal">1179</span>
+<span class="normal">1180</span>
+<span class="normal">1181</span>
+<span class="normal">1182</span>
+<span class="normal">1183</span>
+<span class="normal">1184</span>
+<span class="normal">1185</span>
+<span class="normal">1186</span>
+<span class="normal">1187</span>
+<span class="normal">1188</span>
+<span class="normal">1189</span>
+<span class="normal">1190</span>
+<span class="normal">1191</span>
+<span class="normal">1192</span>
+<span class="normal">1193</span>
+<span class="normal">1194</span>
+<span class="normal">1195</span>
+<span class="normal">1196</span>
+<span class="normal">1197</span>
+<span class="normal">1198</span>
+<span class="normal">1199</span>
+<span class="normal">1200</span>
+<span class="normal">1201</span>
+<span class="normal">1202</span>
+<span class="normal">1203</span>
+<span class="normal">1204</span>
+<span class="normal">1205</span>
+<span class="normal">1206</span>
+<span class="normal">1207</span>
+<span class="normal">1208</span>
+<span class="normal">1209</span>
+<span class="normal">1210</span>
+<span class="normal">1211</span>
+<span class="normal">1212</span>
+<span class="normal">1213</span>
+<span class="normal">1214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">WikimediaSignal</span><span class="p">(</span><span class="n">Signal</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Wikimedia signal uses Wikimedia-related sources,</span>
+<span class="sd">    i.e. Wikipedia, Wikidata etc. to gather time series and text</span>
+<span class="sd">    related to entities based on their Wikidata ID. Currently this includes:</span>
+<span class="sd">    - Wikimedia pageviews timeseries (pageviews of Wikipedia articles)</span>
+<span class="sd">    - Wikipedia Current Events entries</span>
+<span class="sd">    NOTE: This signal does not require any sign-up to NewsAPI or similar,</span>
+<span class="sd">    so it works for anyone out-of-the-box.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">timeseries_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">feeds_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wikidata_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ts_column</span><span class="o">=</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">timeseries_df</span><span class="o">=</span><span class="n">timeseries_df</span><span class="p">,</span>
+            <span class="n">feeds_df</span><span class="o">=</span><span class="n">feeds_df</span><span class="p">,</span>
+            <span class="n">ts_column</span><span class="o">=</span><span class="n">ts_column</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wikidata_id</span> <span class="o">=</span> <span class="n">wikidata_id</span>
+
+    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="s1">&#39;wikidata_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">wikidata_id</span><span class="p">,</span>
+            <span class="s1">&#39;timeseries_df&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">,</span>
+            <span class="s1">&#39;feeds_df&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span><span class="p">,</span>
+            <span class="s1">&#39;ts_column&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts_column</span>
+        <span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">WikimediaSignal</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">],</span>
+            <span class="n">wikidata_id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;wikidata_id&#39;</span><span class="p">],</span>
+            <span class="n">timeseries_df</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;timeseries_df&#39;</span><span class="p">],</span>
+            <span class="n">feeds_df</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;feeds_df&#39;</span><span class="p">],</span>
+            <span class="n">ts_column</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ts_column&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_timestamp</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_timestamp</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">freq</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]:</span>
+            <span class="c1"># currently we only support daily ticks on Wikimedia timeseries</span>
+            <span class="k">raise</span> <span class="n">UnknownFrequencyArgument</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
+            <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="n">wikimedia_endpoint</span><span class="p">,</span>
+            <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method should eventually update all of the data in the signal, not just </span>
+<span class="sd">        the timeseries_df. This is a work in progress.</span>
+
+<span class="sd">        Side effect: we may have other already data in the state, we want to upsert</span>
+<span class="sd">        any new data while retaining the existing information as well</span>
+<span class="sd">        :param start: datetime</span>
+<span class="sd">        :param end: datetime</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_timestamp</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="n">freq</span><span class="p">)</span>
+        <span class="c1"># if start is None, we look up to 30 days ago</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">default_interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_timestamp</span><span class="p">(</span>
+                <span class="n">end</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+                <span class="n">freq</span>
+            <span class="p">)</span>
+            <span class="n">current_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">current_end</span> <span class="o">&gt;</span> <span class="n">default_interval</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">current_end</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">default_interval</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;When updating signal, signal was either empty or the maximum, &#39;</span> 
+                    <span class="sa">f</span><span class="s1">&#39;end date was more than 30 days ago, so we are using &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;default update interval of 30 days --&gt; </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># first check if we already have this time range,</span>
+        <span class="c1"># if so, we don&#39;t need to query again</span>
+        <span class="n">range_exists</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">range_in_df</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span>
+                <span class="n">freq</span><span class="o">=</span><span class="n">freq</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">range_exists</span><span class="p">:</span>
+            <span class="c1"># update start and end to just get the data we don&#39;t have</span>
+            <span class="c1"># we&#39;re only going to be clever about extending to the right,</span>
+            <span class="c1"># if user wants historical data (before the data we already have),</span>
+            <span class="c1"># everything&#39;s getting retrieved</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">start</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">Signal</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">)</span>
+                <span class="c1"># find the first index that doesn&#39;t match</span>
+                <span class="k">for</span> <span class="n">dt</span><span class="p">,</span> <span class="n">idx_dt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">dt</span> <span class="o">!=</span> <span class="n">idx_dt</span><span class="p">:</span>
+                        <span class="n">start</span> <span class="o">=</span> <span class="n">dt</span>
+                        <span class="k">break</span>
+            <span class="n">pageviews_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_wikipedia_pageviews_timeseries</span><span class="p">(</span>
+                <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span>
+                <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="n">wikimedia_endpoint</span><span class="p">,</span>
+                <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span> <span class="o">=</span> <span class="n">pageviews_df</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># note new values _do not_ overwrite old ones if index values</span>
+                <span class="c1"># are the same</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">pageviews_df</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">query_wikipedia_pageviews_timeseries</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">,</span>
+        <span class="n">end</span><span class="p">,</span>
+        <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">pageviews_df</span> <span class="o">=</span> <span class="n">wikidata_id_to_wikimedia_pageviews_timeseries</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wikidata_id</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">,</span>
+            <span class="n">end</span><span class="p">,</span>
+            <span class="n">granularity</span><span class="o">=</span><span class="s1">&#39;daily&#39;</span><span class="p">,</span>
+            <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span><span class="p">,</span>
+            <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="n">wikimedia_endpoint</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pageviews_df</span>
+
+    <span class="k">def</span> <span class="nf">add_wikimedia_pageviews_timeseries</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">overwrite_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        look at the params that were used to query the NewsAPI, and try to derive</span>
+<span class="sd">        a query to the wikimedia pageviews API from that. </span>
+
+<span class="sd">        For example, if there&#39;s no wikidata id, this function should</span>
+<span class="sd">        fail noisyly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite_existing</span> <span class="ow">and</span> <span class="s2">&quot;wikimedia_pageviews&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;wikimedia pageviews already exist, not adding&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">pageviews_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_wikipedia_pageviews_timeseries</span><span class="p">(</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span>
+            <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="n">wikimedia_endpoint</span><span class="p">,</span>
+            <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pageviews_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">add_wikipedia_current_events</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">overwrite_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">feeds_column</span><span class="o">=</span><span class="s1">&#39;wikipedia_current_events&#39;</span><span class="p">,</span>
+        <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span>
+        <span class="n">filter_by_wikidata_id</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wikipedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">date_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">)</span>
+            <span class="c1"># init with UTC datetime index</span>
+            <span class="c1"># we use only start dates thus the cutoff</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">feeds_column</span><span class="p">],</span>
+                <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">date_range</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">overwrite_existing</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;wikipedia_current_events&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;wikipedia_current_events already exist, not adding&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">event_items</span> <span class="o">=</span> <span class="n">wikidata_id_to_current_events</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wikidata_id</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">,</span>
+            <span class="n">end</span><span class="p">,</span>
+            <span class="n">filter_by_wikidata_id</span><span class="o">=</span><span class="n">filter_by_wikidata_id</span><span class="p">,</span>
+            <span class="n">wikipedia_endpoint</span><span class="o">=</span><span class="n">wikipedia_endpoint</span><span class="p">,</span>
+            <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span>
+        <span class="p">)</span>
+
+        <span class="n">date_to_events</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">event_items</span><span class="p">:</span>
+            <span class="n">date_to_events</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">timestamps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">date</span><span class="p">,</span> <span class="n">events</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">date_to_events</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_timestamp</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+            <span class="n">timestamps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="n">feeds_column</span><span class="p">:</span> <span class="n">events</span><span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># now merge the events into self.feeds_df at the correct timestamps</span>
+        <span class="n">events_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">records</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feeds_df</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">events_df</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+        </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="news_signals.signals.WikimediaSignal.add_wikimedia_pageviews_timeseries" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">add_wikimedia_pageviews_timeseries</span><span class="p">(</span><span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>look at the params that were used to query the NewsAPI, and try to derive
+a query to the wikimedia pageviews API from that. </p>
+<p>For example, if there's no wikidata id, this function should
+fail noisyly.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>news_signals/signals.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1136</span>
+<span class="normal">1137</span>
+<span class="normal">1138</span>
+<span class="normal">1139</span>
+<span class="normal">1140</span>
+<span class="normal">1141</span>
+<span class="normal">1142</span>
+<span class="normal">1143</span>
+<span class="normal">1144</span>
+<span class="normal">1145</span>
+<span class="normal">1146</span>
+<span class="normal">1147</span>
+<span class="normal">1148</span>
+<span class="normal">1149</span>
+<span class="normal">1150</span>
+<span class="normal">1151</span>
+<span class="normal">1152</span>
+<span class="normal">1153</span>
+<span class="normal">1154</span>
+<span class="normal">1155</span>
+<span class="normal">1156</span>
+<span class="normal">1157</span>
+<span class="normal">1158</span>
+<span class="normal">1159</span>
+<span class="normal">1160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">add_wikimedia_pageviews_timeseries</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite_existing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    look at the params that were used to query the NewsAPI, and try to derive</span>
+<span class="sd">    a query to the wikimedia pageviews API from that. </span>
+
+<span class="sd">    For example, if there&#39;s no wikidata id, this function should</span>
+<span class="sd">    fail noisyly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite_existing</span> <span class="ow">and</span> <span class="s2">&quot;wikimedia_pageviews&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;wikimedia pageviews already exist, not adding&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+    <span class="n">pageviews_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_wikipedia_pageviews_timeseries</span><span class="p">(</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span>
+        <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="n">wikimedia_endpoint</span><span class="p">,</span>
+        <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pageviews_df</span><span class="p">[</span><span class="s1">&#39;wikimedia_pageviews&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="news_signals.signals.WikimediaSignal.update" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">update</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>This method should eventually update all of the data in the signal, not just 
+the timeseries_df. This is a work in progress.</p>
+<p>Side effect: we may have other already data in the state, we want to upsert
+any new data while retaining the existing information as well
+:param start: datetime
+:param end: datetime</p>
+
+      <details class="quote">
+        <summary>Source code in <code>news_signals/signals.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1059</span>
+<span class="normal">1060</span>
+<span class="normal">1061</span>
+<span class="normal">1062</span>
+<span class="normal">1063</span>
+<span class="normal">1064</span>
+<span class="normal">1065</span>
+<span class="normal">1066</span>
+<span class="normal">1067</span>
+<span class="normal">1068</span>
+<span class="normal">1069</span>
+<span class="normal">1070</span>
+<span class="normal">1071</span>
+<span class="normal">1072</span>
+<span class="normal">1073</span>
+<span class="normal">1074</span>
+<span class="normal">1075</span>
+<span class="normal">1076</span>
+<span class="normal">1077</span>
+<span class="normal">1078</span>
+<span class="normal">1079</span>
+<span class="normal">1080</span>
+<span class="normal">1081</span>
+<span class="normal">1082</span>
+<span class="normal">1083</span>
+<span class="normal">1084</span>
+<span class="normal">1085</span>
+<span class="normal">1086</span>
+<span class="normal">1087</span>
+<span class="normal">1088</span>
+<span class="normal">1089</span>
+<span class="normal">1090</span>
+<span class="normal">1091</span>
+<span class="normal">1092</span>
+<span class="normal">1093</span>
+<span class="normal">1094</span>
+<span class="normal">1095</span>
+<span class="normal">1096</span>
+<span class="normal">1097</span>
+<span class="normal">1098</span>
+<span class="normal">1099</span>
+<span class="normal">1100</span>
+<span class="normal">1101</span>
+<span class="normal">1102</span>
+<span class="normal">1103</span>
+<span class="normal">1104</span>
+<span class="normal">1105</span>
+<span class="normal">1106</span>
+<span class="normal">1107</span>
+<span class="normal">1108</span>
+<span class="normal">1109</span>
+<span class="normal">1110</span>
+<span class="normal">1111</span>
+<span class="normal">1112</span>
+<span class="normal">1113</span>
+<span class="normal">1114</span>
+<span class="normal">1115</span>
+<span class="normal">1116</span>
+<span class="normal">1117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wikidata_client</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method should eventually update all of the data in the signal, not just </span>
+<span class="sd">    the timeseries_df. This is a work in progress.</span>
+
+<span class="sd">    Side effect: we may have other already data in the state, we want to upsert</span>
+<span class="sd">    any new data while retaining the existing information as well</span>
+<span class="sd">    :param start: datetime</span>
+<span class="sd">    :param end: datetime</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_timestamp</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="n">freq</span><span class="p">)</span>
+    <span class="c1"># if start is None, we look up to 30 days ago</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">default_interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_timestamp</span><span class="p">(</span>
+            <span class="n">end</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+            <span class="n">freq</span>
+        <span class="p">)</span>
+        <span class="n">current_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">current_end</span> <span class="o">&gt;</span> <span class="n">default_interval</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">current_end</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">default_interval</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;When updating signal, signal was either empty or the maximum, &#39;</span> 
+                <span class="sa">f</span><span class="s1">&#39;end date was more than 30 days ago, so we are using &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;default update interval of 30 days --&gt; </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># first check if we already have this time range,</span>
+    <span class="c1"># if so, we don&#39;t need to query again</span>
+    <span class="n">range_exists</span> <span class="o">=</span> \
+        <span class="bp">self</span><span class="o">.</span><span class="n">range_in_df</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span>
+            <span class="n">freq</span><span class="o">=</span><span class="n">freq</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">range_exists</span><span class="p">:</span>
+        <span class="c1"># update start and end to just get the data we don&#39;t have</span>
+        <span class="c1"># we&#39;re only going to be clever about extending to the right,</span>
+        <span class="c1"># if user wants historical data (before the data we already have),</span>
+        <span class="c1"># everything&#39;s getting retrieved</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">start</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">Signal</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">)</span>
+            <span class="c1"># find the first index that doesn&#39;t match</span>
+            <span class="k">for</span> <span class="n">dt</span><span class="p">,</span> <span class="n">idx_dt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">dt</span> <span class="o">!=</span> <span class="n">idx_dt</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">dt</span>
+                    <span class="k">break</span>
+        <span class="n">pageviews_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_wikipedia_pageviews_timeseries</span><span class="p">(</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span>
+            <span class="n">wikimedia_endpoint</span><span class="o">=</span><span class="n">wikimedia_endpoint</span><span class="p">,</span>
+            <span class="n">wikidata_client</span><span class="o">=</span><span class="n">wikidata_client</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span> <span class="o">=</span> <span class="n">pageviews_df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># note new values _do not_ overwrite old ones if index values</span>
+            <span class="c1"># are the same</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeseries_df</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">pageviews_df</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
 
 
 

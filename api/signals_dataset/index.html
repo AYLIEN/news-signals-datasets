@@ -1110,22 +1110,19 @@ be done multithreaded</p>
 
 
 <h2 id="news_signals.signals_dataset.generate_dataset" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">generate_dataset</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">output_dataset_dir</span><span class="p">,</span> <span class="n">gcs_bucket</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">id_field</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">name_field</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">stories_per_day</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">delete_tmp_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stories_endpoint</span><span class="o">=</span><span class="n">newsapi</span><span class="o">.</span><span class="n">retrieve_stories</span><span class="p">,</span> <span class="n">ts_endpoint</span><span class="o">=</span><span class="n">newsapi</span><span class="o">.</span><span class="n">retrieve_timeseries</span><span class="p">,</span> <span class="n">post_process_story</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">generate_dataset</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">output_dataset_dir</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">gcs_bucket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">id_field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">surface_form_field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stories_per_day</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">delete_tmp_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stories_endpoint</span><span class="o">=</span><span class="n">newsapi</span><span class="o">.</span><span class="n">retrieve_stories</span><span class="p">,</span> <span class="n">ts_endpoint</span><span class="o">=</span><span class="n">newsapi</span><span class="o">.</span><span class="n">retrieve_timeseries</span><span class="p">,</span> <span class="n">post_process_story</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 </h2>
 
 
   <div class="doc doc-contents ">
   
-      <p>Turn list of signals into a dataset by populating each signal with time
+      <p>Turn a list of signals into a dataset by populating each signal with time
 series and stories using Aylien Newsapi endpoints.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals_dataset.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">443</span>
-<span class="normal">444</span>
-<span class="normal">445</span>
-<span class="normal">446</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">446</span>
 <span class="normal">447</span>
 <span class="normal">448</span>
 <span class="normal">449</span>
@@ -1234,14 +1231,29 @@ series and stories using Aylien Newsapi endpoints.</p>
 <span class="normal">552</span>
 <span class="normal">553</span>
 <span class="normal">554</span>
-<span class="normal">555</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">generate_dataset</span><span class="p">(</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">generate_dataset</span><span class="p">(</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">signals</span><span class="o">.</span><span class="n">Signal</span><span class="p">],</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">output_dataset_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">gcs_bucket</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
     <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
-    <span class="n">id_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">name_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">gcs_bucket</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">name_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">id_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">surface_form_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">stories_per_day</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
     <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">delete_tmp_files</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1250,23 +1262,33 @@ series and stories using Aylien Newsapi endpoints.</p>
     <span class="n">post_process_story</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">compress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Turn list of signals into a dataset by populating each signal with time</span>
+<span class="sd">    Turn a list of signals into a dataset by populating each signal with time</span>
 <span class="sd">    series and stories using Aylien Newsapi endpoints.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
-        <span class="c1"># this CSV should have a Wikidata ID and name for each entity</span>
+        <span class="c1"># this CSV should have a Wikidata ID and/or entity surface form and name for each entity</span>
+        <span class="k">assert</span> <span class="n">id_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">surface_form_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;dataset generation from CSV requires an ID and/or surface form field&#39;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="n">signals_</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">):</span>
-
-            <span class="n">name</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_field</span><span class="p">)</span> <span class="ow">or</span> <span class="n">x</span><span class="p">[</span><span class="n">id_field</span><span class="p">]</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">id_field</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">name_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">id_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;if name_field is None, id_field must be specified&#39;</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">id_field</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">name_field</span><span class="p">]</span>
+            <span class="n">entity_ids</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">surface_forms</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">id_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">entity_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">id_field</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">surface_form_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">surface_forms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">surface_form_field</span><span class="p">])</span>
             <span class="n">signal</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">AylienSignal</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;entity_ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">id</span><span class="p">]}</span>
+                <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;entity_ids&quot;</span><span class="p">:</span> <span class="n">entity_ids</span><span class="p">,</span>
+                    <span class="s2">&quot;entity_surface_forms&quot;</span><span class="p">:</span> <span class="n">surface_forms</span>
+                <span class="p">}</span>
             <span class="p">)</span>
             <span class="n">signals_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1369,10 +1391,7 @@ series and stories using Aylien Newsapi endpoints.</p>
 
       <details class="quote">
         <summary>Source code in <code>news_signals/signals_dataset.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">347</span>
-<span class="normal">348</span>
-<span class="normal">349</span>
-<span class="normal">350</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">350</span>
 <span class="normal">351</span>
 <span class="normal">352</span>
 <span class="normal">353</span>
@@ -1381,7 +1400,10 @@ series and stories using Aylien Newsapi endpoints.</p>
 <span class="normal">356</span>
 <span class="normal">357</span>
 <span class="normal">358</span>
-<span class="normal">359</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">read_last_timestamp</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">read_last_timestamp</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Identifies last bucket&#39;s timestamp from buckets_*.jsonl file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>

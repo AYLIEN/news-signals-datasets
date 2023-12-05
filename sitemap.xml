@@ -2,17 +2,17 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://aylien.github.io/news-signals-datasets/</loc>
-         <lastmod>2023-08-15</lastmod>
+         <lastmod>2023-12-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aylien.github.io/news-signals-datasets/api/signals/</loc>
-         <lastmod>2023-08-15</lastmod>
+         <lastmod>2023-12-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aylien.github.io/news-signals-datasets/api/signals_dataset/</loc>
-         <lastmod>2023-08-15</lastmod>
+         <lastmod>2023-12-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
