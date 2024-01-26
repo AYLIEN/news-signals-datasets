@@ -68,15 +68,20 @@ container-test:
 # DOCUMENTATION #
 ################# 
 
+# build documentation
+.PHONY: docs-build
+docs-build:
+	mkdocs build
+
 # runs local mkdocs server on port 8000
 .PHONY: docs-serve
 docs-serve:
 	mkdocs serve
 
 # builds docs and pushes to gh-pages branch of repository
-.PHONY: docs-deploy
-docs-deploy:
-	mkdocs deploy
+.PHONY: docs-gh-deploy
+docs-gh-deploy:
+	mkdocs gh-deploy
 
 ######################
 # DATASET GENERATION #
