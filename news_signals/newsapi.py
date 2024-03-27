@@ -47,12 +47,18 @@ class TooManyRequestsError(Exception):
     pass
 
 
-def set_headers(app_id, app_key):
+def set_headers(app_id=None, app_key=None, token=None):
     """
     set global headers for newsapi requests
     """
-    HEADERS['X-AYLIEN-NewsAPI-Application-ID'] = app_id
-    HEADERS['X-AYLIEN-NewsAPI-Application-Key'] = app_key
+    if app_id is not None:
+        HEADERS['X-AYLIEN-NewsAPI-Application-ID'] = app_id
+
+    if app_key is not None:
+        HEADERS['X-AYLIEN-NewsAPI-Application-Key'] = app_key
+
+    if token is not None:
+        HEADERS['Authorization'] = "Bearer {}".format(token)
 
 
 @sleep_and_retry
