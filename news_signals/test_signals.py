@@ -561,6 +561,15 @@ class TestAylienSignal(SignalTest):
 
         assert stories_endpoint_mock.params['per_page'] == 3
 
+        # test with sample_per_tick=False and num_stories=10
+        _ = signal.sample_stories_in_window(
+            start, end,
+            num_stories=3,
+            sample_per_tick=False
+        )
+
+        assert stories_endpoint_mock.params['per_page'] == 10
+
 
 class TestWikimediaSignal(SignalTest):
 
