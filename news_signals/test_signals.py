@@ -535,12 +535,10 @@ class TestAylienSignal(SignalTest):
 
     def test_num_stories_parameter(self):
         # create a mock response
-        mock_response = {
-            'stories': [
-                {'title': 'title', 'body': 'body', 'published_at': '2021-08-02T01:05:00Z'}
-                for _ in range(5)
-            ]
-        }
+        mock_response = [
+            {'title': 'title', 'body': 'body', 'published_at': '2021-08-02T01:05:00Z'}
+            for _ in range(5)
+        ]
         stories_endpoint_mock = MockRequestsEndpoint(response=mock_response)
         signal = signals.AylienSignal(
             'test-signal',
@@ -564,7 +562,7 @@ class TestAylienSignal(SignalTest):
         # test with sample_per_tick=False and num_stories=10
         _ = signal.sample_stories_in_window(
             start, end,
-            num_stories=3,
+            num_stories=10,
             sample_per_tick=False
         )
 
