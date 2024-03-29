@@ -730,7 +730,7 @@ class AylienSignal(Signal):
                 # are the same
                 self.timeseries_df = self.timeseries_df.combine_first(aylien_ts_df)
 
-    def make_query(self, start, end, period='+1DAY'):
+    def make_query(self, start, end, period='+1DAY', **kwargs):
         _start = arrow_to_aylien_date(arrow.get(start))
         _end = arrow_to_aylien_date(arrow.get(end))
         params = copy.deepcopy(self.params)
@@ -739,6 +739,7 @@ class AylienSignal(Signal):
         params['period'] = period
         if self.aql is not None:
             params['aql'] = self.aql
+        params.update(kwargs)
         return params
 
     def query_news_signals(self, start, end, period, ts_endpoint=None):
@@ -792,8 +793,6 @@ class AylienSignal(Signal):
         sampled stories at each tick
         Otherwise just directly return the stories
         """
-        params = self.make_query(start, end)
-        params['per_page'] = num_stories
         story_bucket_records = []
         if self.feeds_df is None:
             date_range = self.date_range(start, end, freq=freq)
@@ -821,11 +820,11 @@ class AylienSignal(Signal):
                         continue
                 
                 logger.info(f'Getting stories for {start} to {end}')
-                params = self.make_query(start, end)
+                params = self.make_query(start, end, per_page=num_stories)
                 stories = [self.normalize_aylien_story(s) for s in self.stories_endpoint(params)]
                 story_bucket_records.append({'timestamp': start, stories_column: stories})
         else:
-            params = self.make_query(start, end)
+            params = self.make_query(start, end, per_page=num_stories)
             stories = [self.normalize_aylien_story(s) for s in self.stories_endpoint(params)]
             records = defaultdict(list)
             for story in stories:

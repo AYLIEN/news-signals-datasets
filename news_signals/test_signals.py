@@ -216,13 +216,19 @@ class MockWikidataClient:
 class MockRequestsEndpoint:
     def __init__(self, response):
         self.response = response
+        self.params = {}
+        self.headers = {}
+        self.url = ""
 
     def __call__(
         self,
-        url: str,
         params: dict={},
         headers: dict={},
-    ):        
+        url: str="",
+    ):
+        self.params = params
+        self.headers = headers
+        self.url = url
         return self.response
 
 
@@ -525,6 +531,43 @@ class TestAylienSignal(SignalTest):
                     assert 'date' in e
                     assert 'wiki_links' in e
         assert n > 0
+
+
+    def test_num_stories_parameter(self):
+        # create a mock response
+        mock_response = [
+            {'title': 'title', 'body': 'body', 'published_at': '2021-08-02T01:05:00Z'}
+            for _ in range(5)
+        ]
+        stories_endpoint_mock = MockRequestsEndpoint(response=mock_response)
+        signal = signals.AylienSignal(
+            'test-signal',
+            params={},
+            stories_endpoint=stories_endpoint_mock
+        )
+
+        # dates inside data range of test df
+        start = '2021-08-01'
+        end = '2021-08-05'
+
+        # test with sample_per_tick=True and num_stories=3
+        _ = signal.sample_stories_in_window(
+            start, end,
+            num_stories=3,
+            sample_per_tick=True
+        )
+
+        assert stories_endpoint_mock.params['per_page'] == 3
+
+        # test with sample_per_tick=False and num_stories=10
+        _ = signal.sample_stories_in_window(
+            start, end,
+            num_stories=10,
+            sample_per_tick=False
+        )
+
+        assert stories_endpoint_mock.params['per_page'] == 10
+
 
 class TestWikimediaSignal(SignalTest):
 
