@@ -15,5 +15,5 @@ path_to_file = Path(os.path.dirname(os.path.abspath(__file__)))
 
 def generate_dataset():
     logger.info("Generating dataset via cli command `generate-dataset`")
-    print(f"Args: {sys.argv[1:]}")
-    sys.exit(subprocess.call([sys.executable, str(path_to_file / '../bin/generate_dataset.py')] + sys.argv[1:]))
+    logger.info(f"Args: {sys.argv[1:]}")
+    sys.exit(subprocess.call([sys.executable, str(path_to_file / 'generate_dataset.py')] + sys.argv[1:]))
