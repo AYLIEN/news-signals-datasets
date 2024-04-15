@@ -35,8 +35,12 @@ setup(
     install_requires=INSTALL_REQUIRES,
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    readme="README.md",
     packages=["news_signals"],
     data_files=["LICENSE", "VERSION", "README.md"],
+    entry_points={
+        'console_scripts': [
+            'generate-dataset=news_signals.cli:generate_dataset'
+        ]
+    },
     include_package_data=True
 )
