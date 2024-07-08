@@ -150,6 +150,9 @@ def create_newsapi_query(params):
     return dict(template, **{'aql': aql})
 
 
+MAX_STORIES_PER_PAGE = 10 # newsapi constant 2024-07-08
+
+
 def retrieve_stories(params,
                      n_pages=1,
                      headers=HEADERS,
@@ -158,6 +161,17 @@ def retrieve_stories(params,
     params = deepcopy(params)
     stories = []
     cursor = '*'
+    if 'num_stories' in params and params['num_stories'] > MAX_STORIES_PER_PAGE:
+        if n_pages > 1:
+            logger.warning(
+                f"num_stories > {MAX_STORIES_PER_PAGE}, num_stories "
+                f"will be ignored in favor of n_pages"
+            )
+        else:
+            n_pages = params['num_stories'] // MAX_STORIES_PER_PAGE
+            if params['num_stories'] % MAX_STORIES_PER_PAGE:
+                n_pages += 1
+    params['num_stories'] = MAX_STORIES_PER_PAGE
     for i in range(n_pages):
         if verbose:
             logger.info(f'page: {i}, stories: {len(stories)}')
