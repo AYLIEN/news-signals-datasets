@@ -506,14 +506,27 @@ class TestAylienSignal(SignalTest):
         assert dtype == np.int64
 
     def test_add_wikipedia_current_events(self):
+        ts_endpoint_mock = MockEndpoint()
+        aylien_ts = [
+            {"published_at": "2023-01-01T00:00:00Z", "count": 1},
+            {"published_at": "2023-01-02T00:00:00Z", "count": 2},
+            {"published_at": "2023-01-03T00:00:00Z", "count": 4},
+            {"published_at": "2023-01-04T00:00:00Z", "count": 1},
+            {"published_at": "2023-01-05T00:00:00Z", "count": 6},
+        ]
+        # WORKING here - fix this test so that it doesn't call the internet
+        timeseries_df = aylien_ts_to_df(aylien_ts, normalize=True, freq='D')
+        start = '2023-01-01'
+        end = '2023-01-05'
         html_path = resources / 'wiki-current-events-portal/example_monthly_page_jan_2023.html'
         example_html = html_path.read_text()
         signal = signals.AylienSignal(
             name='test',
-            params={'entity_ids': ['Q81068910']}
+            params={
+                'timeseries_df': timeseries_df,
+                'entity_ids': ['Q81068910']},
+            ts_endpoint=ts_endpoint_mock
         )
-        start = '2023-01-01'
-        end = '2023-01-30'
         ts_signal = signal(start=start, end=end)
         ts_signal.add_wikipedia_current_events(
             wikidata_client=MockWikidataClient('https://en.wikipedia.org/wiki/COVID-19_pandemic'),
