@@ -771,7 +771,7 @@ class AylienSignal(Signal):
         )
         return self
     
-    def filter_stories(self, filter_model: SemanticFilter, delete_filtered: bool = True, **kwargs):
+    def filter_stories(self, filter_model: SemanticFilter, delete_filtered: bool = True, **kwargs) -> Signal:
         """
         Filter stories in the signal using a semantic model, adding a column `matching_scores` to the feeds_df
         """
