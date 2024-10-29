@@ -33,8 +33,3 @@ class TestFilterSignal(SignalTest):
         filtered_signal = example_signal.filter_stories(filter_model=filter_model, delete_filtered=False)
         filtered_stories_per_tick = [len(tick) for tick in filtered_signal['stories']]
         assert(sum(orig_stories_per_tick) == sum(filtered_stories_per_tick))
-
-    
-    
-
-
