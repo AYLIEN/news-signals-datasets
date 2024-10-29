@@ -23,6 +23,7 @@ from .data import aylien_ts_to_df, datetime_to_aylien_str
 from .anomaly_detection import SigmaAnomalyDetector
 from .aql_builder import params_to_aql
 from .summarization import Summarizer
+from .semantic_filters import SemanticFilter
 from .exogenous_signals import (
     wikidata_id_to_wikimedia_pageviews_timeseries,
     wikidata_id_to_current_events
@@ -769,7 +770,23 @@ class AylienSignal(Signal):
             **kwargs
         )
         return self
+    
+    def filter_stories(self, filter_model: SemanticFilter, delete_filtered: bool = True, **kwargs):
+        """
+        Filter stories in the signal using a semantic model, adding a column `matching_scores` to the feeds_df
+        """
+        for index, tick_stories in self.feeds_df['stories'].items():
+            filtered_stories = []
+            for story in tick_stories:
+                keep = filter_model(story)
+                if story.get('filter_model_scores') is None:
+                    story['filter_model_outputs'] = [(filter_model.name, keep)]
+                if keep or not delete_filtered:
+                    filtered_stories.append(story)
+            self.feeds_df.at[index, 'stories'] = filtered_stories
 
+        return self
+        
     @staticmethod
     def normalize_aylien_story(story):
         """
