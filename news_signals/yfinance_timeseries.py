@@ -43,7 +43,7 @@ def retrieve_yfinance_timeseries(tickers, start_date, end_date=None, plot_rsi=Fa
             raw_data['RSI'] = RSI(raw_data['Close'])
 
     # Plotting
-    # Single
+    # Single ticker
     if len(tickers) == 1:
         fig, ax1 = plt.subplots(figsize=(12, 6))
         ax1.plot(raw_data.index, raw_data['Close'], color='blue', label=f"{tickers[0]} Price")
