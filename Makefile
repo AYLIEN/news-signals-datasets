@@ -26,7 +26,7 @@ dev:
 test: $(resources-test)
 	RESOURCES=resources/$(TEST_RESOURCES_VERSION) \
 	python -W ignore -m unittest discover -p "test*.py"
-	#flake8 aylien_timeseries --exclude schema_pb2.py
+	flake8 news_signals --exclude schema_pb2.py
 
 
 ##########################

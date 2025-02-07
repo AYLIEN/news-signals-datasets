@@ -1,11 +1,9 @@
 import unittest
 from unittest.mock import patch
 import pandas as pd
-import yfinance as yf
-from typing import List, Optional, Union
 
-from news_signals import yfinance_timeseries
-from yfinance_timeseries import retrieve_yfinance_timeseries
+from news_signals.yfinance_utils import retrieve_yfinance_timeseries
+
 
 class TestRetrieveYFinanceTimeseries(unittest.TestCase):
 
