@@ -14,7 +14,7 @@ class TestRetrieveYFinanceTimeseries(unittest.TestCase):
             'Close': [150, 152, 154, 153, 155]
         }, index=pd.date_range(start="2024-01-01", periods=5))
 
-        df = retrieve_yfinance_timeseries("AAPL", "2024-01-01", "2024-01-05", rsi=False, plot=False)
+        df = retrieve_yfinance_timeseries("AAPL", "2024-01-01", "2024-01-05", rsi=False)
         self.assertIsInstance(df, pd.DataFrame)
         self.assertIn('Close', df.columns)
 
@@ -25,7 +25,7 @@ class TestRetrieveYFinanceTimeseries(unittest.TestCase):
             'Close': [150, 152, 154, 153, 155]
         }, index=pd.date_range(start="2024-01-01", periods=5))
 
-        df = retrieve_yfinance_timeseries("AAPL", "2024-01-01", "2024-01-05", rsi=True, plot=False)
+        df = retrieve_yfinance_timeseries("AAPL", "2024-01-01", "2024-01-05", rsi=True)
         self.assertIsInstance(df, pd.DataFrame)
         self.assertIn('RSI', df.columns)
 
@@ -37,7 +37,7 @@ class TestRetrieveYFinanceTimeseries(unittest.TestCase):
             ('Close', 'MSFT'): [280, 282, 284, 283, 285],
         }, index=pd.date_range(start="2024-01-01", periods=5))
 
-        df = retrieve_yfinance_timeseries(["AAPL", "MSFT"], "2024-01-01", "2024-01-05", rsi=False, plot=False)
+        df = retrieve_yfinance_timeseries(["AAPL", "MSFT"], "2024-01-01", "2024-01-05", rsi=False)
         self.assertIsInstance(df, pd.DataFrame)
         self.assertIn(('Close', 'AAPL'), df.columns)
         self.assertIn(('Close', 'MSFT'), df.columns)
@@ -47,7 +47,7 @@ class TestRetrieveYFinanceTimeseries(unittest.TestCase):
         """Test when yfinance returns an empty DataFrame"""
         mock_yf_download.return_value = pd.DataFrame()
 
-        df = retrieve_yfinance_timeseries("AAPL", "2024-01-01", "2024-01-05", rsi=False, plot=False)
+        df = retrieve_yfinance_timeseries("AAPL", "2024-01-01", "2024-01-05", rsi=False)
         self.assertIsInstance(df, pd.DataFrame)
         self.assertTrue(df.empty)
 
