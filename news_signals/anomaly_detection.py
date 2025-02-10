@@ -35,7 +35,7 @@ class AnomalyDetector:
         else:
             weight = (current - sigma) / max_
 
-        if False:
+        if verbose:
             print("current:", current)
             print("max:", max_)
             print("sigma:", sigma)
