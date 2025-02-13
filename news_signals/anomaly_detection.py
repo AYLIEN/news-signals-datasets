@@ -21,14 +21,15 @@ class AnomalyDetector:
         history = history / max_
         return history, sigma, max_
 
-    def anomaly_weight(self, history, current, sigma_multiple=1, verbose=False):
+    @staticmethod
+    def anomaly_weight(history, current, sigma_multiple=1, verbose=False):
         """
         is current value an anomaly based on history?
         :param history:
         :param current:
         :return:
         """
-        history, sigma, max_ = self.normalize(history)
+        history, sigma, max_ = AnomalyDetector.normalize(history)
         small_sigma = history.std()
         if max_ == 0:
             weight = 0.0
@@ -48,8 +49,9 @@ class AnomalyDetector:
         else:
             return 0.
 
-    def history_to_anomaly_ts(self, history, sigma_multiple=1):
-        history, _, _ = self.normalize(history)
+    @staticmethod
+    def history_to_anomaly_ts(history, sigma_multiple=1):
+        history, _, _ = AnomalyDetector.normalize(history)
         small_sigma = history.std()
         history[history < (small_sigma * sigma_multiple)] = 0.
         return history
