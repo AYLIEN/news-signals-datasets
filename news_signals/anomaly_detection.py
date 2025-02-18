@@ -2,6 +2,9 @@ from .log import create_logger
 from abc import abstractmethod
 
 
+logger = create_logger(__name__, level='INFO')
+
+
 class AnomalyDetector:
 
     @abstractmethod
@@ -37,12 +40,12 @@ class AnomalyDetector:
             weight = (current - sigma) / max_
 
         if verbose:
-            print("current:", current)
-            print("max:", max_)
-            print("sigma:", sigma)
-            print("small sigma:", small_sigma)
-            print("weight:", weight)
-            print("small_sigma * sigma_multiple:", small_sigma * sigma_multiple)
+            logger.info("current: %s", current)
+            logger.info("max: %s", max_)
+            logger.info("sigma: %s", sigma)
+            logger.info("small sigma: %s", small_sigma)
+            logger.info("weight: %s", weight)
+            logger.info("small_sigma * sigma_multiple: %s", small_sigma * sigma_multiple)
 
         if weight > (small_sigma * sigma_multiple):
             return weight

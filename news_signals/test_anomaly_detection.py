@@ -4,7 +4,6 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-
 from news_signals.anomaly_detection import AnomalyDetector, SigmaAnomalyDetector
 
 
