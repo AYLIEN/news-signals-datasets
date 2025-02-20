@@ -1,3 +1,4 @@
+news-signals>=0.7.2
 streamlit>=1.42.0
 streamlit_echarts>=0.4.0
 streamlit_aggrid>=1.1.0
