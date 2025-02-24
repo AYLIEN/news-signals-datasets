@@ -6,7 +6,7 @@ import shutil
 import tarfile
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 from copy import deepcopy
 
 import appdirs
@@ -25,7 +25,7 @@ from news_signals.log import create_logger
 
 logger = create_logger(__name__, level=logging.INFO)
 
-MAX_BODY_TOKENS = 500
+MAX_BODY_TOKENS = 1000
 DEFAULT_METADATA = {
     'name': 'News Signals Dataset'
 }
@@ -325,7 +325,10 @@ def reduce_aylien_story(
             "published_at": s["published_at"],
             "language": s["language"],
             "url": s["links"]["permalink"],
+            "categories": s["categories"],
+            "industries": s["industries"],
             "smart_tagger_categories": smart_cats,
+            "media": s["media"],
             "clusters": s["clusters"]
         }, **{f: s[f] for f in additional_fields}
     )
@@ -443,11 +446,12 @@ def signal_exists(signal, dataset_output_dir):
 def generate_dataset(
     input: Union[List[signals.Signal], Path],
     output_dataset_dir: Path,
-    gcs_bucket: str,
     start: datetime,
     end: datetime,
-    id_field: str = "",
-    name_field: str = "",
+    gcs_bucket: Optional[str] = None,
+    name_field: Optional[str] = None,
+    id_field: Optional[str] = None,
+    surface_form_field: Optional[str] = None,
     stories_per_day: int = 20,
     overwrite: bool = False,
     delete_tmp_files: bool = False,
@@ -456,23 +460,33 @@ def generate_dataset(
     post_process_story=None,
     compress=True,
 ):
-
     """
-    Turn list of signals into a dataset by populating each signal with time
+    Turn a list of signals into a dataset by populating each signal with time
     series and stories using Aylien Newsapi endpoints.
     """
-
     if isinstance(input, Path):
-        # this CSV should have a Wikidata ID and name for each entity
+        # this CSV should have a Wikidata ID and/or entity surface form and name for each entity
+        assert id_field is not None or surface_form_field is not None, 'dataset generation from CSV requires an ID and/or surface form field'
         df = pd.read_csv(input)
         signals_ = []
         for x in df.to_dict(orient="records"):
-
-            name = x.get(name_field) or x[id_field]
-            id = x[id_field]
+            if name_field is None:
+                assert id_field is not None, 'if name_field is None, id_field must be specified'
+                name = x[id_field]
+            else:
+                name = x[name_field]
+            entity_ids = []
+            surface_forms = []
+            if id_field is not None:
+                entity_ids.append(x[id_field])
+            if surface_form_field is not None:
+                surface_forms.append(x[surface_form_field])
             signal = signals.AylienSignal(
                 name=name,
-                params={"entity_ids": [id]}
+                params={
+                    "entity_ids": entity_ids,
+                    "entity_surface_forms": surface_forms
+                }
             )
             signals_.append(signal)
     else:

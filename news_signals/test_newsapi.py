@@ -1,7 +1,9 @@
 import os
 import unittest
+from unittest.mock import patch, Mock
 from pathlib import Path
 
+import news_signals
 from news_signals import newsapi
 
 from .log import create_logger
@@ -40,6 +42,42 @@ class NewsapiTest(unittest.TestCase):
         }
         with self.assertRaises(TypeError):
             _ = newsapi.create_newsapi_query(params)
+
+    @patch('news_signals.newsapi.make_newsapi_request')
+    def test_num_stories_num_pages(self, mock_make_newsapi_request):
+
+        class MockMakeNewsapiRequest:
+            def __init__(self):
+                self.n_calls = 0
+                self.cursor = 0
+
+            def __call__(self, endpoint, params, headers):
+                self.n_calls += 1
+                self.cursor += 1
+                return {
+                    "stories": [],
+                    "next_page_cursor": self.cursor
+                }
+
+        newsapi_state = MockMakeNewsapiRequest()
+        mock_make_newsapi_request.side_effect = newsapi_state.__call__
+        params = {
+            'entity_surface_forms': ['Tesla'],
+            'categories': ['ay.fin.reports', 'ay.impact.crime'],
+            'num_stories': 100
+        }
+        _ = newsapi.retrieve_stories(params)
+        assert newsapi_state.n_calls == 10
+
+        newsapi_state = MockMakeNewsapiRequest()
+        mock_make_newsapi_request.side_effect = newsapi_state.__call__
+        params = {
+            'entity_surface_forms': ['Tesla'],
+            'categories': ['ay.fin.reports', 'ay.impact.crime'],
+            'num_stories': 10
+        }
+        _ = newsapi.retrieve_stories(params)
+        assert newsapi_state.n_calls == 1
 
 
 class TestResponseValidation(unittest.TestCase):

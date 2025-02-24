@@ -1,6 +1,10 @@
 # Sample utilities for transforming datasets
-
 from news_signals.summarization import get_summarizer
+from news_signals.signals import WikidataIDNotFound
+from news_signals.log import create_logger
+
+
+logger = create_logger(__name__)
 
 
 def add_anomalies(
@@ -50,14 +54,38 @@ def add_wikimedia_pageviews(
             wikimedia_endpoint=wikimedia_endpoint,
             overwrite_existing=overwrite_existing
         )
-    dataset.map(transform)
+    try:
+        dataset.map(transform)
+    except WikidataIDNotFound as e:
+        logger.error(f"Could not find Wikidata ID for signal: {e}, did not apply the pageviews transformation.")
     return dataset
+
+
+def add_wikipedia_current_events(
+    dataset,
+    wikidata_client=None,
+    wikipedia_endpoint=None,
+    overwrite_existing=False
+):  
+    def transform(signal):
+        return signal.add_wikipedia_current_events(
+            wikidata_client=wikidata_client,
+            wikipedia_endpoint=wikipedia_endpoint,
+            overwrite_existing=overwrite_existing
+        )
+    try:
+        dataset.map(transform)
+    except WikidataIDNotFound as e:
+        logger.error(f"Could not find Wikidata ID for signal: {e}, did not apply the pageviews transformation.")
+    return dataset
+
 
 
 REGISTRY = {
     "add_anomalies": add_anomalies,
     "add_summaries": add_summaries,
-    "add_wikimedia_pageviews": add_wikimedia_pageviews
+    "add_wikimedia_pageviews": add_wikimedia_pageviews,
+    "add_wikipedia_current_events": add_wikimedia_pageviews
 }
 
 

@@ -45,12 +45,11 @@ IMAGE_URI ?= $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY_NAME)/$(IMAGE_N
 
 .PHONY: build
 build:
-	docker build -t $(IMAGE_URI) -f Dockerfile .
+	docker build --network host -t $(IMAGE_URI) -f Dockerfile .
 
 .PHONY: push
 push:
 	docker push $(IMAGE_URI)
-
 
 .PHONY: container-test
 container-test:
@@ -69,11 +68,20 @@ container-test:
 # DOCUMENTATION #
 ################# 
 
+# build documentation
+.PHONY: docs-build
+docs-build:
+	mkdocs build
+
 # runs local mkdocs server on port 8000
 .PHONY: docs-serve
 docs-serve:
 	mkdocs serve
 
+# builds docs and pushes to gh-pages branch of repository
+.PHONY: docs-gh-deploy
+docs-gh-deploy:
+	mkdocs gh-deploy
 
 ######################
 # DATASET GENERATION #

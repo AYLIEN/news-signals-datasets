@@ -5,6 +5,7 @@ import shutil
 import datetime
 import base64
 from pathlib import Path
+from typing import Optional
 
 import arrow
 import pandas as pd
@@ -97,23 +98,29 @@ class TestDatasetGeneration(unittest.TestCase):
         if self.output_dataset_dir.exists():
             shutil.rmtree(self.output_dataset_dir)
     
-    def generate_sample_dataset(self):
+    def generate_sample_dataset(
+            self,
+            name_field: Optional[str] = 'Wikidata Label',
+            id_field: Optional[str] = None,
+            surface_form_field: Optional[str] = None
+    ):
         signals_dataset.generate_dataset(
             input=Path(self.input_csv),
             output_dataset_dir=Path(self.output_dataset_dir),
             gcs_bucket=None,
             start=datetime.datetime(2023, 1, 1),
             end=datetime.datetime(2023, 1, 4),
-            id_field="Wikidata ID",
-            name_field="Wikidata Label",
+            id_field=id_field,
+            surface_form_field=surface_form_field,
+            name_field=name_field,
             delete_tmp_files=True,
             stories_endpoint=self.stories_endpoint,
             ts_endpoint=self.ts_endpoint,
-            compress=False
+            compress=False,
         )
 
-    def test_generate_dataset(self):
-        self.generate_sample_dataset()
+    def test_generate_dataset_from_csv_with_wikidata_id(self):
+        self.generate_sample_dataset(id_field='Wikidata ID')
 
         signals_ = signals_dataset.SignalsDataset.load(
             self.output_dataset_dir
@@ -136,6 +143,39 @@ class TestDatasetGeneration(unittest.TestCase):
             assert signal.params is not None
             assert signal.name is not None
             assert signal.id is not None              
+
+    def test_generate_dataset_from_csv_with_entity_sf(self):
+        self.generate_sample_dataset(surface_form_field='Wikidata Label')
+
+        signals_ = signals_dataset.SignalsDataset.load(
+            self.output_dataset_dir
+        )
+        for signal in signals_.values():            
+            self.assertIsInstance(signal.timeseries_df, pd.DataFrame)
+            for col in ["published_at", "count"]:
+                self.assertIn(col, signal.timeseries_df)
+
+            self.assertIsInstance(signal.feeds_df, pd.DataFrame)                
+            for col in ["stories"]:
+                self.assertIn(col, signal.feeds_df)            
+                
+            # we know the stories should come from the mock endpoint
+            assert all(
+                len(tick) == len(self.stories_endpoint.sample_stories)
+                for tick in signal.feeds_df['stories']
+            )
+
+            assert signal.params is not None
+            assert signal.name is not None
+            assert signal.id is not None              
+    
+    def test_name_field_set_to_id(self):
+        with self.assertRaises(AssertionError):
+            self.generate_sample_dataset(surface_form_field='Wikidata Label', name_field=None)
+
+    def test_id_or_surface_form_field_required(self):
+        with self.assertRaises(AssertionError):
+            self.generate_sample_dataset()
  
     def test_signals_dataset_from_initialized_signals(self):
         # test that we can create a dataset from signals initialized
@@ -172,7 +212,7 @@ class TestDatasetGeneration(unittest.TestCase):
         assert len(list(dataset.signals.values())[0]) == days
 
     def test_signal_exists(self):
-        self.generate_sample_dataset()
+        self.generate_sample_dataset(id_field='Wikidata ID')
         signals_ = signals.Signal.load(self.output_dataset_dir)
         for s in signals_:            
             assert signals_dataset.signal_exists(s, self.output_dataset_dir)

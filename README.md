@@ -3,13 +3,15 @@
 ### Example Colab Notebooks
 
 These notebooks let you try out `news-signals` without installing anything!
+The Colab notebooks below are also available as jupyter notebooks in [research/news-signals-example-notebooks](research/news-signals-example-notebooks)
 
+- [Create a Signals Dataset from a CSV of Entity Names](https://drive.google.com/file/d/1Czm6JxIVapE6tnu9mGzRK9j2NmC0blPR/view?usp=share_link)         
 - [Find Emerging Categories in a Newsfeed](https://drive.google.com/file/d/1NVBdCfKL3qdSIGITcLsewGETTqn-V9j6/view?usp=share_link) - [Video](https://www.youtube.com/watch?v=oJa-xWusaCQ)       
 - [Searching the Aylien NewsAPI Using An Entity Name](https://drive.google.com/file/d/1zKCSjWqxRJCPWBaGKXt5oQwkOzT8aDSg/view?usp=share_link) - [Video](https://www.youtube.com/watch?v=HdoOiMXOrQ8)      
 - [An Overview of News Signals Datasets](https://drive.google.com/file/d/1zM4J3jFA9v2LDTFKOpaa3EUUGhOdQieo/view?usp=share_link) - [Video](https://www.youtube.com/watch?v=wOMDSMxVUHY)
 
-The Colab notebooks above are also available as jupyter notebooks in [research/news-signals-example-notebooks](research/news-signals-example-notebooks)
 
+**2023-11-30: NEW**: [Create_Wikimedia_Signals.ipynb](research/news-signals-example-notebooks/Create_Wikimedia_Signals.ipynb) shows how to build and explore a `WikimediaSignal` which does require not a NewsAPI account and works out-of-the-box for anyone.
 
 ## Quickstart
 
@@ -45,6 +47,8 @@ import matplotlib.pyplot as plt
 fig = dataset.plot()
 plt.show()
 ```
+
+See the [API Documentation](https://aylien.github.io/news-signals-datasets/) for more info.
 
 ## Installation from source
 
@@ -95,3 +99,7 @@ The config file specifies all relevant settings for a dataset, e.g. time range. 
 
 
 A more detailed guide on generating new datasets is here: [dataset-generation.md](dataset-generation.md)
+
+## Anomaly Classification Experiments
+
+These currently [live here](https://github.com/AYLIEN/news-signals-datasets/tree/add-anomaly-experiments/research/anomaly-classification).
