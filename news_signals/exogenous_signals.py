@@ -146,6 +146,10 @@ def wikipedia_link_to_wikimedia_pageviews_timeseries(
         records = [
             {
                 "wikimedia_pageviews": item["views"],
+                "timestamp": datetime.datetime.strptime(
+                    item["timestamp"],
+                    url_date_format
+                ).replace(tzinfo=pytz.timezone('UTC'))
                 # set timezone to UTC
                 "timestamp": pytz.utc.localize(datetime.datetime.strptime(item["timestamp"], url_date_format))
             }

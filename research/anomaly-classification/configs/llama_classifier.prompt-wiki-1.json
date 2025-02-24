@@ -1,0 +1,7 @@
+{
+    "model_id": "meta-llama/Llama-2-13b-chat-hf",
+    "prompt_template": "<s>[INST] <<SYS>>\nYou are a news analysis assistant that answers yes/no questions about news. You only respond with 'yes' or 'no'.\n<</SYS>>\n\nHeadlines:\n\n{{text}}\n\n The stories above all involve {{aspect}} and were published on the same day. Based on these headlines, do you think there was an extreme spike of page views for the Wikipedia article about {{aspect}}, more than 95% of the days? [/INST]",
+    "temperature": 0.1,
+    "top_p": 1.0,
+    "max_tokens": 10
+}
