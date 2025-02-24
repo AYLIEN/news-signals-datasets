@@ -1,0 +1,101 @@
+Top 100 highest correlations between different companies:
+Lowe's Companies, Inc. and The Home Depot, Inc.: 0.8666
+Morgan Stanley and The Goldman Sachs Group, Inc.: 0.8122
+Visa Inc. and Mastercard Incorporated: 0.7965
+JPMorgan Chase & Co. and The Goldman Sachs Group, Inc.: 0.7745
+The Goldman Sachs Group, Inc. and Citigroup Inc.: 0.7608
+Exxon Mobil Corporation and Chevron Corporation: 0.7150
+JPMorgan Chase & Co. and Citigroup Inc.: 0.7003
+JPMorgan Chase & Co. and Berkshire Hathaway Inc.: 0.6540
+Microsoft Corporation and Amazon.com, Inc.: 0.6524
+Morgan Stanley and Citigroup Inc.: 0.6508
+Morgan Stanley and JPMorgan Chase & Co.: 0.6486
+The Goldman Sachs Group, Inc. and Caterpillar Inc.: 0.5911
+The Goldman Sachs Group, Inc. and Berkshire Hathaway Inc.: 0.5909
+PepsiCo, Inc. and The Coca-Cola Company: 0.5754
+Mastercard Incorporated and Berkshire Hathaway Inc.: 0.5632
+Alphabet Inc. and Amazon.com, Inc.: 0.5522
+Morgan Stanley and Berkshire Hathaway Inc.: 0.5416
+Citigroup Inc. and Berkshire Hathaway Inc.: 0.5414
+NVIDIA Corporation and Advanced Micro Devices, Inc.: 0.5401
+Microsoft Corporation and Meta Platforms, Inc.: 0.5370
+Morgan Stanley and Caterpillar Inc.: 0.5309
+Meta Platforms, Inc. and Amazon.com, Inc.: 0.5190
+Caterpillar Inc. and Citigroup Inc.: 0.5178
+Visa Inc. and Berkshire Hathaway Inc.: 0.5174
+Pfizer Inc. and Johnson & Johnson: 0.5124
+Oracle Corporation and NVIDIA Corporation: 0.5049
+JPMorgan Chase & Co. and Caterpillar Inc.: 0.4925
+Procter & Gamble Co. and The Coca-Cola Company: 0.4894
+Microsoft Corporation and Alphabet Inc.: 0.4826
+Oracle Corporation and Microsoft Corporation: 0.4810
+The Coca-Cola Company and Johnson & Johnson: 0.4654
+Netflix, Inc. and Microsoft Corporation: 0.4615
+NVIDIA Corporation and Microsoft Corporation: 0.4601
+Procter & Gamble Co. and PepsiCo, Inc.: 0.4516
+NVIDIA Corporation and Netflix, Inc.: 0.4492
+Microsoft Corporation and Apple Inc.: 0.4446
+S&P Global Inc. and The Home Depot, Inc.: 0.4386
+S&P Global Inc. and Berkshire Hathaway Inc.: 0.4386
+Caterpillar Inc. and Berkshire Hathaway Inc.: 0.4380
+Netflix, Inc. and Amazon.com, Inc.: 0.4343
+Meta Platforms, Inc. and Alphabet Inc.: 0.4327
+General Motors Company and Citigroup Inc.: 0.4323
+S&P Global Inc. and Lowe's Companies, Inc.: 0.4301
+PayPal Holdings, Inc. and Citigroup Inc.: 0.4215
+Johnson & Johnson and Berkshire Hathaway Inc.: 0.4194
+Morgan Stanley and Cisco Systems, Inc.: 0.4119
+Mastercard Incorporated and The Goldman Sachs Group, Inc.: 0.4053
+Visa Inc. and The Goldman Sachs Group, Inc.: 0.4023
+Visa Inc. and Morgan Stanley: 0.4019
+S&P Global Inc. and Mastercard Incorporated: 0.4018
+NVIDIA Corporation and Amazon.com, Inc.: 0.4008
+Intel Corporation and Amazon.com, Inc.: 0.3998
+Mastercard Incorporated and JPMorgan Chase & Co.: 0.3993
+United Parcel Service, Inc. and FedEx Corporation: 0.3985
+PayPal Holdings, Inc. and The Goldman Sachs Group, Inc.: 0.3935
+The Goldman Sachs Group, Inc. and General Motors Company: 0.3929
+Johnson & Johnson and AbbVie Inc.: 0.3911
+Netflix, Inc. and Meta Platforms, Inc.: 0.3904
+PayPal Holdings, Inc. and Morgan Stanley: 0.3885
+Amazon.com, Inc. and Adobe Inc.: 0.3867
+AT&T Inc. and Johnson & Johnson: 0.3797
+Intel Corporation and Citigroup Inc.: 0.3789
+The Goldman Sachs Group, Inc. and General Electric Company: 0.3784
+NVIDIA Corporation and Meta Platforms, Inc.: 0.3773
+Morgan Stanley and Intel Corporation: 0.3766
+Visa Inc. and JPMorgan Chase & Co.: 0.3763
+Meta Platforms, Inc. and Advanced Micro Devices, Inc.: 0.3761
+Intel Corporation and The Goldman Sachs Group, Inc.: 0.3756
+McDonald's Corporation and The Coca-Cola Company: 0.3741
+General Electric Company and Caterpillar Inc.: 0.3712
+Mastercard Incorporated and Honeywell International Inc.: 0.3708
+Cisco Systems, Inc. and Citigroup Inc.: 0.3707
+Morgan Stanley and Mastercard Incorporated: 0.3692
+Honeywell International Inc. and Berkshire Hathaway Inc.: 0.3690
+Caterpillar Inc. and Amazon.com, Inc.: 0.3688
+Visa Inc. and S&P Global Inc.: 0.3676
+McDonald's Corporation and Lowe's Companies, Inc.: 0.3660
+General Motors Company and Berkshire Hathaway Inc.: 0.3639
+JPMorgan Chase & Co. and Cisco Systems, Inc.: 0.3616
+Visa Inc. and Citigroup Inc.: 0.3607
+Oracle Corporation and Amazon.com, Inc.: 0.3601
+Morgan Stanley and General Motors Company: 0.3591
+JPMorgan Chase & Co. and General Motors Company: 0.3589
+Pfizer Inc. and The Coca-Cola Company: 0.3577
+The Goldman Sachs Group, Inc. and Cisco Systems, Inc.: 0.3574
+Intel Corporation and Advanced Micro Devices, Inc.: 0.3572
+General Motors Company and Caterpillar Inc.: 0.3571
+Procter & Gamble Co. and Johnson & Johnson: 0.3568
+PepsiCo, Inc. and Johnson & Johnson: 0.3565
+United Parcel Service, Inc. and Caterpillar Inc.: 0.3559
+Tesla, Inc. and Amazon.com, Inc.: 0.3534
+JPMorgan Chase & Co. and Chevron Corporation: 0.3531
+Microsoft Corporation and Adobe Inc.: 0.3526
+Cisco Systems, Inc. and Caterpillar Inc.: 0.3524
+Chevron Corporation and Berkshire Hathaway Inc.: 0.3502
+Caterpillar Inc. and Advanced Micro Devices, Inc.: 0.3502
+Mastercard Incorporated and International Business Machines Corporation: 0.3491
+Netflix, Inc. and Advanced Micro Devices, Inc.: 0.3489
+Tesla, Inc. and Apple Inc.: 0.3484
+Lowe's Companies, Inc. and General Motors Company: 0.3479
