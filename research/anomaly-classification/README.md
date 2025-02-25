@@ -13,7 +13,31 @@ To run `make llm_experiments`, additionally install:
 pip install -r llm-requirements.txt
 ```
 
+Ensure you have these folders 
 
+```
+data/classification-datasets
+data/models
+data/predictions
+```
+
+Otherwise make them
+
+```
+mkdir -p data/classification-datasets
+mkdir -p data/models
+mkdir -p data/predictions
+```
+
+If you are running on a Mac system, Remember to change config files accordingly
+From
+```
+"device": "cuda"
+```
+To
+```
+"device": "cpu"
+```
 
 ### Download datasets
 
