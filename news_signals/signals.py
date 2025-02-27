@@ -898,7 +898,6 @@ class AylienSignal(Signal):
 
         return summaries
 
-
     def add_wikimedia_pageviews_timeseries(
         self,
         wikimedia_endpoint=None,
@@ -941,6 +940,48 @@ class AylienSignal(Signal):
             logger.error(e)
             logger.warning('Retrieved wikimedia pageviews dataframe is None, not adding to signal')
             
+        return self
+
+    def add_yfinance_market_timeseries(
+        self,
+        overwrite_existing=False
+    ):
+        """
+        """
+        #if not overwrite_existing and "wikimedia_pageviews" in self.timeseries_df.columns:
+        #    logger.info("wikimedia pageviews already exist, not adding")
+        #    return self
+        #try:
+        #    wikidata_id = self.params['entity_ids'][0]
+        #except (KeyError, IndexError):
+        #    try:
+        #        wikidata_id = self.aql.split("id:")[1].split(")")[0]
+        #        assert wikidata_id.startswith("Q")
+        #    except Exception:
+        #        raise WikidataIDNotFound(
+        #            "No Wikidata ID found in signal.params or signal.aql"
+        #        )
+        #start = self.timeseries_df.index.min().to_pydatetime()
+        #end = self.timeseries_df.index.max().to_pydatetime()
+
+        from news_signals.yfinance_utils import retrieve_yfinance_timeseries
+        market_ts_df = retrieve_yfinance_timeseries("AAPL", "2024-01-01", "2024-01-05", rsi=False)
+        import ipdb; ipdb.set_trace()
+
+        #pageviews_df = wikidata_id_to_wikimedia_pageviews_timeseries(
+        #        wikidata_id,
+        #        start,
+        #        end,
+        #        granularity='daily',
+        #        wikidata_client=wikidata_client,
+        #        wikimedia_endpoint=wikimedia_endpoint,
+        #) 
+        #try:
+        #    self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].values
+        #except TypeError as e:
+        #    logger.error(e)
+        #    logger.warning('Retrieved wikimedia pageviews dataframe is None, not adding to signal')
+        #    
         return self
 
     def add_wikipedia_current_events(
