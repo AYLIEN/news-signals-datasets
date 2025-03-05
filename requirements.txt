@@ -19,4 +19,5 @@ spacy==3.5.4
 sqlitedict>=1.7.0
 tqdm>=4.62.3
 Wikidata>=0.7.0
+yfinance>=0.2.52
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0.tar.gz
