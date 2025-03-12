@@ -947,7 +947,7 @@ class AylienSignal(Signal):
     def add_yfinance_market_timeseries(self, ticker, start, end, columns=None, rsi=False, overwrite_existing=False):
         """
         Retrieve market time series data from Yahoo Finance for the given date range,
-        and add the specified columns (with a "yfinance_" prefix) to self.timeseries_df.
+        and add the specified columns to self.timeseries_df.
 
         Parameters:
         - ticker (str): The stock ticker symbol to retrieve (required).
@@ -961,7 +961,6 @@ class AylienSignal(Signal):
         Returns:
         - self: The updated signal instance with the new timeseries data.
         """
-        logger = logging.getLogger(__name__)
 
         # Determine default columns if none provided.
         if columns is None:
