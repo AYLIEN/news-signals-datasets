@@ -7,6 +7,7 @@ from typing import List, Optional
 import json
 import base64
 from pathlib import Path
+import logging
 
 import tqdm
 import pandas as pd
@@ -22,6 +23,7 @@ from .log import create_logger
 from .data import aylien_ts_to_df, datetime_to_aylien_str
 from .anomaly_detection import SigmaAnomalyDetector
 from .aql_builder import params_to_aql
+from .yfinance_utils import retrieve_yfinance_timeseries
 from .summarization import Summarizer
 from .semantic_filters import SemanticFilter
 from .exogenous_signals import (
@@ -942,47 +944,63 @@ class AylienSignal(Signal):
             
         return self
 
-    def add_yfinance_market_timeseries(
-        self,
-        overwrite_existing=False
-    ):
+    def add_yfinance_market_timeseries(self, ticker, start, end, columns=None, rsi=False, overwrite_existing=False):
         """
+        Retrieve market time series data from Yahoo Finance for the given date range,
+        and add the specified columns (with a "yfinance_" prefix) to self.timeseries_df.
+
+        Parameters:
+        - ticker (str): The stock ticker symbol to retrieve (required).
+        - start (str): The start date for data retrieval in "YYYY-MM-DD" format.
+        - end (str): The end date for data retrieval in "YYYY-MM-DD" format.
+        - columns (str or list of str, optional): The column(s) to extract from the yfinance data.
+            Defaults to ["Close"] if rsi is False, or ["Close", "RSI"] if rsi is True.
+        - rsi (bool): Whether to compute RSI (passed to the retrieval function).
+        - overwrite_existing (bool): Whether to overwrite existing yfinance data if already present.
+        
+        Returns:
+        - self: The updated signal instance with the new timeseries data.
         """
-        #if not overwrite_existing and "wikimedia_pageviews" in self.timeseries_df.columns:
-        #    logger.info("wikimedia pageviews already exist, not adding")
-        #    return self
-        #try:
-        #    wikidata_id = self.params['entity_ids'][0]
-        #except (KeyError, IndexError):
-        #    try:
-        #        wikidata_id = self.aql.split("id:")[1].split(")")[0]
-        #        assert wikidata_id.startswith("Q")
-        #    except Exception:
-        #        raise WikidataIDNotFound(
-        #            "No Wikidata ID found in signal.params or signal.aql"
-        #        )
-        #start = self.timeseries_df.index.min().to_pydatetime()
-        #end = self.timeseries_df.index.max().to_pydatetime()
+        logger = logging.getLogger(__name__)
 
-        from news_signals.yfinance_utils import retrieve_yfinance_timeseries
-        market_ts_df = retrieve_yfinance_timeseries("AAPL", "2024-01-01", "2024-01-05", rsi=False)
-        import ipdb; ipdb.set_trace()
+        # Determine default columns if none provided.
+        if columns is None:
+            columns = ["Close", "RSI"] if rsi else ["Close"]
+        elif isinstance(columns, str):
+            columns = [columns]
 
-        #pageviews_df = wikidata_id_to_wikimedia_pageviews_timeseries(
-        #        wikidata_id,
-        #        start,
-        #        end,
-        #        granularity='daily',
-        #        wikidata_client=wikidata_client,
-        #        wikimedia_endpoint=wikimedia_endpoint,
-        #) 
-        #try:
-        #    self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].values
-        #except TypeError as e:
-        #    logger.error(e)
-        #    logger.warning('Retrieved wikimedia pageviews dataframe is None, not adding to signal')
-        #    
+        # Retrieve market time series data from yfinance.
+        try:
+            market_ts_df = retrieve_yfinance_timeseries(ticker, start, end, rsi=rsi)
+        except Exception as e:
+            logger.error("Error retrieving yfinance timeseries: " + str(e))
+            return self
+
+        # Ensure each requested column exists in the returned data.
+        for col in columns:
+            if col not in market_ts_df.columns:
+                logger.error(f"Expected column '{col}' not found in yfinance data.")
+                return self
+
+        # Ensure self.timeseries_df exists; if not, initializing it with finance data
+        if self.timeseries_df is None:
+            self.timeseries_df = pd.DataFrame(index=market_ts_df.index)
+
+        # Adding columns to self.timeseries_df
+        for col in columns:
+            new_col_name = col.lower()
+            if new_col_name in self.timeseries_df.columns and not overwrite_existing:
+                logger.info(f"Column {new_col_name} already exists, not overwriting.")
+                continue
+            try:
+                self.timeseries_df[new_col_name] = market_ts_df[col].values
+            except Exception as e:
+                logger.error(f"Error assigning yfinance data for column '{col}': " + str(e))
+                continue
+
         return self
+
+
 
     def add_wikipedia_current_events(
         self,
