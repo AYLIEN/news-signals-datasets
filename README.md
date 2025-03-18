@@ -18,7 +18,7 @@ The Colab notebooks below are also available as jupyter notebooks in [research/n
 
 #### Install news-signals in a new environment
 ```
-conda create -n test-signals-pypi python=3.8
+conda create -n test-signals-pypi python=3.10
 conda activate test-signals-pypi
 
 pip install news-signals
@@ -54,7 +54,7 @@ See the [API Documentation](https://aylien.github.io/news-signals-datasets/) for
 
 #### Install news-signals in a new environment
 
-Run `conda create -n news-signals python=3.8` if you're using Anaconda, alternatively `python3.8 -m venv news-signals` or similar.
+Run `conda create -n news-signals python=3.10` if you're using Anaconda, alternatively `python3.10 -m venv news-signals` or similar.
 Note python>=3.8 is required.
 
 ```

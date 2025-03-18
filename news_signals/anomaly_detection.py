@@ -1,5 +1,6 @@
 from .log import create_logger
 from abc import abstractmethod
+import pandas as pd
 
 
 logger = create_logger(__name__, level='INFO')
@@ -113,3 +114,41 @@ class SigmaAnomalyDetector(AnomalyDetector):
         # news, but not for other series types like stocks
         test_series = test_series.clip(lower=0)
         return test_series
+
+    
+class BollingerAnomalyDetector(AnomalyDetector):
+    """
+    Anomaly detection based on Bollinger Bands.
+    Returns Boolean Value (1 for Anomaly, 0 otherwise)
+    """
+
+    def __init__(self, window=20, num_std=2.0):
+        self.logger = create_logger(__name__)
+        self.window = window
+        self.num_std = num_std
+
+    def __call__(self, history, series, **kwargs):
+        return self.anomalies_wrt_history(history, series, **kwargs)
+
+    def anomalies_wrt_history(
+            self,
+            history, test_series,
+            window=None, num_std=None
+    ):
+        if window is None:
+            window = self.window
+        if num_std is None:
+            num_std = self.num_std
+
+        if len(history) < window:
+            raise ValueError(f'history must be at least {window} points long')
+
+        rolling_mean = history.rolling(window=window).mean()
+        rolling_std = history.rolling(window=window).std()
+        upper_band = rolling_mean + (rolling_std * num_std)
+        lower_band = rolling_mean - (rolling_std * num_std)
+        #Incase of reindexing, forward fill the values
+        upper_band = upper_band.reindex(test_series.index, method='ffill')
+        lower_band = lower_band.reindex(test_series.index, method='ffill')
+        anomalies = (test_series > upper_band) | (test_series < lower_band)
+        return anomalies.astype(int)

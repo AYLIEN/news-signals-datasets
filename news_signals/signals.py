@@ -7,6 +7,7 @@ from typing import List, Optional
 import json
 import base64
 from pathlib import Path
+import logging
 
 import tqdm
 import pandas as pd
@@ -22,6 +23,7 @@ from .log import create_logger
 from .data import aylien_ts_to_df, datetime_to_aylien_str
 from .anomaly_detection import SigmaAnomalyDetector
 from .aql_builder import params_to_aql
+from .yfinance_utils import retrieve_yfinance_timeseries
 from .summarization import Summarizer
 from .semantic_filters import SemanticFilter
 from .exogenous_signals import (
@@ -898,7 +900,6 @@ class AylienSignal(Signal):
 
         return summaries
 
-
     def add_wikimedia_pageviews_timeseries(
         self,
         wikimedia_endpoint=None,
@@ -941,6 +942,106 @@ class AylienSignal(Signal):
             logger.error(e)
             logger.warning('Retrieved wikimedia pageviews dataframe is None, not adding to signal')
             
+        return self
+
+    def add_yfinance_market_timeseries(self, ticker, columns=None, rsi=False, overwrite_existing=False, append_dates=False):
+        """
+        Retrieve market time series data from Yahoo Finance for the instance's date range,
+        and add the specified columns to self.timeseries_df.
+
+        The date range is determined from self.start and self.end (if available),
+        or from the minimum and maximum dates of self.timeseries_df's index.
+
+        Parameters:
+        - ticker (str): The stock ticker symbol to retrieve (required).
+        - columns (str or list of str, optional): The column(s) to extract from the yfinance data.
+            Defaults to ["Close"] if rsi is False, or ["Close", "RSI"] if rsi is True.
+        - rsi (bool): Whether to request RSI data. The underlying retrieval function uses this flag.
+        - overwrite_existing (bool): Whether to overwrite existing yfinance data if already present.
+        - append_dates (bool):
+            If True, any dates present in the yfinance data that are not already in self.timeseries_df
+            will be appended (the DataFrame is reindexed to the union of dates).
+            If False, only rows with dates common to both DataFrames are updated.
+        
+        Returns:
+        - self: The signal instance with the new timeseries data.
+        """
+        # Default cols
+        if columns is None:
+            columns = ["Close", "RSI"] if rsi else ["Close"]
+        elif isinstance(columns, str):
+            columns = [columns]
+
+        # Determine the start and end dates (from the class)
+        try:
+            start = str(self.start.to_pydatetime().date())
+            end = str(self.end.to_pydatetime().date())
+        except AttributeError:
+            try:
+                start = str(self.timeseries_df.index.min().to_pydatetime().date())
+                end = str(self.timeseries_df.index.max().to_pydatetime().date())
+            except Exception as e:
+                logger.error("Could not determine start/end dates for yfinance query: " + str(e))
+                return self
+
+        # Retrieve market time series data from yfinance funct in yfinance_utils.py
+        try:
+            market_ts_df = retrieve_yfinance_timeseries(ticker, start, end, rsi=rsi)
+        except Exception as e:
+            logger.error("Error retrieving yfinance timeseries: " + str(e))
+            return self
+
+        # If the retrieved DataFrame has MultiIndex columns, flatten them (usually does anyway)
+        if isinstance(market_ts_df.columns, pd.MultiIndex):
+            market_ts_df.columns = [
+                col[0] if col[1].upper() == ticker.upper() or col[1] == "" else col[1]
+                for col in market_ts_df.columns
+            ]
+
+        # If RSI is not requested, drop any RSI column (if present)
+        if not rsi:
+            drop_cols = [col for col in market_ts_df.columns if col.lower() == "rsi"]
+            if drop_cols:
+                market_ts_df.drop(columns=drop_cols, inplace=True)
+
+        # Case-insensitive matching of columns
+        col_mapping = {col.lower(): col for col in market_ts_df.columns}
+
+        # Ensure each requested column exists in the market data.
+        for col in columns:
+            if col.lower() not in col_mapping:
+                logger.error(f"Expected column '{col}' not found in yfinance data.")
+                return self
+
+        # Initialize self.timeseries_df (if needed)
+        if self.timeseries_df is None:
+            self.timeseries_df = pd.DataFrame(index=market_ts_df.index)
+
+        # Align datetime indices (between yfinance and news_signals)
+        if self.timeseries_df.index.tz is not None and market_ts_df.index.tz is None:
+            market_ts_df.index = market_ts_df.index.tz_localize(self.timeseries_df.index.tz)
+        elif self.timeseries_df.index.tz is None and market_ts_df.index.tz is not None:
+            market_ts_df.index = market_ts_df.index.tz_convert(None)
+
+        # Add requested columns to self.timeseries_df.
+        for col in columns:
+            new_col_name = col.lower()
+            if new_col_name in self.timeseries_df.columns and not overwrite_existing:
+                logger.info(f"Column {new_col_name} already exists, not overwriting.")
+                continue
+            try:
+                actual_col = col_mapping[new_col_name]
+                if append_dates:
+                    combined_index = self.timeseries_df.index.union(market_ts_df.index)
+                    self.timeseries_df = self.timeseries_df.reindex(combined_index)
+                    self.timeseries_df[new_col_name] = market_ts_df[actual_col]
+                else:
+                    common_index = self.timeseries_df.index.intersection(market_ts_df.index)
+                    self.timeseries_df.loc[common_index, new_col_name] = market_ts_df.loc[common_index, actual_col]
+            except Exception as e:
+                logger.error(f"Error assigning yfinance data for column '{col}': " + str(e))
+                continue
+
         return self
 
     def add_wikipedia_current_events(
