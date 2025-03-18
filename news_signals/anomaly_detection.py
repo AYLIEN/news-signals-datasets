@@ -3,11 +3,62 @@ from abc import abstractmethod
 import pandas as pd
 
 
+logger = create_logger(__name__, level='INFO')
+
+
 class AnomalyDetector:
 
     @abstractmethod
     def __call__(self, df_series, **kwargs):
         raise NotImplementedError
+
+    @staticmethod
+    def normalize(history):
+        sigma = history.std()
+        history = history - sigma
+        history = history.clip(lower=0)
+        max_ = history.max()
+        if max_ == 0:
+            # Avoid dividing by zero. If everything is zero, it means there is no anomaly or no volume.
+            return history * 0.0, sigma, max_
+
+        history = history / max_
+        return history, sigma, max_
+
+    @staticmethod
+    def anomaly_weight(history, current, sigma_multiple=1, verbose=False):
+        """
+        is current value an anomaly based on history?
+        :param history:
+        :param current:
+        :return:
+        """
+        history, sigma, max_ = AnomalyDetector.normalize(history)
+        small_sigma = history.std()
+        if max_ == 0:
+            weight = 0.0
+        else:
+            weight = (current - sigma) / max_
+
+        if verbose:
+            logger.info("current: %s", current)
+            logger.info("max: %s", max_)
+            logger.info("sigma: %s", sigma)
+            logger.info("small sigma: %s", small_sigma)
+            logger.info("weight: %s", weight)
+            logger.info("small_sigma * sigma_multiple: %s", small_sigma * sigma_multiple)
+
+        if weight > (small_sigma * sigma_multiple):
+            return weight
+        else:
+            return 0.
+
+    @staticmethod
+    def history_to_anomaly_ts(history, sigma_multiple=1):
+        history, _, _ = AnomalyDetector.normalize(history)
+        small_sigma = history.std()
+        history[history < (small_sigma * sigma_multiple)] = 0.
+        return history
 
 
 class SigmaAnomalyDetector(AnomalyDetector):
@@ -51,7 +102,7 @@ class SigmaAnomalyDetector(AnomalyDetector):
         # ensures that sigma shouldn't be zero
         # user can override this by setting smoothing to zero,
         # that could result in infinite anomaly score
-        sigma = max(sigma, smoothing) 
+        sigma = max(sigma, smoothing)
         mean = history.mean()
         test_series = test_series - mean
         # how many standard deviations away does it need

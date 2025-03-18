@@ -1,0 +1,8 @@
+{
+    "model_id": "roberta-base",
+    "epochs": 1,
+    "batch_size": 8,
+    "use_skip_connection": true,
+    "metric_name": "f1",
+    "device": "cuda"
+}

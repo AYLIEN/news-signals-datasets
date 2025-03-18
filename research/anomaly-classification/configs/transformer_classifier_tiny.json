@@ -1,0 +1,8 @@
+{
+    "model_id": "prajjwal1/bert-tiny",
+    "epochs": 1,
+    "batch_size": 8,
+    "use_skip_connection": false,
+    "metric_name": "f1",
+    "device": "cuda"
+}

@@ -1,0 +1,14 @@
+arrow>=1.1.1
+flake8>=3.8.3
+matplotlib>=3.5.3
+pandas>=1.4.1
+scikit-learn>=1.1.0
+scipy>=1.8
+tqdm>=4.62.3
+datasets>=2.10.1
+evaluate>=0.4.0
+transformers>=4.26.1
+torch>=1.13.1
+accelerate>=0.20.3
+editdistance>=0.6.2
+openai>=0.27.6

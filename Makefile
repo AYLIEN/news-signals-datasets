@@ -92,3 +92,15 @@ DATASET_CONFIG ?= "resources/dataset-config-example.json"
 .PHONY: create-dataset
 create-dataset:
 	python bin/generate_dataset.py --config $(DATASET_CONFIG)
+
+
+###########################
+# DATASET POST-PROCESSING #
+###########################
+
+
+.PHONY: add_abstractive_summaries
+add_abstractive_summaries:
+	python bin/add_abstractive_summaries.py \
+		--input-dataset-path datasets/dataset-us-politicians.tar.gz \
+		--output-dataset-path final-datasets/dataset-us-politicians.tar.gz

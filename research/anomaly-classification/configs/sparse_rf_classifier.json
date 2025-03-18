@@ -1,0 +1,7 @@
+{
+    "classifier": "SparseRandomForestClassifier",
+    "vectorizer": "CountVectorizer",
+    "max_features": 10000,
+    "n_estimators": 100,
+    "max_depth": 20
+}
