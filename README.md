@@ -30,7 +30,7 @@ Do `pip install jupyter` in your environment,
 
 then run the code below 
 in a jupyter notebook or in in the (i)python repl. 
-```
+```python
 from news_signals.signals_dataset import SignalsDataset
 
 # nasdaq100 sample dataset
@@ -40,7 +40,7 @@ dataset = SignalsDataset.load(dataset_url)
 ```
 
 Now try:
-```
+```python
 import matplotlib.pyplot as plt
 
 
