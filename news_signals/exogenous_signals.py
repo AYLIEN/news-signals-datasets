@@ -411,7 +411,7 @@ def wikidata_id_to_current_events(
 class WikidataSearch:
     user_agent: str = "GraphTraversalBot/1.0 (your_email@example.com) Python/requests"
 
-    def entity_to_wikidata_id(self, entity_name: str) -> str:
+    def entity_to_wikidata(self, entity_name: str) -> str:
         """
         Given an entity name returns its Wikidata ID.
         Uses Wikidata's wbsearchentities API.
@@ -435,12 +435,18 @@ class WikidataSearch:
         print(f"No Wikidata ID found for '{entity_name}'.")
         return None
 
-    def wikidata_related_entities(self, wikidata_id, depth=1, query=None):
+    def wikidata_related_entities(self,
+        entity_name: str,
+        depth=1,
+        labels=False,
+        query=None
+        ):
         """
         Given a Wikidata ID, performs a graph traversal to find related entities up to a specified depth.
 
         :param wikidata_id: The starting Wikidata ID.
         :param depth: The number of hops (levels) to traverse.
+        :param labels: Whether to return Wikidata IDs or human-readable labels.
         :param query: Optional custom SPARQL query for retrieving related entities.
         :return: A list of related Wikidata IDs.
         """
@@ -458,6 +464,13 @@ class WikidataSearch:
                 SERVICE wikibase:label {{ bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],en\" }}
             }}
         """
+        if not labels:
+            wikidata_id = self.entity_to_wikidata(entity_name)
+            if not wikidata_id:
+                print(f"No Wikidata ID found for '{entity_name}'.")
+                return []
+        else:
+            wikidata_id = entity_name
 
         visited = set()
         current_level = {wikidata_id}
@@ -483,9 +496,16 @@ class WikidataSearch:
             current_level = next_level
             if not current_level:
                 break
-        return list(all_related)
 
-    def wikidata_labels_to_ids(self, wikidata_ids, language='en'):
+        if not labels:
+            final_list = list(all_related)
+            final_list = self.wikidata_to_ids(final_list)
+        else:
+            final_list = list(all_related)
+
+        return final_list
+
+    def wikidata_to_ids(self, wikidata_ids, language='en'):
         """
         Convert Wikidata IDs to human-readable labels.
 
