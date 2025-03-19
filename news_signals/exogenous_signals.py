@@ -402,3 +402,134 @@ def wikidata_id_to_current_events(
         ]
     events.sort(key=lambda x: x['date'])
     return events
+
+#########################################################################
+################# TOOLS FOR/AND BFS WIKIDATA SEARCH #####################
+#########################################################################
+
+@dataclass
+class WikidataSearch:
+    user_agent: str = "GraphTraversalBot/1.0 (your_email@example.com) Python/requests"
+
+    def entity_to_wikidata_id(self, entity_name: str) -> str:
+        """
+        Given an entity name returns its Wikidata ID.
+        Uses Wikidata's wbsearchentities API.
+
+        :param entity_name: Name of the entity to search for
+        :return: Wikidata ID as a string, or None if not found
+        """
+        url = "https://www.wikidata.org/w/api.php"
+        params = {
+            "action": "wbsearchentities",
+            "format": "json",
+            "language": "en",
+            "search": entity_name
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        if "search" in data and data["search"]:
+            return data["search"][0]["id"]
+
+        print(f"No Wikidata ID found for '{entity_name}'.")
+        return None
+
+    def wikidata_related_entities(self, wikidata_id, depth=1, query=None):
+        """
+        Given a Wikidata ID, performs a graph traversal to find related entities up to a specified depth.
+
+        :param wikidata_id: The starting Wikidata ID.
+        :param depth: The number of hops (levels) to traverse.
+        :param query: Optional custom SPARQL query for retrieving related entities.
+        :return: A list of related Wikidata IDs.
+        """
+        endpoint_url = "https://query.wikidata.org/sparql"
+        headers = {"User-Agent": self.user_agent}
+
+        default_query = """
+            SELECT ?related ?relatedLabel WHERE {{
+                wd:{item} ?prop ?related .
+                FILTER(isIRI(?related))
+                FILTER EXISTS {{
+                    ?related wdt:P31/wdt:P279* ?type .
+                    VALUES ?type {{ wd:Q5 wd:Q43229 wd:Q4830453 wd:Q2424752 wd:Q431289 wd:Q732577 wd:Q11424 wd:Q571 }}
+                }}
+                SERVICE wikibase:label {{ bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],en\" }}
+            }}
+        """
+
+        visited = set()
+        current_level = {wikidata_id}
+        all_related = set()
+
+        for _ in range(depth):
+            next_level = set()
+            for item in current_level:
+                current_query = query or default_query
+                formatted_query = current_query.format(item=item)
+
+                response = requests.get(endpoint_url, params={'query': formatted_query, 'format': 'json'}, headers=headers)
+                result = response.json()
+
+                for binding in result["results"]["bindings"]:
+                    related_uri = binding["related"]["value"]
+                    if related_uri.startswith("http://www.wikidata.org/entity/"):
+                        related_id = related_uri.split("/")[-1]
+                        if related_id not in visited:
+                            next_level.add(related_id)
+                            all_related.add(related_id)
+                visited.add(item)
+            current_level = next_level
+            if not current_level:
+                break
+        return list(all_related)
+
+    def wikidata_labels_to_ids(self, wikidata_ids, language='en'):
+        """
+        Convert Wikidata IDs to human-readable labels.
+
+        :param wikidata_ids: List of Wikidata IDs (can include composite IDs).
+        :param language: Language code for labels.
+        :return: Dictionary mapping Wikidata IDs to labels.
+        """
+        if not wikidata_ids:
+            print("No Wikidata IDs provided for label lookup.")
+            return {}
+
+        base_ids = list(set(wid.split('-')[0] for wid in wikidata_ids))
+        url = "https://www.wikidata.org/w/api.php"
+        headers = {"User-Agent": self.user_agent}
+        labels = {}
+
+        max_ids = 50
+
+        for i in range(0, len(base_ids), max_ids):
+            batch_ids = base_ids[i:i + max_ids]
+            ids_param = "|".join(batch_ids)
+
+            params = {
+                "action": "wbgetentities",
+                "ids": ids_param,
+                "format": "json",
+                "props": "labels",
+                "languages": language
+            }
+
+            response = requests.get(url, params=params, headers=headers)
+            try:
+                data = response.json()
+
+                if "error" in data:
+                    print(f"Error fetching labels: {data['error']}")
+                    continue
+
+                for entity_id, entity_info in data.get("entities", {}).items():
+                    label = entity_info.get("labels", {}).get(language, {}).get("value", "Unknown")
+                    labels[entity_id] = label
+
+            except requests.exceptions.JSONDecodeError:
+                print(f"Failed to decode JSON response. Raw response: {response.text}")
+                continue
+
+        return labels
