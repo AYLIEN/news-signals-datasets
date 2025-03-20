@@ -19,7 +19,7 @@ def main(args):
 
     with open(args.config) as f:
         config = json.load(f)
-        
+
     if (args.input_dataset_path == args.output_dataset_path) or output_dataset_path.exists():
         confirm = input(
             f"Are you sure you want to modify the dataset in {output_dataset_path}? "
@@ -28,20 +28,20 @@ def main(args):
         if confirm != "y":
             logger.info("Aborting")
             return
-            
+
     dataset = SignalsDataset.load(args.input_dataset_path)
 
     # config is a list of transformations
-    for t in config:        
+    for t in config:
         logger.info(f"Applying transformation to dataset: {t['transform']}")
         transform = get_dataset_transform(t['transform'])
         transform(dataset, **t['params'])
-    
+
     if str(output_dataset_path).endswith('.tar.gz'):
         dataset.save(output_dataset_path, overwrite=True, compress=True)
     else:
         dataset.save(output_dataset_path, overwrite=True)
-    
+
 
 def parse_args():
     parser = argparse.ArgumentParser()

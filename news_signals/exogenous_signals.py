@@ -4,7 +4,6 @@ import datetime
 import urllib
 import arrow
 import tqdm
-import requests
 import calendar
 import pytz
 from dataclasses import dataclass, field, asdict
@@ -43,10 +42,10 @@ class GetRequestEndpoint:
 class WikidataClient:
     """
     Mainly exists to replace it with Mock version in tests.
-    """    
+    """
     def __init__(self):
         self.client = Client()
-    
+
     def __call__(self, wikidata_id):
         entity = self.client.get(wikidata_id, load=True)
         return entity.data
@@ -84,7 +83,7 @@ def wikidata_id_to_wikimedia_pageviews_timeseries(
     if wikipedia_link is None:
         logger.error(f"No Wikipedia link found for entity {wikidata_id}; page views set to None.")
         return None
-        
+
     page_views_df = wikipedia_link_to_wikimedia_pageviews_timeseries(
         wikipedia_link,
         start,
@@ -109,7 +108,7 @@ def wikidata_id_to_wikipedia_link(
     except KeyError:
         logger.error(f'Error: no wikipedia url found for entity data: {entity_data}')
     except urllib.error.HTTPError as e:
-        logger.error(f'Error retrieving wikidata entity: {wikidata_id}')    
+        logger.error(f'Error retrieving wikidata entity: {wikidata_id}')
     return url
 
 
@@ -117,7 +116,7 @@ def wikipedia_link_to_wikimedia_pageviews_timeseries(
     wikipedia_link: str,
     start: datetime.datetime,
     end: datetime.datetime,
-    endpoint = None,
+    endpoint=None,
     language: str="en",
     granularity: str="daily",
     wikimedia_headers: dict={"user-agent": "news-signals-datasets"}
@@ -132,7 +131,7 @@ def wikipedia_link_to_wikimedia_pageviews_timeseries(
     if start.tzinfo is None:
         start = pytz.utc.localize(start)
     if end.tzinfo is None:
-        end=pytz.utc.localize(end)
+        end = pytz.utc.localize(end)
 
     url_date_format = "%Y%m%d00"
     assert granularity in ["daily", "monthly"]
@@ -226,7 +225,7 @@ class EventBullet:
     topics: list = field(default_factory=list)
     wiki_links: list = field(default_factory=list)
     references: list = field(default_factory=list)
-    
+
     def to_dict(self):
         d = asdict(self)
         d['date'] = str(d['date'])
@@ -270,21 +269,24 @@ def extract_event_bullets(e, date, category):
     Parsing out the "leave nodes" (events) in a structure as shown below
     while also keeping track of the intermediate path of topics,
     which will be passed to each EventBullet object.
-    
+
     • International reactions to the 2023 Israel-Hamas war
         • Israel-Jordan relations
             • Jordan recalls its ambassador to Israel in condemnation of the ongoing war. (AFP via Zawya)
     • Afghanistan-Pakistan relations
         • Pakistan begins the mass deportation of undocumented Afghan refugees, according to Interior Minister Sarfraz Bugti. (The Guardian)
     """
-    
+
     events = []
 
-    def recursively_extract_event_bullets(e,
-                                    date,
-                                    category,
-                                    prev_topics,
-                                    is_root=False):
+    def recursively_extract_event_bullets(
+        e,
+        date,
+        category,
+        prev_topics,
+        is_root=False
+    ):
+
         if is_root:
             lis = e.find_all('li', recursive=False)
             result = [
@@ -323,7 +325,7 @@ def extract_event_bullets(e, date, category):
                     elif url.startswith('/wiki'):
                         url = f'https://en.wikipedia.org{url}'
                         wiki_links.append(url)
-                        
+
                 event = EventBullet(
                     text=text,
                     date=date,
@@ -407,6 +409,7 @@ def wikidata_id_to_current_events(
 ################# TOOLS FOR/AND BFS WIKIDATA SEARCH #####################
 #########################################################################
 
+
 @dataclass
 class WikidataSearch:
     user_agent: str = "GraphTraversalBot/1.0 (your_email@example.com) Python/requests"
@@ -435,12 +438,13 @@ class WikidataSearch:
         print(f"No Wikidata ID found for '{entity_name}'.")
         return None
 
-    def wikidata_related_entities(self,
+    def wikidata_related_entities(
+        self,
         entity_name: str,
         depth=1,
         labels=False,
         query=None
-        ):
+    ):
         """
         Given a Wikidata ID, performs a graph traversal to find related entities up to a specified depth.
 

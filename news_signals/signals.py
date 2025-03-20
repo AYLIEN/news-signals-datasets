@@ -7,13 +7,10 @@ from typing import List, Optional
 import json
 import base64
 from pathlib import Path
-import logging
-
 import tqdm
 import pandas as pd
 import arrow
 import datetime
-import matplotlib.pyplot as plt
 from sqlitedict import SqliteDict
 from dataclasses import dataclass
 
@@ -60,8 +57,8 @@ class Signal:
     Signal timeseries are stored in signal.timeseries_df
     Signal feeds are stored in signal.feeds_df
     Both feeds and timeseries are pandas DataFrames, with a DatetimeIndex
-    Feeds and timeseries associated with signals are named, that's how 
-    users know the semantics of the timeseries and feeds. 
+    Feeds and timeseries associated with signals are named, that's how
+    users know the semantics of the timeseries and feeds.
 
     Signals have periods ("ticks") - but these may be implicit, e.g. if
     using the `infer_freq` method of pandas DatetimeIndex.
@@ -78,14 +75,14 @@ class Signal:
                 timeseries_df = timeseries_df.to_frame(name=name)
                 ts_column = name
             self.assert_df_index_type(timeseries_df)
-        
+
         if feeds_df is not None:
             self.assert_df_index_type(feeds_df)
-            
-        self.timeseries_df=timeseries_df
-        self.feeds_df=feeds_df
+
+        self.timeseries_df = timeseries_df
+        self.feeds_df = feeds_df
         self.ts_column = ts_column
-    
+
     @staticmethod
     def assert_df_index_type(df):
         assert hasattr(df.index, 'tz'), \
@@ -121,7 +118,7 @@ class Signal:
         :return: new Signal instance with the result of calling this signal
         """
         raise NotImplementedError
-    
+
     @property
     def df(self):
         """
@@ -141,7 +138,7 @@ class Signal:
         df['signal_name'] = self.name
         df['freq'] = self.infer_freq()
         return df
-    
+
     @property
     def start(self):
         return self.df.index.min()
@@ -265,10 +262,10 @@ class Signal:
         else:
             # isoformat
             return [
-                       (datetime_to_aylien_str(sd.datetime),
-                        datetime_to_aylien_str(ed.datetime))
-                       for sd, ed in windows
-                   ], weights
+                (datetime_to_aylien_str(sd.datetime),
+                 datetime_to_aylien_str(ed.datetime))
+                for sd, ed in windows
+            ], weights
 
     def __len__(self):
         if getattr(self, 'timeseries_df', None) is not None:
@@ -308,12 +305,12 @@ class Signal:
 
         """
 
-        # if user didn't supply start and end, we want signal to have enough data that 
-        # we can take the first part and use it to compute necessary stats to do the 
+        # if user didn't supply start and end, we want signal to have enough data that
+        # we can take the first part and use it to compute necessary stats to do the
         # anomaly transformation on the rest of the signal
         if not overwrite_existing and self.timeseries_df is not None and 'anomalies' in self.timeseries_df.columns:
             return self
-            
+
         if start is None:
             ts_begin = self.timeseries_df.index.min()
             ts_end = self.timeseries_df.index.max()
@@ -330,7 +327,7 @@ class Signal:
                     f'History length imputation is only supported for daily ticks, '
                     'and signals need at least two ticks'
                 )
-        
+
         if detector is None:
             detector = SigmaAnomalyDetector()
         shift_kwargs = {history_interval: -history_length}
@@ -397,7 +394,7 @@ class Signal:
             raise AttributeError(
                 f"type object '{type(self)}' has no attribute '{name}'"
             )
-    
+
     def __getitem__(self, subscript):
         """
         Delegate slicing semantics to pandas
@@ -412,7 +409,7 @@ class Signal:
             signal_type = getattr(sys.modules[__name__], signal_type)
         args = dict(**data)
         # remap legacy `df` to `timeseries_df`
-        
+
         if 'df' in args:
             args['timeseries_df'] = args.pop('df')
         # remap legacy `stories_df` to `feeds_df`
@@ -443,7 +440,7 @@ class Signal:
             if type(v) is pd.DataFrame:
                 v.to_parquet(datadir / f'{signal_id}.{k}.parquet', index=True)
         return signal_config_file
-    
+
     @staticmethod
     def load_from_signal_config(signal_config_path):
         signal_config_path = Path(signal_config_path)
@@ -464,7 +461,7 @@ class Signal:
         return Signal.from_dict(signal_config)
 
     @staticmethod
-    def load(signals_path):        
+    def load(signals_path):
         signals_path = Path(signals_path)
         if os.path.isdir(signals_path):
             signals_dir = Path(signals_path)
@@ -472,7 +469,7 @@ class Signal:
             static_config_paths = signals_dir.glob('*.static_fields.json')
             signals = []
             for signal_config_path in static_config_paths:
-                signals.append(Signal.load_from_signal_config(signal_config_path))            
+                signals.append(Signal.load_from_signal_config(signal_config_path))
             return signals
         else:
             assert str(signals_path).endswith('.static_fields.json'), f'expected a static_fields.json file, got {signals_path}'
@@ -501,14 +498,14 @@ class Signal:
         Return the start timestamp of the signal
         """
         return self.timeseries_df.index.min()
-    
+
     @property
     def end(self):
         """
         Return the start timestamp of the signal
         """
         return self.timeseries_df.index.max()
-    
+
     @property
     def freq(self):
         """
@@ -608,9 +605,9 @@ class AylienSignal(Signal):
             # because these will be overwritten at query time
             if 'published_at.start' in params or 'published_at.end' in params:
                 logger.warning(
-                    'published_at.start and/or published_at.end were provided in params, ' +
-                    'but these fields will be overwritten ' +
-                    'when the signal is called.'
+                    'published_at.start and/or published_at.end were provided in params, '
+                    + 'but these fields will be overwritten '
+                    + 'when the signal is called.'
                 )
         else:
             params = {}
@@ -676,14 +673,14 @@ class AylienSignal(Signal):
 
     def update(self, start=None, end=None, freq='D', ts_endpoint=None):
         """
-        This method should eventually update all of the data in the signal, not just 
+        This method should eventually update all of the data in the signal, not just
         the timeseries_df. This is a work in progress.
 
         Side effect: we may have other already data in the state, we want to upsert
         any new data while retaining the existing information as well
         :param start: datetime
         :param end: datetime
-        """        
+        """
         if end is None:
             end = self.normalize_timestamp(datetime.datetime.now(), freq)
         # if start is None, we look up to 30 days ago
@@ -698,7 +695,7 @@ class AylienSignal(Signal):
             else:
                 start = default_interval
                 logger.warning(
-                    f'When updating signal, signal was either empty or the maximum, ' 
+                    f'When updating signal, signal was either empty or the maximum, '
                     f'end date was more than 30 days ago, so we are using '
                     f'default update interval of 30 days --> {start} to {end}'
                 )
@@ -761,7 +758,7 @@ class AylienSignal(Signal):
             start, end, sample_per_tick=True
         )
         return self.to_dict()
-    
+
     def sample_stories(self, num_stories=10, **kwargs):
         """
         sample stories for every tick of this signal
@@ -772,7 +769,7 @@ class AylienSignal(Signal):
             **kwargs
         )
         return self
-    
+
     def filter_stories(self, filter_model: SemanticFilter, delete_filtered: bool = True, **kwargs) -> Signal:
         """
         Filter stories in the signal using a semantic model, adding a column `matching_scores` to the feeds_df
@@ -788,7 +785,7 @@ class AylienSignal(Signal):
             self.feeds_df.at[index, 'stories'] = filtered_stories
 
         return self
-        
+
     @staticmethod
     def normalize_aylien_story(story):
         """
@@ -821,7 +818,7 @@ class AylienSignal(Signal):
                 columns=[stories_column],
                 index=pd.DatetimeIndex(date_range[:-1], tz='UTC')
             )
-        
+
         if sample_per_tick:
             date_range = self.date_range(start, end)
             start_end_tups = [(s, e) for s, e in zip(list(date_range), list(date_range)[1:])]
@@ -837,7 +834,7 @@ class AylienSignal(Signal):
                     except ValueError:
                         logger.info(f'Already have stories for {start} to {end}')
                         continue
-                
+
                 logger.info(f'Getting stories for {start} to {end}')
                 params = self.make_query(start, end, per_page=num_stories)
                 stories = [self.normalize_aylien_story(s) for s in self.stories_endpoint(params)]
@@ -851,7 +848,7 @@ class AylienSignal(Signal):
                 records[ts].append(story)
             for ts, stories in records.items():
                 story_bucket_records.append({'timestamp': ts, stories_column: stories})
-        
+
         # now merge the stories into self.feeds_df at the correct timestamps
         story_bucket_df = pd.DataFrame(
             story_bucket_records,
@@ -908,7 +905,7 @@ class AylienSignal(Signal):
     ):
         """
         look at the params that were used to query the NewsAPI, and try to derive
-        a query to the wikimedia pageviews API from that. 
+        a query to the wikimedia pageviews API from that.
 
         For example, if there's no wikidata id in the NewsAPI query, this function should
         fail noisyly.
@@ -929,28 +926,28 @@ class AylienSignal(Signal):
         start = self.timeseries_df.index.min().to_pydatetime()
         end = self.timeseries_df.index.max().to_pydatetime()
         pageviews_df = wikidata_id_to_wikimedia_pageviews_timeseries(
-                wikidata_id,
-                start,
-                end,
-                granularity='daily',
-                wikidata_client=wikidata_client,
-                wikimedia_endpoint=wikimedia_endpoint,
-        ) 
+            wikidata_id,
+            start,
+            end,
+            granularity='daily',
+            wikidata_client=wikidata_client,
+            wikimedia_endpoint=wikimedia_endpoint,
+        )
         try:
             self.timeseries_df['wikimedia_pageviews'] = pageviews_df['wikimedia_pageviews'].values
         except TypeError as e:
             logger.error(e)
             logger.warning('Retrieved wikimedia pageviews dataframe is None, not adding to signal')
-            
+
         return self
 
     def add_yfinance_timeseries(
         self,
-        ticker, 
-        columns=None, 
-        overwrite_existing=True, 
+        ticker,
+        columns=None,
+        overwrite_existing=True,
         append_dates=False
-        ):
+    ):
         """
         Retrieve market time series data from Yahoo Finance for the instance's date range,
         and add the specified columns to self.timeseries_df.
@@ -1052,7 +1049,6 @@ class AylienSignal(Signal):
 
         return self
 
-
     def add_wikipedia_current_events(
         self,
         overwrite_existing=False,
@@ -1061,7 +1057,6 @@ class AylienSignal(Signal):
         wikidata_client=None,
         wikipedia_endpoint=None,
         filter_by_wikidata_id=True
-        
     ):
         if self.feeds_df is None:
             date_range = self.date_range(self.start, self.end, freq=freq)
@@ -1184,7 +1179,7 @@ class WikimediaSignal(Signal):
 
     def update(self, start=None, end=None, freq='D', wikimedia_endpoint=None, wikidata_client=None):
         """
-        This method should eventually update all of the data in the signal, not just 
+        This method should eventually update all of the data in the signal, not just
         the timeseries_df. This is a work in progress.
 
         Side effect: we may have other already data in the state, we want to upsert
@@ -1206,7 +1201,7 @@ class WikimediaSignal(Signal):
             else:
                 start = default_interval
                 logger.warning(
-                    f'When updating signal, signal was either empty or the maximum, ' 
+                    f'When updating signal, signal was either empty or the maximum, '
                     f'end date was more than 30 days ago, so we are using '
                     f'default update interval of 30 days --> {start} to {end}'
                 )
@@ -1267,7 +1262,7 @@ class WikimediaSignal(Signal):
     ):
         """
         look at the params that were used to query the NewsAPI, and try to derive
-        a query to the wikimedia pageviews API from that. 
+        a query to the wikimedia pageviews API from that.
 
         For example, if there's no wikidata id, this function should
         fail noisyly.

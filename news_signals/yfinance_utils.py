@@ -1,7 +1,6 @@
 # read in list of active Signals tickers which can change slightly era to era
 import yfinance as yf
 import pandas as pd
-import matplotlib.pyplot as plt
 from typing import Union, List, Optional
 
 from news_signals.technical_indicators import RSI
@@ -31,7 +30,7 @@ def retrieve_yfinance_timeseries(
 
     # If there's only one ticker, the data comes with single-level columns
     # If multiple, yfinance returns a DataFrame with MultiIndex columns.
-    if len(tickers) == 1 and rsi == True:
+    if len(tickers) == 1 and rsi is True:
         raw_data["RSI"] = RSI(raw_data["Close"])
 
     # # Plotting

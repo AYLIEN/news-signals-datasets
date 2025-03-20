@@ -228,4 +228,3 @@ class SqliteUserStore:
                 return RadarUser.from_dict(self.radar_users[radar_id])
         except KeyError:
             return None
-

@@ -51,5 +51,6 @@ class TestRetrieveYFinanceTimeseries(unittest.TestCase):
         self.assertIsInstance(df, pd.DataFrame)
         self.assertTrue(df.empty)
 
+
 if __name__ == '__main__':
     unittest.main()

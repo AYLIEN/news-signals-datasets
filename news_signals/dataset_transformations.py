@@ -27,9 +27,10 @@ def add_summaries(
         summarizer = "CentralTitleSummarizer"
     if summarization_params is None:
         summarization_params = {}
-    
+
     summarizer_cls = get_summarizer(summarizer)
     summarizer = summarizer_cls()
+
     def transform(signal):
         signal.summarize(
             summarizer=summarizer,
@@ -37,7 +38,7 @@ def add_summaries(
             cache_summaries=True,
             overwrite_existing=overwrite_existing
         )
-        return signal        
+        return signal
     dataset.map(transform)
     return dataset
 
@@ -47,7 +48,7 @@ def add_wikimedia_pageviews(
     wikidata_client=None,
     wikimedia_endpoint=None,
     overwrite_existing=False
-):  
+):
     def transform(signal):
         return signal.add_wikimedia_pageviews_timeseries(
             wikidata_client=wikidata_client,
@@ -66,7 +67,7 @@ def add_wikipedia_current_events(
     wikidata_client=None,
     wikipedia_endpoint=None,
     overwrite_existing=False
-):  
+):
     def transform(signal):
         return signal.add_wikipedia_current_events(
             wikidata_client=wikidata_client,
@@ -78,7 +79,6 @@ def add_wikipedia_current_events(
     except WikidataIDNotFound as e:
         logger.error(f"Could not find Wikidata ID for signal: {e}, did not apply the pageviews transformation.")
     return dataset
-
 
 
 REGISTRY = {

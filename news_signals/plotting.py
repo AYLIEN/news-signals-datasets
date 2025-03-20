@@ -62,17 +62,13 @@ def plot_windows_of_interest():
 
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
     plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=15))
-    ax.plot(x,y)
+    ax.plot(x, y)
 
     # note wierd string formatting to cut off `+00:00` from datestrings
     for (start, end), weight in zip(interesting_windows, weights):
-        ax.axvspan(mdates.datestr2num(start.isoformat().split('+')[0]+'Z'),
-                   mdates.datestr2num(end.isoformat().split('+')[0]+'Z'),
+        ax.axvspan(mdates.datestr2num(start.isoformat().split('+')[0] + 'Z'),
+                   mdates.datestr2num(end.isoformat().split('+')[0] + 'Z'),
                    color=cmap(weight), alpha=0.3)
 
     plt.gcf().autofmt_xdate()
     plt.show()
-
-
-
-

@@ -36,8 +36,8 @@ class CentroidStoryExtractor(RepresentativeStoryExtractor):
                 break
             select = True
             for j, _, in selected:
-                sim1 = cosine_similarity(X1[i:i+1], X1[j:j+1])
-                sim2 = cosine_similarity(X2[i:i+1], X2[j:j+1])
+                sim1 = cosine_similarity(X1[i:i + 1], X1[j:j + 1])
+                sim2 = cosine_similarity(X2[i:i + 1], X2[j:j + 1])
                 sim = (sim1 + sim2) / 2
                 if sim > max_redundancy:
                     select = False

@@ -19,7 +19,7 @@ def main(args):
         config = json.load(f)
 
     output_dataset_path = Path(config["output_dataset_dir"])
-    logger.info(f"Beginning dataset generation with config {config}") 
+    logger.info(f"Beginning dataset generation with config {config}")
     if config.get('signal_configs', None) is not None and config.get('input', None) is not None:
         raise AssertionError("Cannot specify both signal_configs and input file path in dataset generation config")
     if config.get('signal_configs', None) is not None:
@@ -41,14 +41,14 @@ def main(args):
         delete_tmp_files=True,
         compress=True,
         post_process_story=reduce_aylien_story
-    )    
+    )
 
     if config.get("transformations"):
         for t in config["transformations"]:
             logger.info(f"Applying transformation to dataset: {t['transform']}")
             transform = get_dataset_transform(t['transform'])
             transform(dataset, **t['params'])
-    
+
     dataset.save(output_dataset_path, overwrite=True, compress=True)
     logger.info(f"Finished dataset generation, dataset saved here: {output_dataset_path}.tar.gz")
 
@@ -64,7 +64,7 @@ def parse_args():
         '--overwrite',
         action="store_true",
         help="whether to overwrite previous dataset if present at output_dataset_dir"
-    )    
+    )
     return parser.parse_args()
 
 

@@ -38,7 +38,7 @@ def params_to_aql(params):
     }
     if len(set(params.keys()).intersection(set(params_schema.keys()))) == 0:
         return None
-    
+
     # pattern match
     extra_keys = set(params.keys()) - set(params_schema.keys())
     if len(extra_keys):
@@ -79,12 +79,12 @@ def params_to_aql(params):
 
 
 def make_entities_aql(surface_forms, entity_ids, entity_surface_forms_text,
-    sentiment=None, min_prominence=None):
+                      sentiment=None, min_prominence=None):
 
     sfs_aql = ''
     if surface_forms is not None and len(surface_forms) > 0:
         sfs_aql = f'surface_forms: (' + ' '.join([f'"{sf}"' for sf in surface_forms]) + ')'
-    
+
     sfs_text_aql = ''
     if entity_surface_forms_text is not None and len(entity_surface_forms_text) > 0:
         sfs_text_aql = f'surface_forms.text: (' + ' '.join([f'"{sf}"' for sf in entity_surface_forms_text]) + ')'

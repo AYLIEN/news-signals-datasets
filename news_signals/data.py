@@ -26,7 +26,7 @@ def load_from_gcs(bucket_name, blob_name, local_dataset_path):
 
 
 def arrow_to_aylien_date(arrow_dt):
-    return arrow_dt.datetime.isoformat()[:-6]+'Z'
+    return arrow_dt.datetime.isoformat()[:-6] + 'Z'
 
 
 def datetime_to_aylien_str(dt):

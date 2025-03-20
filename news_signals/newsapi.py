@@ -93,7 +93,7 @@ def make_newsapi_request(
             )
             time.sleep(wait_seconds)
         except json.decoder.JSONDecodeError as e:
-            logger.error(f"exception from decoding this json: {response.text}")            
+            logger.error(f"exception from decoding this json: {response.text}")
             logger.error(f"status code: {response.status_code}, retrying")
             time.sleep(wait_seconds)
         except Exception as e:
@@ -150,7 +150,7 @@ def create_newsapi_query(params):
     return dict(template, **{'aql': aql})
 
 
-MAX_STORIES_PER_PAGE = 10 # newsapi constant 2024-07-08
+MAX_STORIES_PER_PAGE = 10  # newsapi constant 2024-07-08
 
 
 def retrieve_stories(params,
