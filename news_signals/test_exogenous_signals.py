@@ -193,7 +193,7 @@ class TestWikidataSearch(unittest.TestCase):
         cls.entity_name = "Apple Inc."
         cls.wikidata_id = "Q312"
 
-    @patch('wikidata_search.requests.get')
+    @patch('news_signals.exogenous_signals.requests.get')
     def test_entity_to_wikidata_success(self, mock_get):
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -204,7 +204,7 @@ class TestWikidataSearch(unittest.TestCase):
         result = self.wikidata_search.entity_to_wikidata(self.entity_name)
         self.assertEqual(result, self.wikidata_id)
 
-    @patch('wikidata_search.requests.get')
+    @patch('news_signals.exogenous_signals.requests.get')
     def test_entity_to_wikidata_not_found(self, mock_get):
         mock_response = Mock()
         mock_response.json.return_value = {"search": []}
@@ -213,7 +213,7 @@ class TestWikidataSearch(unittest.TestCase):
         result = self.wikidata_search.entity_to_wikidata("NonExistentEntity")
         self.assertIsNone(result)
 
-    @patch('wikidata_search.requests.get')
+    @patch('news_signals.exogenous_signals.requests.get')
     def test_wikidata_related_entities_depth_1(self, mock_get):
         mock_response_entity = Mock()
         mock_response_entity.json.return_value = {"search": [{"id": self.wikidata_id}]}
@@ -228,17 +228,32 @@ class TestWikidataSearch(unittest.TestCase):
             }
         }
 
-        mock_get.side_effect = [mock_response_entity, mock_response_related]
+        mock_response_labels = Mock()
+        mock_response_labels.json.return_value = {
+            "entities": {
+                "Q95": {"labels": {"en": {"value": "Google"}}},
+                "Q2283": {"labels": {"en": {"value": "Microsoft"}}}
+            }
+        }
 
-        result = self.wikidata_search.wikidata_related_entities(self.entity_name, depth=1, labels=False)
+        # Total of 3 calls:
+        # 1. entity_to_wikidata
+        # 2. wikidata_related_entities SPARQL query
+        # 3. wikidata_to_ids label lookup
+        mock_get.side_effect = [
+            mock_response_entity,   # entity_to_wikidata
+            mock_response_related,  # wikidata_related_entities
+            mock_response_labels    # wikidata_to_ids
+        ]
+
         expected_result = {"Q95": "Google", "Q2283": "Microsoft"}
 
-        with patch.object(self.wikidata_search, 'wikidata_to_ids', return_value=expected_result):
-            final_result = self.wikidata_search.wikidata_related_entities(self.entity_name, depth=1, labels=False)
+        result = self.wikidata_search.wikidata_related_entities(
+            self.entity_name, depth=1, labels=False)
 
-        self.assertEqual(final_result, expected_result)
+        self.assertEqual(result, expected_result)
 
-    @patch('wikidata_search.requests.get')
+    @patch('news_signals.exogenous_signals.requests.get')
     def test_wikidata_to_ids(self, mock_get):
         wikidata_ids = ["Q95", "Q2283"]
         mock_response = Mock()
