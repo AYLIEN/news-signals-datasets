@@ -23,7 +23,7 @@ def load_spacy():
 @dataclass
 class Summary:
     stories: List[Dict] = None  # reference the items that were used to create this summary
-    summary: str = None # None value indicates empty summary
+    summary: str = None  # None value indicates empty summary
     metadata: Dict = None
 
     def to_dict(self):
@@ -52,7 +52,7 @@ class Summarizer(ABC):
 
 class MultiArticleSummarizer(Summarizer):
     """
-    A MultiArticleSummarizer takes a list of stories 
+    A MultiArticleSummarizer takes a list of stories
     and returns a summary.
     Stories are dicts with 'title' and 'body' fields, some
     implementations allow renaming these fields.
@@ -397,6 +397,6 @@ class CentroidExtractiveSummarizer(MultiArticleSummarizer):
 def get_summarizer(cls_name):
     try:
         cls = globals()[cls_name]
-    except:
+    except Exception:
         raise NotImplementedError("Unknown summarizer class: {}".format(cls_name))
     return cls

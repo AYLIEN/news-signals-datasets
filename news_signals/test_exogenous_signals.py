@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from bs4 import BeautifulSoup
+from unittest.mock import patch, Mock
 
 from news_signals.exogenous_signals import (
     wikidata_id_to_wikipedia_link,
@@ -16,7 +17,10 @@ from news_signals.exogenous_signals import (
     extract_event_date,
     extract_event_bullets,
     process_daily_entry,
-    process_monthly_page
+    process_monthly_page,
+    wikidata_ids_to_labels,
+    WikidataRelatedEntitiesSearcher,
+    entity_name_to_wikidata_id,
 )
 from news_signals.log import create_logger
 
@@ -182,3 +186,87 @@ class TestWikiCurrentEventsTools(unittest.TestCase):
         events = process_monthly_page(self.monthly_page_html)
         self.assert_successful_event_parsing(events)
 
+
+class TestWikidataSearch(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.entity_name = "Apple Inc."
+        cls.wikidata_id = "Q312"
+
+    @patch('news_signals.exogenous_signals.requests.get')
+    def test_entity_to_wikidata_success(self, mock_get):
+        mock_response = Mock()
+        mock_response.json.return_value = {
+            "search": [{"id": self.wikidata_id}]
+        }
+        mock_get.return_value = mock_response
+
+        result = entity_name_to_wikidata_id(self.entity_name)
+        self.assertEqual(result, self.wikidata_id)
+
+    @patch('news_signals.exogenous_signals.requests.get')
+    def test_entity_to_wikidata_not_found(self, mock_get):
+        mock_response = Mock()
+        mock_response.json.return_value = {"search": []}
+        mock_get.return_value = mock_response
+
+        result = entity_name_to_wikidata_id("NonExistentEntity")
+        self.assertIsNone(result)
+
+    @patch('news_signals.exogenous_signals.requests.get')
+    def test_wikidata_related_entities_depth_1(self, mock_get):
+        mock_response_entity = Mock()
+        mock_response_entity.json.return_value = {"search": [{"id": self.wikidata_id}]}
+
+        mock_response_related = Mock()
+        mock_response_related.json.return_value = {
+            "results": {
+                "bindings": [
+                    {"related": {"value": "http://www.wikidata.org/entity/Q95"}},
+                    {"related": {"value": "http://www.wikidata.org/entity/Q2283"}}
+                ]
+            }
+        }
+
+        mock_response_labels = Mock()
+        mock_response_labels.json.return_value = {
+            "entities": {
+                "Q95": {"labels": {"en": {"value": "Google"}}},
+                "Q2283": {"labels": {"en": {"value": "Microsoft"}}}
+            }
+        }
+
+        # Total of 3 calls:
+        # 1. entity_to_wikidata
+        # 2. wikidata_related_entities SPARQL query
+        # 3. wikidata_to_ids label lookup
+        mock_get.side_effect = [
+            mock_response_entity,   # entity_to_wikidata
+            mock_response_related,  # wikidata_related_entities
+            mock_response_labels    # wikidata_to_ids
+        ]
+
+        expected_result = {"Q95": "Google", "Q2283": "Microsoft"}
+
+        result = WikidataRelatedEntitiesSearcher(
+            self.entity_name, depth=1, return_labels=False)
+
+        self.assertEqual(result, expected_result)
+
+    @patch('news_signals.exogenous_signals.requests.get')
+    def test_wikidata_to_ids(self, mock_get):
+        wikidata_ids = ["Q95", "Q2283"]
+        mock_response = Mock()
+        mock_response.json.return_value = {
+            "entities": {
+                "Q95": {"labels": {"en": {"value": "Google"}}},
+                "Q2283": {"labels": {"en": {"value": "Microsoft"}}}
+            }
+        }
+        mock_get.return_value = mock_response
+
+        labels = wikidata_ids_to_labels(wikidata_ids)
+        expected_labels = {"Q95": "Google", "Q2283": "Microsoft"}
+
+        self.assertEqual(labels, expected_labels)

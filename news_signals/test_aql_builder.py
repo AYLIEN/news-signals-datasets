@@ -66,7 +66,7 @@ class AQLBuilderTest(unittest.TestCase):
         assert aql == 'entities: {{prominence_score:[0.7 TO *] AND ' + \
             'surface_forms.text: ("Twitter" "twtr" "twitter.com" "Twitter Inc.") ' + \
             'AND (id:Q918) sort_by(overall_prominence)}}'
-        
+
         # Test with "entity_surface_forms" (not "entity_surface_forms_text")
         params = {'entity_surface_forms': ['Twitter', 'twtr', 'twitter.com', 'Twitter Inc.']}
         aql = params_to_aql(params)

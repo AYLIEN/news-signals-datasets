@@ -1,9 +1,8 @@
 import os
 import unittest
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from pathlib import Path
 
-import news_signals
 from news_signals import newsapi
 
 from .log import create_logger

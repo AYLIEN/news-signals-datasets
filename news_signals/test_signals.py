@@ -86,7 +86,7 @@ class TestSignal(SignalTest):
         assert len(r) == 8
         r = signals.Signal.date_range(start, end, freq='B')
         assert len(r) == 5
-    
+
     def test_df(self):
         """
         Test that we can get a single dataframe representation of a signal
@@ -94,8 +94,8 @@ class TestSignal(SignalTest):
         signal = self.aylien_signals()[0]
         df = signal.df
         assert tuple(df.columns) == ('count', 'published_at', 'stories', 'signal_name', 'freq')
-    
-    # TODO: this test fails
+
+    # TODO: this test fails
     # def test_getitem(self):
     #     """
     #     Test that we can get a slice of a signal
@@ -120,7 +120,7 @@ class TestSignal(SignalTest):
         """
         signal = self.aylien_signals()[0]
         assert signal.freq == 'D'
-    
+
 
 class TestDataframeSignal(SignalTest):
 
@@ -151,8 +151,8 @@ class TestDataframeSignal(SignalTest):
         self.assertEqual(
             'datetime64[ns, UTC]',
             str(signal.timeseries_df.index.dtype),
-            'Aylien timeseries should map to UTC ' +
-            'timezone-aware dataframe indexes'
+            'Aylien timeseries should map to UTC '
+            + 'timezone-aware dataframe indexes'
         )
 
     def test_call_dataframe_signal(self):
@@ -251,7 +251,6 @@ class TestAylienSignal(SignalTest):
             start, end, sample_per_tick=True
         )
         return signal, start, end, stories
-
 
     def test_call_aylien_signal(self):
         ts_endpoint_mock = MockEndpoint()
@@ -376,7 +375,7 @@ class TestAylienSignal(SignalTest):
         history_len = 60
         assert len(signal.timeseries_df.index) - len(anomaly_scores) == history_len
 
-        sigma_multiple = 1. 
+        sigma_multiple = 1.
         percent_anomaly_days = len(
             anomaly_signal.timeseries_df[
                 anomaly_signal.timeseries_df['anomalies'] > sigma_multiple]
@@ -486,7 +485,7 @@ class TestAylienSignal(SignalTest):
         )
         signal.add_wikimedia_pageviews_timeseries(
             wikidata_client=MockWikidataClient("wiki-link-placeholder"),
-            wikimedia_endpoint = MockRequestsEndpoint(
+            wikimedia_endpoint=MockRequestsEndpoint(
                 response=json.dumps(
                     {
                         "items": [
@@ -502,7 +501,7 @@ class TestAylienSignal(SignalTest):
         )
 
         assert "wikimedia_pageviews" in signal.timeseries_df.columns
-        dtype =  signal.timeseries_df.dtypes["wikimedia_pageviews"]
+        dtype = signal.timeseries_df.dtypes["wikimedia_pageviews"]
         assert dtype == np.int64
 
     def test_add_wikipedia_current_events(self):
@@ -544,7 +543,6 @@ class TestAylienSignal(SignalTest):
                     assert 'date' in e
                     assert 'wiki_links' in e
         assert n > 0
-
 
     def test_num_stories_parameter(self):
         # create a mock response
@@ -684,6 +682,7 @@ class TestWikimediaSignal(SignalTest):
                     assert 'wiki_links' in e
         assert n > 0
 
+
 class TestWindowDetection(SignalTest):
 
     def test_window_detection(self):
@@ -767,7 +766,7 @@ class TestSignalPersistence(SignalTest):
     def tearDownClass(cls):
         cls.db_path.unlink()
         shutil.rmtree(cls.temp_signals_dir)
-    
+
     def test_save(self):
         df_signals = self.df_signals()
         for s in df_signals:
@@ -783,11 +782,11 @@ class TestSignalPersistence(SignalTest):
         loaded_signals = signals_dataset.SignalsDataset.load(
             self.temp_signals_dir
         ).signals
-        assert(len(loaded_signals) == len(df_signals))
+        assert (len(loaded_signals) == len(df_signals))
         aylien_signals = self.aylien_signals()
         # test that the stories dataframe was correctly loaded from disk
         for signal in aylien_signals:
-            assert(sum(len(stories) for stories in signal.feeds_df['stories']) > 50)
+            assert (sum(len(stories) for stories in signal.feeds_df['stories']) > 50)
 
     def test_sqlitedict_persistence(self):
         """

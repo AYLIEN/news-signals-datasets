@@ -54,12 +54,14 @@ class SignalsDataset:
 
     def update(self):
         raise NotImplementedError
-        
+
     @classmethod
-    def load(cls, dataset_path, cache_dir=None):       
+    def load(cls, dataset_path, cache_dir=None):
         # handle downloading from urls
-        if type(dataset_path) is str \
-            and (dataset_path.startswith('https://drive.google.com') or dataset_path.startswith('gs://')):
+        if type(dataset_path) is str and (
+            dataset_path.startswith('https://drive.google.com')
+            or dataset_path.startswith('gs://')
+        ):
             basename = base64.b64encode(dataset_path.encode()).decode()
             if cache_dir is None:
                 cache_dir = cls.DEFAULT_CACHE_DIR
@@ -95,12 +97,12 @@ class SignalsDataset:
                     ds_cache_dir.mkdir(parents=True, exist_ok=True)
                     load_from_gcs(
                         bucket_name=bucket_name,
-                        blob_name=blob_name, 
+                        blob_name=blob_name,
                         local_dataset_path=local_dataset_path
                     )
                     dataset_path = local_dataset_path
             else:
-                logger.info(f'Using cached dataset at {local_dataset_dir}.') 
+                logger.info(f'Using cached dataset at {local_dataset_dir}.')
                 dataset_path = local_dataset_dir
 
         # handle decompressing tar.gz
@@ -172,7 +174,7 @@ class SignalsDataset:
                 f'Saved {len(self.signals)} signals in dataset to {dataset_path}.'
             )
             return dataset_path
-    
+
     def aggregate_signal(self, name=None):
         if name is None:
             name = self.metadata['name']
@@ -191,7 +193,7 @@ class SignalsDataset:
             fig.savefig(plot_file)
             logger.info(f"Saved plot to {plot_file}.")
         return plot
-    
+
     def df(self, axis=0):
         """
         Return a long form view of all the signals in the dataset.
@@ -201,13 +203,13 @@ class SignalsDataset:
             [s.df for s in self.signals.values()],
             axis=axis
         )
-    
+
     def corr(self, **kwargs):
         """
         Compute pairwise correlation of signals in the dataset.
         """
         return self.aggregate_signal().corr(**kwargs)
-    
+
     def __getattr__(self, name):
         """
         Try to delegate to pandas if the attribute is not found on SignalsDataset.
@@ -215,47 +217,47 @@ class SignalsDataset:
         try:
             df = self.df(axis=0)
             return getattr(df, name)
-        except AttributeError as e:
+        except AttributeError:
             raise AttributeError(
                 f"type object 'SignalsDataset' has no attribute '{name}'"
             )
-    
+
     def generate_report(self):
         """
         Generate a report containing summary statistics about the dataset.
         """
         pass
-    
+
     def __len__(self):
         return len(self.signals)
-    
+
     def __getitem__(self, key):
         return self.signals[key]
-    
+
     def __iter__(self):
         return iter(self.signals)
-    
+
     def __contains__(self, key):
         return key in self.signals
-    
+
     def __repr__(self):
         return f"SignalsDataset({self.signals})"
-    
+
     def __str__(self):
         return f"SignalsDataset({self.signals})"
-    
+
     def items(self):
         return self.signals.items()
-    
+
     def keys(self):
         return self.signals.keys()
 
     def values(self):
         return self.signals.values()
-    
+
     def map(self, func):
         """
-        Note this is embarassingly parallel, should 
+        Note this is embarassingly parallel, should
         be done multithreaded
         """
         logger.info(
@@ -263,6 +265,7 @@ class SignalsDataset:
         )
         for k, v in tqdm.tqdm(self.signals.items(), total=len(self)):
             self.signals[k] = func(v)
+
 
 def read_json(filepath):
     with open(filepath) as f:
@@ -312,7 +315,7 @@ def reduce_aylien_story(
         s,
         max_body_tokens=MAX_BODY_TOKENS,
         additional_fields=None
-    ):
+):
     if additional_fields is None:
         additional_fields = []
     body = " ".join(s["body"].split()[:max_body_tokens])
@@ -398,7 +401,7 @@ def retrieve_and_write_stories(
             params = make_aylien_newsapi_query(params_template, start, end)
             stories = stories_endpoint(params)
             if post_process_story is not None:
-                stories = [post_process_story(s) for s in stories]            
+                stories = [post_process_story(s) for s in stories]
         else:
             stories = []
         output_item = {
@@ -498,13 +501,13 @@ def generate_dataset(
             msg=f"Are you sure you want to delete {output_dataset_dir} and "
             "start building dataset from scratch (y|n)? ",
         )
-    output_dataset_dir.mkdir(parents=True, exist_ok=True)    
+    output_dataset_dir.mkdir(parents=True, exist_ok=True)
 
     # optional, e.g. for reducing story fields
-    if post_process_story is not None and type(post_process_story) == str:
+    if post_process_story is not None and isinstance(post_process_story, str):
         try:
             post_process_story = globals()[post_process_story]
-        except:
+        except KeyError:
             raise NotImplementedError(
                 f"Unknown function for processing stories: {post_process_story}"
             )
@@ -524,7 +527,7 @@ def generate_dataset(
         # TODO: pick a surface form vs. ID, or both
         params = signal.params
 
-        # we save TS and stories to make continuation of the 
+        # we save TS and stories to make continuation of the
         # dataset generation process easier if it gets interrupted
         # by an error.
         logger.info("retrieving time series")

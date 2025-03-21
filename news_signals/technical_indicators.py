@@ -16,4 +16,3 @@ def RSI(prices, interval=14):
     RS = RolUp / RolDown
     RSI = 100.0 - (100.0 / (1.0 + RS))
     return RSI
-

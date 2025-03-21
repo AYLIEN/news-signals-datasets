@@ -30,7 +30,7 @@ class MockTSEndpoint:
     def __init__(self):
         self.num_calls = 0
 
-    def __call__(self, payload):        
+    def __call__(self, payload):
         start = arrow.get(payload["published_at.start"]).datetime
         end = arrow.get(payload["published_at.end"]).datetime
         # simulate Aylien API response
@@ -41,7 +41,7 @@ class MockTSEndpoint:
         return ts
 
 
-class MockStoriesEndPoint:    
+class MockStoriesEndPoint:
 
     def __init__(self):
         self.sample_stories = json.loads((resources / "sample_stories.json").read_text())
@@ -73,7 +73,7 @@ class MockRequestsEndpoint:
         url: str,
         params: dict={},
         headers: dict={},
-    ):        
+    ):
         return self.response
 
 
@@ -97,7 +97,7 @@ class TestDatasetGeneration(unittest.TestCase):
     def tearDown(self):
         if self.output_dataset_dir.exists():
             shutil.rmtree(self.output_dataset_dir)
-    
+
     def generate_sample_dataset(
             self,
             name_field: Optional[str] = 'Wikidata Label',
@@ -125,15 +125,15 @@ class TestDatasetGeneration(unittest.TestCase):
         signals_ = signals_dataset.SignalsDataset.load(
             self.output_dataset_dir
         )
-        for signal in signals_.values():            
+        for signal in signals_.values():
             self.assertIsInstance(signal.timeseries_df, pd.DataFrame)
             for col in ["published_at", "count"]:
                 self.assertIn(col, signal.timeseries_df)
 
-            self.assertIsInstance(signal.feeds_df, pd.DataFrame)                
+            self.assertIsInstance(signal.feeds_df, pd.DataFrame)
             for col in ["stories"]:
-                self.assertIn(col, signal.feeds_df)            
-                
+                self.assertIn(col, signal.feeds_df)
+
             # we know the stories should come from the mock endpoint
             assert all(
                 len(tick) == len(self.stories_endpoint.sample_stories)
@@ -142,7 +142,7 @@ class TestDatasetGeneration(unittest.TestCase):
 
             assert signal.params is not None
             assert signal.name is not None
-            assert signal.id is not None              
+            assert signal.id is not None
 
     def test_generate_dataset_from_csv_with_entity_sf(self):
         self.generate_sample_dataset(surface_form_field='Wikidata Label')
@@ -150,15 +150,15 @@ class TestDatasetGeneration(unittest.TestCase):
         signals_ = signals_dataset.SignalsDataset.load(
             self.output_dataset_dir
         )
-        for signal in signals_.values():            
+        for signal in signals_.values():
             self.assertIsInstance(signal.timeseries_df, pd.DataFrame)
             for col in ["published_at", "count"]:
                 self.assertIn(col, signal.timeseries_df)
 
-            self.assertIsInstance(signal.feeds_df, pd.DataFrame)                
+            self.assertIsInstance(signal.feeds_df, pd.DataFrame)
             for col in ["stories"]:
-                self.assertIn(col, signal.feeds_df)            
-                
+                self.assertIn(col, signal.feeds_df)
+
             # we know the stories should come from the mock endpoint
             assert all(
                 len(tick) == len(self.stories_endpoint.sample_stories)
@@ -167,8 +167,8 @@ class TestDatasetGeneration(unittest.TestCase):
 
             assert signal.params is not None
             assert signal.name is not None
-            assert signal.id is not None              
-    
+            assert signal.id is not None
+
     def test_name_field_set_to_id(self):
         with self.assertRaises(AssertionError):
             self.generate_sample_dataset(surface_form_field='Wikidata Label', name_field=None)
@@ -176,7 +176,7 @@ class TestDatasetGeneration(unittest.TestCase):
     def test_id_or_surface_form_field_required(self):
         with self.assertRaises(AssertionError):
             self.generate_sample_dataset()
- 
+
     def test_signals_dataset_from_initialized_signals(self):
         # test that we can create a dataset from signals initialized
         # elsewhere
@@ -192,7 +192,7 @@ class TestDatasetGeneration(unittest.TestCase):
             name=name,
             params=params
         )
-  
+
         signals_dataset.generate_dataset(
             input=[signal],
             output_dataset_dir=Path(self.output_dataset_dir),
@@ -214,7 +214,7 @@ class TestDatasetGeneration(unittest.TestCase):
     def test_signal_exists(self):
         self.generate_sample_dataset(id_field='Wikidata ID')
         signals_ = signals.Signal.load(self.output_dataset_dir)
-        for s in signals_:            
+        for s in signals_:
             assert signals_dataset.signal_exists(s, self.output_dataset_dir)
 
 
@@ -232,7 +232,7 @@ class TestSignalsDataset(test_signals.SignalTest):
         tmp_dir = '/tmp/test_signals_dataset'
         if Path(tmp_dir).exists():
             shutil.rmtree(tmp_dir)
-    
+
     def test_signals_dataset_dict_interface(self):
         """
         test that signals can be stored in a dataset
@@ -253,7 +253,7 @@ class TestSignalsDataset(test_signals.SignalTest):
             metadata=metadata
         )
         assert dataset.metadata['name'] == metadata['name']
-    
+
     def test_signals_dataset_df(self):
         aylien_signals = self.aylien_signals()
         dataset = SignalsDataset(aylien_signals)
@@ -263,7 +263,7 @@ class TestSignalsDataset(test_signals.SignalTest):
         assert len(df.columns) == 5
         # signal names are static features replicated across all timestamps
         assert set(list(df['signal_name'])) == set([s.name for s in aylien_signals])
-    
+
     def test_save_and_load_dataset(self):
         d1 = SignalsDataset(self.aylien_signals())
         tmp_dir = Path('/tmp/test_signals_dataset')
@@ -277,11 +277,12 @@ class TestSignalsDataset(test_signals.SignalTest):
         d1 = SignalsDataset(self.aylien_signals())
         tmp_dir = Path('/tmp/test_signals_dataset')
         fake_gcs_bucket = 'fake-path'
-        
+
         class upload_from_filename:
             @classmethod
             def set_args(cls, args):
                 cls.args = args
+
             def __call__(self, *args):
                 self.set_args(args)
 
@@ -290,18 +291,19 @@ class TestSignalsDataset(test_signals.SignalTest):
                 class get_bucket:
                     def __init__(self, bucket_name):
                         self.bucket_name = bucket_name
+
                     def blob(self, path):
                         self.path = path
                         self.upload_from_filename = upload_from_filename()
                         return self
-                self.get_bucket = get_bucket 
+                self.get_bucket = get_bucket
                 return self
-        
+
         mock_storage = MockGCStorage()
         news_signals_data.storage = mock_storage
         save_path = d1.save(tmp_dir, compress=True, overwrite=True, gcs_bucket_name=fake_gcs_bucket)
         assert upload_from_filename.args[0] == save_path
-    
+
     def test_load_from_url(self):
         cache_dir = Path('/tmp/test_signals_dataset')
         cache_dir.mkdir(parents=True)
@@ -325,6 +327,7 @@ class TestSignalsDataset(test_signals.SignalTest):
 
         class download_to_filename:
             args = None
+
             def __call__(self, *args):
                 self.args = args
 
@@ -333,13 +336,14 @@ class TestSignalsDataset(test_signals.SignalTest):
                 class bucket:
                     def __init__(self, bucket_name):
                         self.bucket_name = bucket_name
+
                     def blob(self, path):
                         self.path = path
                         self.download_to_filename = download_to_filename()
                         return self
-                self.bucket = bucket 
+                self.bucket = bucket
                 return self
-        
+
         news_signals_data.storage = MockGCStorage()
         fake_gcs_path = 'gs://fake-path/dataset.tar.gz'
         basename = base64.b64encode(fake_gcs_path.encode()).decode()
@@ -353,18 +357,19 @@ class TestSignalsDataset(test_signals.SignalTest):
         savedir = Path('/tmp/test_plot_dataset')
         dataset.plot(savedir=savedir)
         assert os.path.exists(savedir / f'{dataset.metadata["name"]}.png')
-    
+
     def test_corr(self):
         dataset = SignalsDataset(self.aylien_signals())
         corr = dataset.corr()
         assert corr.shape == (len(dataset), len(dataset))
-    
+
     def test_transform_dataset_signals(self):
         '''
         pipe the dataset's signals through one or more functions
         that write data into the signal's state.
         '''
         dataset = SignalsDataset(self.aylien_signals())
+
         def anomaly_transform(signal):
             return signal.anomaly_signal()
         dataset.map(anomaly_transform)
@@ -378,7 +383,7 @@ class TestSignalsDataset(test_signals.SignalTest):
             assert len(s['body'].split()) >= len(reduced_s['body'].split())
             if len(s['body'].split()) > max_body_tokens:
                 assert len(reduced_s['body'].split()) == max_body_tokens
-        
+
         s_without_entities = \
             signals_dataset.reduce_aylien_story(
                 sample_stories[0]
