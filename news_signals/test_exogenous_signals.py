@@ -18,7 +18,9 @@ from news_signals.exogenous_signals import (
     extract_event_bullets,
     process_daily_entry,
     process_monthly_page,
-    WikidataSearch
+    wikidata_ids_to_labels,
+    WikidataRelatedEntitiesSearcher,
+    entity_name_to_wikidata_id,
 )
 from news_signals.log import create_logger
 
@@ -189,7 +191,6 @@ class TestWikidataSearch(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.wikidata_search = WikidataSearch(user_agent="GraphTraversalBot/1.0 (test@example.com)")
         cls.entity_name = "Apple Inc."
         cls.wikidata_id = "Q312"
 
@@ -201,7 +202,7 @@ class TestWikidataSearch(unittest.TestCase):
         }
         mock_get.return_value = mock_response
 
-        result = self.wikidata_search.entity_to_wikidata(self.entity_name)
+        result = entity_name_to_wikidata_id(self.entity_name)
         self.assertEqual(result, self.wikidata_id)
 
     @patch('news_signals.exogenous_signals.requests.get')
@@ -210,7 +211,7 @@ class TestWikidataSearch(unittest.TestCase):
         mock_response.json.return_value = {"search": []}
         mock_get.return_value = mock_response
 
-        result = self.wikidata_search.entity_to_wikidata("NonExistentEntity")
+        result = entity_name_to_wikidata_id("NonExistentEntity")
         self.assertIsNone(result)
 
     @patch('news_signals.exogenous_signals.requests.get')
@@ -248,8 +249,8 @@ class TestWikidataSearch(unittest.TestCase):
 
         expected_result = {"Q95": "Google", "Q2283": "Microsoft"}
 
-        result = self.wikidata_search.wikidata_related_entities(
-            self.entity_name, depth=1, labels=False)
+        result = WikidataRelatedEntitiesSearcher(
+            self.entity_name, depth=1, return_labels=False)
 
         self.assertEqual(result, expected_result)
 
@@ -265,7 +266,7 @@ class TestWikidataSearch(unittest.TestCase):
         }
         mock_get.return_value = mock_response
 
-        labels = self.wikidata_search.wikidata_to_labels(wikidata_ids)
+        labels = wikidata_ids_to_labels(wikidata_ids)
         expected_labels = {"Q95": "Google", "Q2283": "Microsoft"}
 
         self.assertEqual(labels, expected_labels)
