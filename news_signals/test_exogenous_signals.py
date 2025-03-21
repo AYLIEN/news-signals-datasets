@@ -265,7 +265,7 @@ class TestWikidataSearch(unittest.TestCase):
         }
         mock_get.return_value = mock_response
 
-        labels = self.wikidata_search.wikidata_to_ids(wikidata_ids)
+        labels = self.wikidata_search.wikidata_to_labels(wikidata_ids)
         expected_labels = {"Q95": "Google", "Q2283": "Microsoft"}
 
         self.assertEqual(labels, expected_labels)

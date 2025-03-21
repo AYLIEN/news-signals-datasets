@@ -503,13 +503,13 @@ class WikidataSearch:
 
         if not labels:
             final_list = list(all_related)
-            final_list = self.wikidata_to_ids(final_list)
+            final_list = self.wikidata_to_labels(final_list)
         else:
             final_list = list(all_related)
 
         return final_list
 
-    def wikidata_to_ids(self, wikidata_ids, language='en'):
+    def wikidata_to_labels(self, wikidata_ids, language='en'):
         """
         Convert Wikidata IDs to human-readable labels.
 
