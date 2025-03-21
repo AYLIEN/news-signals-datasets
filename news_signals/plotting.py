@@ -52,7 +52,7 @@ def multi_line_chart(df, width, height):
     return chart
 
 
-def plot_windows_of_interest():
+def plot_windows_of_interest(news_df, interesting_windows, weights):
     cmap = matplotlib.cm.cool
 
     x = [mdates.datestr2num(d) for d in list(news_df.index.array)]

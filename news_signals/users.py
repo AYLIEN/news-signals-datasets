@@ -35,7 +35,7 @@ class RadarUser:
         try:
             self.set_token_with_refresh()
             return True
-        except LoginError as e:
+        except LoginError:
             return False
 
     def set_token(self, password):

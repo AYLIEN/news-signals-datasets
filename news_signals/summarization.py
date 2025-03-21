@@ -397,6 +397,6 @@ class CentroidExtractiveSummarizer(MultiArticleSummarizer):
 def get_summarizer(cls_name):
     try:
         cls = globals()[cls_name]
-    except:
+    except Exception:
         raise NotImplementedError("Unknown summarizer class: {}".format(cls_name))
     return cls

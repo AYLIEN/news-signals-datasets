@@ -213,7 +213,7 @@ class Signal:
                 raise NotImplementedError(
                     'infer_freq() is not implemented for this signal type'
                 )
-        except ValueError as e:
+        except ValueError:
             logger.warning(
                 f'Could not infer frequency for signal {self.name}, '
                 'this may be because the signal has no data, returning default freq = \'D\''
@@ -324,7 +324,7 @@ class Signal:
                 end = ts_end
             else:
                 raise NotImplementedError(
-                    f'History length imputation is only supported for daily ticks, '
+                    'History length imputation is only supported for daily ticks, '
                     'and signals need at least two ticks'
                 )
 
@@ -390,7 +390,7 @@ class Signal:
         """
         try:
             return getattr(self.timeseries_df, name)
-        except AttributeError as e:
+        except AttributeError:
             raise AttributeError(
                 f"type object '{type(self)}' has no attribute '{name}'"
             )
@@ -1429,7 +1429,7 @@ class AggregateSignal(Signal):
         """
         try:
             return getattr(self.df, name)
-        except AttributeError as _:
+        except AttributeError:
             raise AttributeError(
                 f"type object '{type(self)}' has no attribute '{name}'"
             )

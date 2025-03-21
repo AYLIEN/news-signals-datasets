@@ -217,7 +217,7 @@ class SignalsDataset:
         try:
             df = self.df(axis=0)
             return getattr(df, name)
-        except AttributeError as e:
+        except AttributeError:
             raise AttributeError(
                 f"type object 'SignalsDataset' has no attribute '{name}'"
             )
@@ -504,10 +504,10 @@ def generate_dataset(
     output_dataset_dir.mkdir(parents=True, exist_ok=True)
 
     # optional, e.g. for reducing story fields
-    if post_process_story is not None and type(post_process_story) == str:
+    if post_process_story is not None and isinstance(post_process_story, str):
         try:
             post_process_story = globals()[post_process_story]
-        except:
+        except KeyError:
             raise NotImplementedError(
                 f"Unknown function for processing stories: {post_process_story}"
             )

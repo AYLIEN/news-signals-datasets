@@ -83,15 +83,15 @@ def make_entities_aql(surface_forms, entity_ids, entity_surface_forms_text,
 
     sfs_aql = ''
     if surface_forms is not None and len(surface_forms) > 0:
-        sfs_aql = f'surface_forms: (' + ' '.join([f'"{sf}"' for sf in surface_forms]) + ')'
+        sfs_aql = 'surface_forms: (' + ' '.join([f'"{sf}"' for sf in surface_forms]) + ')'
 
     sfs_text_aql = ''
     if entity_surface_forms_text is not None and len(entity_surface_forms_text) > 0:
-        sfs_text_aql = f'surface_forms.text: (' + ' '.join([f'"{sf}"' for sf in entity_surface_forms_text]) + ')'
+        sfs_text_aql = 'surface_forms.text: (' + ' '.join([f'"{sf}"' for sf in entity_surface_forms_text]) + ')'
 
     ids_aql = ''
     if entity_ids is not None and len(entity_ids) > 0:
-        ids_aql = f'(' + ' '.join([f'id:{entity_id}' for entity_id in entity_ids]) + ')'
+        ids_aql = '(' + ' '.join([f'id:{entity_id}' for entity_id in entity_ids]) + ')'
 
     entities_aql = ''
     if len(sfs_aql) or len(ids_aql) or len(sfs_text_aql):

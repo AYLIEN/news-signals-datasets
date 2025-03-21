@@ -92,7 +92,7 @@ def make_newsapi_request(
                 f" Waiting {wait_seconds} seconds. Trial: {i}/{trials}"
             )
             time.sleep(wait_seconds)
-        except json.decoder.JSONDecodeError as e:
+        except json.decoder.JSONDecodeError:
             logger.error(f"exception from decoding this json: {response.text}")
             logger.error(f"status code: {response.status_code}, retrying")
             time.sleep(wait_seconds)

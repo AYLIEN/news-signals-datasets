@@ -107,7 +107,7 @@ def wikidata_id_to_wikipedia_link(
         url = entity_data['sitelinks']['enwiki']['url']
     except KeyError:
         logger.error(f'Error: no wikipedia url found for entity data: {entity_data}')
-    except urllib.error.HTTPError as e:
+    except urllib.error.HTTPError:
         logger.error(f'Error retrieving wikidata entity: {wikidata_id}')
     return url
 
@@ -145,10 +145,10 @@ def wikipedia_link_to_wikimedia_pageviews_timeseries(
         records = [
             {
                 "wikimedia_pageviews": item["views"],
-                "timestamp": datetime.datetime.strptime(
-                    item["timestamp"],
-                    url_date_format
-                ).replace(tzinfo=pytz.timezone('UTC')),
+                # "timestamp": datetime.datetime.strptime(
+                #    item["timestamp"],
+                #    url_date_format
+                # ).replace(tzinfo=pytz.timezone('UTC')),
                 # set timezone to UTC
                 "timestamp": pytz.utc.localize(datetime.datetime.strptime(item["timestamp"], url_date_format))
             }
@@ -306,7 +306,7 @@ def extract_event_bullets(e, date, category):
                         topic_url = link.get('href')
                         topic_url = f'https://en.wikipedia.org{topic_url}'
                         new_topics.append(topic_url)
-                    except:
+                    except Exception:
                         pass
 
                 topics = prev_topics + new_topics
