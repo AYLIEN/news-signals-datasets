@@ -4,7 +4,6 @@ import datetime
 import urllib
 import arrow
 import tqdm
-import requests
 import calendar
 import pytz
 from dataclasses import dataclass, field, asdict
@@ -43,10 +42,10 @@ class GetRequestEndpoint:
 class WikidataClient:
     """
     Mainly exists to replace it with Mock version in tests.
-    """    
+    """
     def __init__(self):
         self.client = Client()
-    
+
     def __call__(self, wikidata_id):
         entity = self.client.get(wikidata_id, load=True)
         return entity.data
@@ -84,7 +83,7 @@ def wikidata_id_to_wikimedia_pageviews_timeseries(
     if wikipedia_link is None:
         logger.error(f"No Wikipedia link found for entity {wikidata_id}; page views set to None.")
         return None
-        
+
     page_views_df = wikipedia_link_to_wikimedia_pageviews_timeseries(
         wikipedia_link,
         start,
@@ -108,8 +107,8 @@ def wikidata_id_to_wikipedia_link(
         url = entity_data['sitelinks']['enwiki']['url']
     except KeyError:
         logger.error(f'Error: no wikipedia url found for entity data: {entity_data}')
-    except urllib.error.HTTPError as e:
-        logger.error(f'Error retrieving wikidata entity: {wikidata_id}')    
+    except urllib.error.HTTPError:
+        logger.error(f'Error retrieving wikidata entity: {wikidata_id}')
     return url
 
 
@@ -117,7 +116,7 @@ def wikipedia_link_to_wikimedia_pageviews_timeseries(
     wikipedia_link: str,
     start: datetime.datetime,
     end: datetime.datetime,
-    endpoint = None,
+    endpoint=None,
     language: str="en",
     granularity: str="daily",
     wikimedia_headers: dict={"user-agent": "news-signals-datasets"}
@@ -132,7 +131,7 @@ def wikipedia_link_to_wikimedia_pageviews_timeseries(
     if start.tzinfo is None:
         start = pytz.utc.localize(start)
     if end.tzinfo is None:
-        end=pytz.utc.localize(end)
+        end = pytz.utc.localize(end)
 
     url_date_format = "%Y%m%d00"
     assert granularity in ["daily", "monthly"]
@@ -146,10 +145,10 @@ def wikipedia_link_to_wikimedia_pageviews_timeseries(
         records = [
             {
                 "wikimedia_pageviews": item["views"],
-                "timestamp": datetime.datetime.strptime(
-                    item["timestamp"],
-                    url_date_format
-                ).replace(tzinfo=pytz.timezone('UTC')),
+                # "timestamp": datetime.datetime.strptime(
+                #    item["timestamp"],
+                #    url_date_format
+                # ).replace(tzinfo=pytz.timezone('UTC')),
                 # set timezone to UTC
                 "timestamp": pytz.utc.localize(datetime.datetime.strptime(item["timestamp"], url_date_format))
             }
@@ -226,7 +225,7 @@ class EventBullet:
     topics: list = field(default_factory=list)
     wiki_links: list = field(default_factory=list)
     references: list = field(default_factory=list)
-    
+
     def to_dict(self):
         d = asdict(self)
         d['date'] = str(d['date'])
@@ -270,21 +269,24 @@ def extract_event_bullets(e, date, category):
     Parsing out the "leave nodes" (events) in a structure as shown below
     while also keeping track of the intermediate path of topics,
     which will be passed to each EventBullet object.
-    
+
     • International reactions to the 2023 Israel-Hamas war
         • Israel-Jordan relations
             • Jordan recalls its ambassador to Israel in condemnation of the ongoing war. (AFP via Zawya)
     • Afghanistan-Pakistan relations
         • Pakistan begins the mass deportation of undocumented Afghan refugees, according to Interior Minister Sarfraz Bugti. (The Guardian)
     """
-    
+
     events = []
 
-    def recursively_extract_event_bullets(e,
-                                    date,
-                                    category,
-                                    prev_topics,
-                                    is_root=False):
+    def recursively_extract_event_bullets(
+        e,
+        date,
+        category,
+        prev_topics,
+        is_root=False
+    ):
+
         if is_root:
             lis = e.find_all('li', recursive=False)
             result = [
@@ -304,7 +306,7 @@ def extract_event_bullets(e, date, category):
                         topic_url = link.get('href')
                         topic_url = f'https://en.wikipedia.org{topic_url}'
                         new_topics.append(topic_url)
-                    except:
+                    except Exception:
                         pass
 
                 topics = prev_topics + new_topics
@@ -323,7 +325,7 @@ def extract_event_bullets(e, date, category):
                     elif url.startswith('/wiki'):
                         url = f'https://en.wikipedia.org{url}'
                         wiki_links.append(url)
-                        
+
                 event = EventBullet(
                     text=text,
                     date=date,
@@ -402,3 +404,167 @@ def wikidata_id_to_current_events(
         ]
     events.sort(key=lambda x: x['date'])
     return events
+
+#########################################################################
+################# TOOLS FOR/AND BFS WIKIDATA SEARCH #####################
+#########################################################################
+
+
+def entity_name_to_wikidata_id(
+    entity_name: str
+) -> str:
+    """
+    Given an entity name returns its Wikidata ID.
+    Uses Wikidata's wbsearchentities API.
+
+    Eg: Input -> "Albert Einstein"
+        Output -> "Q937"
+
+    :param entity_name: Name of the entity to search for
+    :return: Wikidata ID as a string, or None if not found
+    """
+    url = "https://www.wikidata.org/w/api.php"
+    params = {
+        "action": "wbsearchentities",
+        "format": "json",
+        "language": "en",
+        "search": entity_name
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    if "search" in data and data["search"]:
+        return data["search"][0]["id"]
+
+    print(f"No Wikidata ID found for '{entity_name}'.")
+    return None
+
+
+def WikidataRelatedEntitiesSearcher(
+    entity_name: str,
+    depth=1,
+    return_labels=False,
+    query=None
+) -> list:
+    """
+    Given a Wikidata ID, performs a graph traversal to find related entities up to a specified depth.
+
+    :param wikidata_id: The starting Wikidata ID.
+    :param depth: The number of hops (levels) to traverse.
+    :param return_labels: Whether to return Wikidata IDs or human-readable labels.
+    :param query: Optional custom SPARQL query for retrieving related entities.
+    :return: A list of related Wikidata IDs.
+    """
+    user_agent = "GraphTraversalBot/1.0 (your_email@example.com) Python/requests"
+    endpoint_url = "https://query.wikidata.org/sparql"
+    headers = {"User-Agent": user_agent}
+
+    default_query = """
+        SELECT ?related ?relatedLabel WHERE {{
+            wd:{item} ?prop ?related .
+            FILTER(isIRI(?related))
+            FILTER EXISTS {{
+                ?related wdt:P31/wdt:P279* ?type .
+                VALUES ?type {{ wd:Q5 wd:Q43229 wd:Q4830453 wd:Q2424752 wd:Q431289 wd:Q732577 wd:Q11424 wd:Q571 }}
+            }}
+            SERVICE wikibase:label {{ bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],en\" }}
+        }}
+    """
+    if not return_labels:
+        wikidata_id = entity_name_to_wikidata_id(entity_name)
+        if not wikidata_id:
+            print(f"No Wikidata ID found for '{entity_name}'.")
+            return []
+    else:
+        wikidata_id = entity_name
+
+    visited = set()
+    current_level = {wikidata_id}
+    all_related = set()
+
+    for _ in range(depth):
+        next_level = set()
+        for item in current_level:
+            current_query = query or default_query
+            formatted_query = current_query.format(item=item)
+
+            response = requests.get(endpoint_url, params={'query': formatted_query, 'format': 'json'}, headers=headers)
+            result = response.json()
+
+            for binding in result["results"]["bindings"]:
+                related_uri = binding["related"]["value"]
+                if related_uri.startswith("http://www.wikidata.org/entity/"):
+                    related_id = related_uri.split("/")[-1]
+                    if related_id not in visited:
+                        next_level.add(related_id)
+                        all_related.add(related_id)
+            visited.add(item)
+        current_level = next_level
+        if not current_level:
+            break
+
+    if not return_labels:
+        final_list = list(all_related)
+        final_list = wikidata_ids_to_labels(final_list)
+    else:
+        final_list = list(all_related)
+
+    return final_list
+
+
+def wikidata_ids_to_labels(
+    wikidata_ids,
+    language='en'
+) -> dict:
+    """
+    Convert Wikidata IDs to human-readable labels.
+
+    Eg: Input -> ["Q937", "Q42"]
+        Output -> {"Q937": "Albert Einstein", "Q42": "Douglas Adams"}
+
+
+    :param wikidata_ids: List of Wikidata IDs (can include composite IDs).
+    :param language: Language code for labels.
+    :return: Dictionary mapping Wikidata IDs to labels.
+    """
+    user_agent = "GraphTraversalBot/1.0 (your_email@example.com) Python/requests"
+    if not wikidata_ids:
+        print("No Wikidata IDs provided for label lookup.")
+        return {}
+
+    base_ids = list(set(wid.split('-')[0] for wid in wikidata_ids))
+    url = "https://www.wikidata.org/w/api.php"
+    headers = {"User-Agent": user_agent}
+    labels = {}
+
+    max_ids = 50
+
+    for i in range(0, len(base_ids), max_ids):
+        batch_ids = base_ids[i:i + max_ids]
+        ids_param = "|".join(batch_ids)
+
+        params = {
+            "action": "wbgetentities",
+            "ids": ids_param,
+            "format": "json",
+            "props": "labels",
+            "languages": language
+        }
+
+        response = requests.get(url, params=params, headers=headers)
+        try:
+            data = response.json()
+
+            if "error" in data:
+                print(f"Error fetching labels: {data['error']}")
+                continue
+
+            for entity_id, entity_info in data.get("entities", {}).items():
+                label = entity_info.get("labels", {}).get(language, {}).get("value", "Unknown")
+                labels[entity_id] = label
+
+        except requests.exceptions.JSONDecodeError:
+            print(f"Failed to decode JSON response. Raw response: {response.text}")
+            continue
+
+    return labels

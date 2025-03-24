@@ -35,7 +35,7 @@ class RadarUser:
         try:
             self.set_token_with_refresh()
             return True
-        except LoginError as e:
+        except LoginError:
             return False
 
     def set_token(self, password):
@@ -228,4 +228,3 @@ class SqliteUserStore:
                 return RadarUser.from_dict(self.radar_users[radar_id])
         except KeyError:
             return None
-

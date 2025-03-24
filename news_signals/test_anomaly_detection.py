@@ -104,7 +104,7 @@ class TestSigmaAnomalyDetector(unittest.TestCase):
         test_series = timeseries[-1:]
         anomaly_series = anomaly_detector(history, test_series)
         assert anomaly_series.iloc[0] == 2
-    
+
     def test_bollinger_anomaly_detector(self):
         anomaly_detector = BollingerAnomalyDetector(window=3, num_std=2.0)
 
@@ -142,6 +142,7 @@ class TestSigmaAnomalyDetector(unittest.TestCase):
         test_series = timeseries[-1:]
         anomaly_series = anomaly_detector(history, test_series)
         assert anomaly_series.iloc[0] == 1, "Expected 100 to be anomaly"
+
 
 if __name__ == '__main__':
     unittest.main()

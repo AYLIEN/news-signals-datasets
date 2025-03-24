@@ -39,9 +39,9 @@ class MockRequestsEndpoint:
     def __call__(
         self,
         url: str,
-        params: dict={},
-        headers: dict={},
-    ):        
+        params: dict = {},
+        headers: dict = {},
+    ):
         return self.response
 
 
@@ -51,7 +51,7 @@ class TestDatasetTransformations(unittest.TestCase):
         cls.sample_dataset_dir = resources / "nasdaq100_sample_dataset"
         cls.output_dataset_dir = resources / "output_dataset_dir"
         cls.dataset = SignalsDataset.load(cls.sample_dataset_dir)
-    
+
     def tearDown(self):
         compressed_path = Path(f'{str(self.output_dataset_dir)}.tar.gz')
         if compressed_path.exists():
@@ -65,7 +65,7 @@ class TestDatasetTransformations(unittest.TestCase):
 
     def test_add_summaries(self):
         dataset_transformations.add_summaries(self.dataset)
-        assert all('summary' in s.feeds_df.columns for s in self.dataset.signals.values())                
+        assert all('summary' in s.feeds_df.columns for s in self.dataset.signals.values())
         dataset = self.save_and_load_dataset()
         assert all('summary' in s.feeds_df.columns for s in dataset.signals.values())
 

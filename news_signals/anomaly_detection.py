@@ -1,6 +1,5 @@
 from .log import create_logger
 from abc import abstractmethod
-import pandas as pd
 
 
 logger = create_logger(__name__, level='INFO')
@@ -115,7 +114,7 @@ class SigmaAnomalyDetector(AnomalyDetector):
         test_series = test_series.clip(lower=0)
         return test_series
 
-    
+
 class BollingerAnomalyDetector(AnomalyDetector):
     """
     Anomaly detection based on Bollinger Bands.
@@ -147,7 +146,7 @@ class BollingerAnomalyDetector(AnomalyDetector):
         rolling_std = history.rolling(window=window).std()
         upper_band = rolling_mean + (rolling_std * num_std)
         lower_band = rolling_mean - (rolling_std * num_std)
-        #Incase of reindexing, forward fill the values
+        # Incase of reindexing, forward fill the values
         upper_band = upper_band.reindex(test_series.index, method='ffill')
         lower_band = lower_band.reindex(test_series.index, method='ffill')
         anomalies = (test_series > upper_band) | (test_series < lower_band)

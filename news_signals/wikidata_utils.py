@@ -20,7 +20,7 @@ DEFAULT_SEARCH_PARAMS = {
     "limit": 1
 }
 WD_ENTITY_BASE_URL = 'https://www.wikidata.org/wiki/Special:EntityData'
-    
+
 
 def search_wikidata(surface_form):
     """
