@@ -55,7 +55,6 @@ def get_session_state():
         st.session_state['stock_df'] = None
     if 'entity_id' not in st.session_state:
         st.session_state['entity_id'] = None
-
     return st.session_state
 
 def sanitize_entity(entity):
@@ -63,9 +62,6 @@ def sanitize_entity(entity):
     return entity.replace(":", "_").replace(" ", "_")
 
 def fetch_news_timeseries(entity, start_date, end_date):
-    """
-    Fetch news volume time series data for a given entity using Aylien News API.
-    """
     headers = {
         "X-AYLIEN-NewsAPI-Application-ID": NEWSAPI_APP_ID,
         "X-AYLIEN-NewsAPI-Application-Key": NEWSAPI_APP_KEY,
@@ -76,11 +72,7 @@ def fetch_news_timeseries(entity, start_date, end_date):
         "language": "(en)",
         "entities": "{{surface_forms:(" + json.dumps(entity) + ") AND overall_prominence:>=0.6}}",
     }
-    response = requests.get(
-        "https://api.aylien.com/v6/news/time_series",
-        params=params,
-        headers=headers
-    )
+    response = requests.get("https://api.aylien.com/v6/news/time_series", params=params, headers=headers)
     if response.status_code == 200:
         data = response.json()
         time_series = data.get("time_series", [])
@@ -93,17 +85,10 @@ def fetch_news_timeseries(entity, start_date, end_date):
             df.rename(columns={"count": f"news_volume_{safe_entity}"}, inplace=True)
             return df
         return None
-    st.error(
-        f"Error fetching news time series for entity '{entity}': "
-        f"{response.status_code} - {response.text}"
-    )
+    st.error(f"Error fetching news time series for entity '{entity}': {response.status_code} - {response.text}")
     return None
 
 def fetch_corr_timeseries(entity, corr_entity, start_date, end_date):
-    """
-    Fetch news timeseries data for two entities by querying the Aylien News API for articles whose titles
-    contain both entity and corr_entity.
-    """
     headers = {
         "X-AYLIEN-NewsAPI-Application-ID": NEWSAPI_APP_ID,
         "X-AYLIEN-NewsAPI-Application-Key": NEWSAPI_APP_KEY,
@@ -114,11 +99,7 @@ def fetch_corr_timeseries(entity, corr_entity, start_date, end_date):
         "language": "(en)",
         "title": f'{json.dumps(entity)} AND {json.dumps(corr_entity)}'
     }
-    response = requests.get(
-        "https://api.aylien.com/v6/news/time_series",
-        params=params,
-        headers=headers
-    )
+    response = requests.get("https://api.aylien.com/v6/news/time_series", params=params, headers=headers)
     if response.status_code == 200:
         data = response.json()
         time_series = data.get("time_series", [])
@@ -131,75 +112,40 @@ def fetch_corr_timeseries(entity, corr_entity, start_date, end_date):
             df.rename(columns={"count": f"news_volume_{safe_entity}"}, inplace=True)
             return df
         return None
-    st.error(
-        f"Error fetching news time series for entities '{entity}' and '{corr_entity}': "
-        f"{response.status_code} - {response.text}"
-    )
+    st.error(f"Error fetching news time series for entities '{entity}' and '{corr_entity}': {response.status_code} - {response.text}")
     return None
 
 def fetch_stock_timeseries(entity_label, entity_id, stock, start_date, end_date):
-    """
-    Use news_signals to retrieve a financial timeseries for the given stock.
-    The AylienSignal is instantiated using the provided entity (for example, as a feature).
-    """
-    signal = signals.AylienSignal(
-        name=entity_label,
-        params={"entity_ids": [entity_id]}
-    )
+    signal = signals.AylienSignal(name=entity_label, params={"entity_ids": [entity_id]})
     ts_signal = signal(str(start_date), str(end_date))
-    ts_signal.add_yfinance_timeseries(
-        ticker=stock,
-        columns=["Open", "Close", "Volume", "High", "Low", "RSI"]
-    )
+    ts_signal.add_yfinance_timeseries(ticker=stock, columns=["Open", "Close", "Volume", "High", "Low", "RSI"])
     return ts_signal.timeseries_df
 
 def plot_bollinger_anomalies_altair(df):
-    """
-    Compute Bollinger anomalies on the stock closing prices and plot them using Altair.
-    The chart displays a line for closing prices with vertical dashed lines at anomaly dates.
-    """
     col = "Close" if "Close" in df.columns else df.columns[0]
     filtered_df = df.dropna(subset=[col])
-
     bollinger_detector = BollingerAnomalyDetector(window=40, num_std=3.0)
     anomalies = bollinger_detector(history=filtered_df[col], series=filtered_df[col])
     anomalies = anomalies.reindex(filtered_df.index)
-
-    df_line = filtered_df.reset_index()
-    df_line = df_line.rename(columns={df_line.columns[0]: "Date"})
+    df_line = filtered_df.reset_index().rename(columns={filtered_df.reset_index().columns[0]: "Date"})
     df_line["Date"] = pd.to_datetime(df_line["Date"])
-
     anomaly_dates = filtered_df.index[anomalies > 0]
     df_anom = pd.DataFrame({"Date": anomaly_dates})
     df_anom["Date"] = pd.to_datetime(df_anom["Date"])
-
     line_chart = alt.Chart(df_line).mark_line(color="white").encode(
         x=alt.X("Date:T", title="Date"),
         y=alt.Y(f"{col}:Q", title="Price")
     ).properties(width=700, height=400)
-
-    rule_chart = alt.Chart(df_anom).mark_rule(color="red", strokeDash=[4, 4]).encode(
-        x=alt.X("Date:T", title="Date")
-    )
-
+    rule_chart = alt.Chart(df_anom).mark_rule(color="red", strokeDash=[4, 4]).encode(x=alt.X("Date:T", title="Date"))
     chart = line_chart + rule_chart
     st.altair_chart(chart, use_container_width=True)
 
 def get_related_entities(entity_id):
-    """
-    Retrieve related Wikidata entities by performing a breadth-first search
-    on the outgoing links of the entity's Wikidata page.
-    Returns a dictionary mapping Wikidata IDs to human-readable labels.
-    """
     related = WikidataRelatedEntitiesSearcher(entity_id, depth=1)
     return related
 
 @st.cache_data(show_spinner=False)
 def query_entity_instance(wikidata_id):
-    """
-    Query Wikidata to get the 'instance of' (P31) label for a given Wikidata ID.
-    Returns the instance label if found; otherwise, returns "Other".
-    """
     query = f"""
     SELECT ?instanceOfLabel WHERE {{
       wd:{wikidata_id} wdt:P31 ?instanceOf .
@@ -219,9 +165,6 @@ def query_entity_instance(wikidata_id):
     return "Other"
 
 def group_related_entities_by_id(related_entities):
-    """
-    Group related entities by their Wikidata instance type.
-    """
     grouped = {}
     for wikidata_id, label in related_entities.items():
         instance_type = query_entity_instance(wikidata_id)
@@ -229,10 +172,6 @@ def group_related_entities_by_id(related_entities):
     return grouped
 
 def compute_entity_stock_correlation(news_df, stock_df):
-    """
-    Compute correlation between a news timeseries (using the 3-day rolling sum of news counts)
-    and the stock's closing prices. Returns the correlation value.
-    """
     news_daily = news_df.resample("D").sum()
     news_3day = news_daily.rolling(window=3, min_periods=3).sum()
     stock_daily = stock_df.resample("D").last()
@@ -248,17 +187,12 @@ def compute_entity_stock_correlation(news_df, stock_df):
     return corr
 
 def analyze_related_entities_corr(entity_name, related_entities, stock_df, start_date, end_date):
-    """
-    For each related entity, fetch its news timeseries and compute the correlation with the stock's closing price,
-    then display the top 5 related entities by absolute correlation.
-    """
     related_news_dict = {}
     if related_entities:
         for wikidata_id, rel_label in related_entities.items():
             df_rel = fetch_corr_timeseries(entity_name, rel_label, start_date, end_date)
             if df_rel is not None and not df_rel.empty:
                 related_news_dict[rel_label] = df_rel
-
         if related_news_dict:
             correlations = {}
             for rel_label, df_rel in related_news_dict.items():
@@ -268,7 +202,6 @@ def analyze_related_entities_corr(entity_name, related_entities, stock_df, start
                     correlations[rel_label] = corr_val
                 except Exception as e:
                     st.write(f"Error computing correlation for {rel_label}: {e}")
-
             correlations = {k: v for k, v in correlations.items() if pd.notnull(v)}
             if correlations:
                 sorted_corr = sorted(correlations.items(), key=lambda x: abs(x[1]), reverse=True)
@@ -306,10 +239,6 @@ def analyze_related_entities_corr(entity_name, related_entities, stock_df, start
         st.info("No related entities found for correlation analysis.")
 
 def get_anomaly_dates(df):
-    """
-    Compute anomaly dates from the given stock timeseries DataFrame.
-    Returns a list of anomaly dates (as strings in YYYY-MM-DD format).
-    """
     col = "Close" if "Close" in df.columns else df.columns[0]
     filtered_df = df.dropna(subset=[col])
     bollinger_detector = BollingerAnomalyDetector(window=40, num_std=3.0)
@@ -319,10 +248,6 @@ def get_anomaly_dates(df):
     return [date.strftime("%Y-%m-%d") for date in anomaly_dates]
 
 def fetch_news_articles(entity, stock, start_date, end_date):
-    """
-    Fetch news articles for a given entity using Aylien News API's stories endpoint.
-    Returns a list of news titles.
-    """
     headers = {
         "X-AYLIEN-NewsAPI-Application-ID": NEWSAPI_APP_ID,
         "X-AYLIEN-NewsAPI-Application-Key": NEWSAPI_APP_KEY,
@@ -341,10 +266,7 @@ def fetch_news_articles(entity, stock, start_date, end_date):
         stories = data.get("stories", [])
         titles = [story.get("title", "") for story in stories if "title" in story]
         return titles
-    st.error(
-        f"Error fetching news articles. Status code: {response.status_code}, "
-        f"message: {response.text}"
-    )
+    st.error(f"Error fetching news articles. Status code: {response.status_code}, message: {response.text}")
     return []
 
 def get_anomaly_explanation(anomaly_date, entity, news_titles):
@@ -352,12 +274,10 @@ def get_anomaly_explanation(anomaly_date, entity, news_titles):
     Call the Azure OpenAI Chat endpoint to summarize the news titles and explain the anomaly
     for the given entity on the specified date.
     """
-    # Build the prompt
     prompt = (
         f"For the financial anomaly detected on {anomaly_date} for the stock {entity}, "
-        "please summarize the following news titles from the past 3 days and "
-        "explain possible reasons for the anomaly. Keep it short and concise:\n\n"
-        + "\n".join(news_titles)
+        "please summarize the following news titles from the past 3 days and explain possible reasons for the anomaly. "
+        "Keep it short and concise:\n\n" + "\n".join(news_titles)
     )
     try:
         client = ChatCompletionsClient(
@@ -380,29 +300,25 @@ def get_anomaly_explanation(anomaly_date, entity, news_titles):
         return None
 
 def hf_transformer_forecast(timeseries_df):
-    """
-    Placeholder function for integration with a Hugging Face time series transformer model.
-    Replace with actual model inference as needed.
-    """
     st.info("Placeholder")
     return None
 
 # ---------------------------
 # Streamlit App Layout
 # ---------------------------
-
 st.title("News Signals Demo")
 st.write(
     "This demo shows an integration of news volume time series, related entity retrieval via Wikidata, "
     "stock timeseries, anomaly detection, and anomaly explanation using Azure OpenAI."
 )
 
-# Sidebar inputs
+# Sidebar: Input Parameters
 st.sidebar.header("Input Parameters")
-entity_input = st.sidebar.text_input("Entity Name", "Jensen Huang")
-stock_input = st.sidebar.text_input("Stock Ticker", "NVDA")
-start_date = st.sidebar.text_input("Start Date (YYYY-MM-DD)", "2024-01-01")
-end_date = st.sidebar.text_input("End Date (YYYY-MM-DD)", "2025-01-01")
+entity_input = st.sidebar.text_input("Entity Name", "Jensen Huang", key="entity_input")
+stock_input = st.sidebar.text_input("Stock Ticker", "NVDA", key="stock_input")
+start_date = st.sidebar.text_input("Start Date (YYYY-MM-DD)", "2024-01-01", key="start_date")
+end_date = st.sidebar.text_input("End Date (YYYY-MM-DD)", "2025-01-01", key="end_date")
+use_azure = st.sidebar.checkbox("Generate Explanation using Azure OpenAI", value=True, key="use_azure")
 
 # Initialize session state
 state = get_session_state()
@@ -412,7 +328,7 @@ if st.sidebar.button("Run Demo"):
     state['run_demo'] = True
     state['news_df'] = fetch_news_timeseries(entity_input, start_date, end_date)
     entity_id = entity_name_to_wikidata_id(entity_input)
-    state['entity_id'] = entity_name_to_wikidata_id(entity_input)
+    state['entity_id'] = entity_id
     state['stock_df'] = fetch_stock_timeseries(entity_input, entity_id, stock_input, start_date, end_date)
 
 # Use stored values if demo has been run
@@ -456,8 +372,7 @@ if state.get('run_demo', False):
             grouped_entities = group_related_entities_by_id(related_entities)
             st.write("Related Entities (grouped by instance type):")
             for instance_type, names in grouped_entities.items():
-                instance_type = instance_type.capitalize()
-                st.write(f"**{instance_type}**: {', '.join(names)}")
+                st.write(f"**{instance_type.capitalize()}**: {', '.join(names)}")
         else:
             st.info("No related entities found.")
 
@@ -492,20 +407,28 @@ if state.get('run_demo', False):
                     window_end_dt = selected_dt + timedelta(days=5)
                     window_start = window_start_dt.strftime("%Y-%m-%d")
                     window_end = window_end_dt.strftime("%Y-%m-%d")
-                    st.write(f"Fetching news articles from {window_start} to {window_end} for explanation...")
+                    st.write(f"Fetching news articles from {window_start} to {window_end}...")
                     news_titles = fetch_news_articles(entity_input, stock_input, window_start, window_end)
                     if not news_titles:
                         st.info("No news articles found for the selected window.")
                     else:
-                        with st.spinner("Generating explanation..."):
-                            explanation = get_anomaly_explanation(selected_date, stock_input, news_titles)
-                        st.write("### Anomaly Explanation")
-                        st.write(explanation)
+                        # Check if user wants to use Azure for explanation
+                        if use_azure:
+                            if not azure_api_key:
+                                st.error("Azure OpenAI API key not provided. Displaying news titles only.")
+                                st.write("### News Titles")
+                                for title in news_titles:
+                                    st.write("-", title)
+                            else:
+                                with st.spinner("Generating explanation..."):
+                                    explanation = get_anomaly_explanation(selected_date, stock_input, news_titles)
+                                st.write("### Anomaly Explanation")
+                                st.write(explanation)
+                        else:
+                            st.write("### News Titles")
+                            for title in news_titles:
+                                st.write("-", title)
             else:
                 st.info("No anomalies detected.")
         else:
             st.error("No stock data available.")
-
-    #with tab3:
-     #   st.header("Prediction")
-      #  hf_transformer_forecast(stock_df)
