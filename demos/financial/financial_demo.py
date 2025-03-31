@@ -45,6 +45,15 @@ if not NEWSAPI_APP_KEY or not NEWSAPI_APP_ID:
 else:
     newsapi.set_headers(NEWSAPI_APP_ID, NEWSAPI_APP_KEY)
 
+# -------------------------------------------------------------------
+# Deep Linking: Read default parameters from the URL using st.query_params
+# st.query_params behaves like a dictionary.
+default_entity = st.query_params.get("entity", "Jensen Huang")
+default_stock = st.query_params.get("stock", "NVDA")
+default_start = st.query_params.get("start", "2024-01-01")
+default_end = st.query_params.get("end", "2025-01-01")
+default_use_azure = st.query_params.get("use_azure", "False") == "True"
+
 def get_session_state():
     """Initialize and return session state."""
     if 'run_demo' not in st.session_state:
@@ -299,6 +308,12 @@ def get_anomaly_explanation(anomaly_date, entity, news_titles):
         logging.error(f"Error calling Azure OpenAI ChatCompletions: {e}")
         return None
 
+@st.cache_data(show_spinner=False)
+def cached_anomaly_explanation(anomaly_date, stock, news_titles):
+    # Convert news_titles to a tuple to make it hashable for caching
+    news_titles_tuple = tuple(news_titles)
+    return get_anomaly_explanation(anomaly_date, stock, news_titles_tuple)
+
 def hf_transformer_forecast(timeseries_df):
     st.info("Placeholder")
     return None
@@ -312,26 +327,32 @@ st.write(
     "stock timeseries, anomaly detection, and anomaly explanation using Azure OpenAI."
 )
 
-# Sidebar: Input Parameters
+# Sidebar: Input Parameters with defaults from query parameters (deep linking)
 st.sidebar.header("Input Parameters")
-entity_input = st.sidebar.text_input("Entity Name", "Jensen Huang", key="entity_input")
-stock_input = st.sidebar.text_input("Stock Ticker", "NVDA", key="stock_input")
-start_date = st.sidebar.text_input("Start Date (YYYY-MM-DD)", "2024-01-01", key="start_date")
-end_date = st.sidebar.text_input("End Date (YYYY-MM-DD)", "2025-01-01", key="end_date")
-use_azure = st.sidebar.checkbox("Generate Explanation using Azure OpenAI", value=True, key="use_azure")
+entity_input = st.sidebar.text_input("Entity Name", default_entity, key="entity_input")
+stock_input = st.sidebar.text_input("Stock Ticker", default_stock, key="stock_input")
+start_date = st.sidebar.text_input("Start Date (YYYY-MM-DD)", default_start, key="start_date")
+end_date = st.sidebar.text_input("End Date (YYYY-MM-DD)", default_end, key="end_date")
+use_azure = st.sidebar.checkbox("Generate Explanation using Azure OpenAI", value=default_use_azure, key="use_azure")
 
-# Initialize session state
-state = get_session_state()
-
-# Check for Run Demo button
+# When the Run Demo button is clicked, update the URL query parameters.
 if st.sidebar.button("Run Demo"):
+    # Update query parameters by assigning to st.query_params keys.
+    st.query_params.entity = entity_input
+    st.query_params.stock = stock_input
+    st.query_params.start = start_date
+    st.query_params.end = end_date
+    st.query_params.use_azure = str(use_azure)
+    
+    state = get_session_state()
     state['run_demo'] = True
     state['news_df'] = fetch_news_timeseries(entity_input, start_date, end_date)
     entity_id = entity_name_to_wikidata_id(entity_input)
     state['entity_id'] = entity_id
     state['stock_df'] = fetch_stock_timeseries(entity_input, entity_id, stock_input, start_date, end_date)
 
-# Use stored values if demo has been run
+# Use stored session state if demo has been run
+state = get_session_state()
 if state.get('run_demo', False):
     news_df = state.get('news_df')
     stock_df = state.get('stock_df')
@@ -412,7 +433,7 @@ if state.get('run_demo', False):
                     if not news_titles:
                         st.info("No news articles found for the selected window.")
                     else:
-                        # Check if user wants to use Azure for explanation
+                        # Use cached anomaly explanation if Azure is enabled
                         if use_azure:
                             if not azure_api_key:
                                 st.error("Azure OpenAI API key not provided. Displaying news titles only.")
@@ -421,7 +442,7 @@ if state.get('run_demo', False):
                                     st.write("-", title)
                             else:
                                 with st.spinner("Generating explanation..."):
-                                    explanation = get_anomaly_explanation(selected_date, stock_input, news_titles)
+                                    explanation = cached_anomaly_explanation(selected_date, stock_input, news_titles)
                                 st.write("### Anomaly Explanation")
                                 st.write(explanation)
                         else:
