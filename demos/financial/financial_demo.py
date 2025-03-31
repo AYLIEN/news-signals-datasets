@@ -17,6 +17,11 @@ from azure.ai.inference import ChatCompletionsClient
 from azure.ai.inference.models import SystemMessage, UserMessage
 from azure.core.credentials import AzureKeyCredential
 
+st.set_page_config(
+    page_title="Financial Demo",
+    initial_sidebar_state="collapsed"
+)
+
 # Reduce logging for azure and urllib3 output
 logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -385,7 +390,8 @@ def hf_transformer_forecast(timeseries_df):
 # ---------------------------
 # Streamlit App Layout
 # ---------------------------
-st.title("Aylien News Signals Demo")
+
+st.title("News Signals Demo")
 st.write(
     "This demo shows an integration of news volume time series, related entity retrieval via Wikidata, "
     "stock timeseries, anomaly detection, and anomaly explanation using Azure OpenAI."
@@ -393,10 +399,10 @@ st.write(
 
 # Sidebar inputs
 st.sidebar.header("Input Parameters")
-entity_input = st.sidebar.text_input("Entity Name", "Elon Musk")
-stock_input = st.sidebar.text_input("Stock Ticker", "TSLA")
-start_date = st.sidebar.text_input("Start Date (YYYY-MM-DD)", "2023-01-01")
-end_date = st.sidebar.text_input("End Date (YYYY-MM-DD)", "2023-12-31")
+entity_input = st.sidebar.text_input("Entity Name", "Jensen Huang")
+stock_input = st.sidebar.text_input("Stock Ticker", "NVDA")
+start_date = st.sidebar.text_input("Start Date (YYYY-MM-DD)", "2024-01-01")
+end_date = st.sidebar.text_input("End Date (YYYY-MM-DD)", "2025-01-01")
 
 # Initialize session state
 state = get_session_state()
