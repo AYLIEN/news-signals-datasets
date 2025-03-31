@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import altair as alt
 import pandas as pd
 import streamlit as st
+import diskcache as dc  # Persistent caching library
 
 from news_signals import newsapi, signals
 from news_signals.anomaly_detection import BollingerAnomalyDetector
@@ -16,6 +17,9 @@ from news_signals.exogenous_signals import (
 from azure.ai.inference import ChatCompletionsClient
 from azure.ai.inference.models import SystemMessage, UserMessage
 from azure.core.credentials import AzureKeyCredential
+
+# Create a persistent cache (results stored on disk)
+cache = dc.Cache("cache_dir")
 
 st.set_page_config(
     page_title="Financial Demo",
@@ -47,7 +51,6 @@ else:
 
 # -------------------------------------------------------------------
 # Deep Linking: Read default parameters from the URL using st.query_params
-# st.query_params behaves like a dictionary.
 default_entity = st.query_params.get("entity", "Jensen Huang")
 default_stock = st.query_params.get("stock", "NVDA")
 default_start = st.query_params.get("start", "2024-01-01")
@@ -70,6 +73,7 @@ def sanitize_entity(entity):
     """Sanitize an entity name for use as a column name."""
     return entity.replace(":", "_").replace(" ", "_")
 
+@cache.memoize()
 def fetch_news_timeseries(entity, start_date, end_date):
     headers = {
         "X-AYLIEN-NewsAPI-Application-ID": NEWSAPI_APP_ID,
@@ -85,7 +89,7 @@ def fetch_news_timeseries(entity, start_date, end_date):
     if response.status_code == 200:
         data = response.json()
         time_series = data.get("time_series", [])
-        logging.debug("Received time series data: %s", time_series)
+        logging.debug("Received news time series data: %s", time_series)
         if time_series:
             df = pd.DataFrame(time_series)
             df["published_at"] = pd.to_datetime(df["published_at"])
@@ -97,7 +101,9 @@ def fetch_news_timeseries(entity, start_date, end_date):
     st.error(f"Error fetching news time series for entity '{entity}': {response.status_code} - {response.text}")
     return None
 
+@cache.memoize()
 def fetch_corr_timeseries(entity, corr_entity, start_date, end_date):
+    # This is the lengthiest API call; we now cache its result persistently.
     headers = {
         "X-AYLIEN-NewsAPI-Application-ID": NEWSAPI_APP_ID,
         "X-AYLIEN-NewsAPI-Application-Key": NEWSAPI_APP_KEY,
@@ -112,7 +118,7 @@ def fetch_corr_timeseries(entity, corr_entity, start_date, end_date):
     if response.status_code == 200:
         data = response.json()
         time_series = data.get("time_series", [])
-        logging.debug("Received time series data: %s", time_series)
+        logging.debug("Received correlation time series data: %s", time_series)
         if time_series:
             df = pd.DataFrame(time_series)
             df["published_at"] = pd.to_datetime(df["published_at"])
@@ -124,6 +130,7 @@ def fetch_corr_timeseries(entity, corr_entity, start_date, end_date):
     st.error(f"Error fetching news time series for entities '{entity}' and '{corr_entity}': {response.status_code} - {response.text}")
     return None
 
+@cache.memoize()
 def fetch_stock_timeseries(entity_label, entity_id, stock, start_date, end_date):
     signal = signals.AylienSignal(name=entity_label, params={"entity_ids": [entity_id]})
     ts_signal = signal(str(start_date), str(end_date))
@@ -153,7 +160,7 @@ def get_related_entities(entity_id):
     related = WikidataRelatedEntitiesSearcher(entity_id, depth=1)
     return related
 
-@st.cache_data(show_spinner=False)
+@cache.memoize()
 def query_entity_instance(wikidata_id):
     query = f"""
     SELECT ?instanceOfLabel WHERE {{
@@ -278,6 +285,12 @@ def fetch_news_articles(entity, stock, start_date, end_date):
     st.error(f"Error fetching news articles. Status code: {response.status_code}, message: {response.text}")
     return []
 
+@cache.memoize()
+def cached_anomaly_explanation(anomaly_date, stock, news_titles):
+    # Convert news_titles to a tuple so it can be hashed.
+    news_titles_tuple = tuple(news_titles)
+    return get_anomaly_explanation(anomaly_date, stock, news_titles_tuple)
+
 def get_anomaly_explanation(anomaly_date, entity, news_titles):
     """
     Call the Azure OpenAI Chat endpoint to summarize the news titles and explain the anomaly
@@ -308,12 +321,6 @@ def get_anomaly_explanation(anomaly_date, entity, news_titles):
         logging.error(f"Error calling Azure OpenAI ChatCompletions: {e}")
         return None
 
-@st.cache_data(show_spinner=False)
-def cached_anomaly_explanation(anomaly_date, stock, news_titles):
-    # Convert news_titles to a tuple to make it hashable for caching
-    news_titles_tuple = tuple(news_titles)
-    return get_anomaly_explanation(anomaly_date, stock, news_titles_tuple)
-
 def hf_transformer_forecast(timeseries_df):
     st.info("Placeholder")
     return None
@@ -337,7 +344,6 @@ use_azure = st.sidebar.checkbox("Generate Explanation using Azure OpenAI", value
 
 # When the Run Demo button is clicked, update the URL query parameters.
 if st.sidebar.button("Run Demo"):
-    # Update query parameters by assigning to st.query_params keys.
     st.query_params.entity = entity_input
     st.query_params.stock = stock_input
     st.query_params.start = start_date
@@ -351,7 +357,6 @@ if st.sidebar.button("Run Demo"):
     state['entity_id'] = entity_id
     state['stock_df'] = fetch_stock_timeseries(entity_input, entity_id, stock_input, start_date, end_date)
 
-# Use stored session state if demo has been run
 state = get_session_state()
 if state.get('run_demo', False):
     news_df = state.get('news_df')
@@ -433,7 +438,6 @@ if state.get('run_demo', False):
                     if not news_titles:
                         st.info("No news articles found for the selected window.")
                     else:
-                        # Use cached anomaly explanation if Azure is enabled
                         if use_azure:
                             if not azure_api_key:
                                 st.error("Azure OpenAI API key not provided. Displaying news titles only.")
