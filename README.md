@@ -5,9 +5,9 @@ Welcome to News-Signals !
 You can use our open-source tooling here to explore use-cases and possibilities of our news-signals product.
 
 
-[Easily keep track of 1000s of Newsfeeds using Python!]()
-[Connect Newsfeeds with Market Signals]
-[Find and Predict Anomalies in Newsfeeds at Scale]
+[Easily keep track of 1000s of Newsfeeds using Python!](demos/demo-rich-signals/)
+[Connect Newsfeeds with Market Signals](demos/demo-financial/)
+[Find and Predict Anomalies in Newsfeeds at Scale](demos/demo-financial/)
 
 
 ### Example Colab Notebooks
@@ -21,6 +21,7 @@ The Colab notebooks below are also available as jupyter notebooks in [research/n
 - [An Overview of News Signals Datasets](https://drive.google.com/file/d/1zM4J3jFA9v2LDTFKOpaa3EUUGhOdQieo/view?usp=share_link) - [Video](https://www.youtube.com/watch?v=wOMDSMxVUHY)
 
 **2025-03-31: NEW** [Streamlit Demos for Data Science using News-Signals](https://github.com/AYLIEN/news-signals-datasets/tree/finance-timeseries/demos)
+
 **2023-11-30: NEW**: [Create_Wikimedia_Signals.ipynb](research/news-signals-example-notebooks/Create_Wikimedia_Signals.ipynb) shows how to build and explore a `WikimediaSignal` which does require not a NewsAPI account and works out-of-the-box for anyone.
 
 ## Quickstart
