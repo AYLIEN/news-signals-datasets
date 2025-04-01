@@ -31,9 +31,13 @@ logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(l
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # Hard-coded Azure credentials (replace these with your actual values)
-azure_endpoint = "https://nlp-hub-1.openai.azure.com/openai/deployments/nlp-hub-1-dev-1-gpt4o"
-azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")  # Or set a hard-coded key for testing
-deployment_name = "nlp-hub-1-dev-1-gpt4o"  # Your deployment name (model)
+azure_endpoint = os.getenv(
+    "AZURE_OPENAI_ENDPOINT", 
+    "https://nlp-hub-1.openai.azure.com/openai/deployments/nlp-hub-1-dev-1-gpt4o"
+)
+azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")  # This remains as is.
+deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "nlp-hub-1-dev-1-gpt4o")
+
 
 logging.basicConfig(
     level=logging.DEBUG,
