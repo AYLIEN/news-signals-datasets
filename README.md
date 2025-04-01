@@ -5,9 +5,9 @@ Welcome to News-Signals !
 You can use our open-source tooling here to explore use-cases and possibilities of our news-signals product.
 
 
-[Easily keep track of 1000s of Newsfeeds using Python!](demos/demo-rich-signals/)
-[Connect Newsfeeds with Market Signals](demos/demo-financial/)
-[Find and Predict Anomalies in Newsfeeds at Scale](demos/demo-financial/)
+- [Easily keep track of 1000s of Newsfeeds using Python!](demos/demo-rich-signals/)
+- [Connect Newsfeeds with Market Signals](demos/demo-financial/)
+- [Find and Predict Anomalies in Newsfeeds at Scale](demos/demo-financial/)
 
 
 ### Example Colab Notebooks
