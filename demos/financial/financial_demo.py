@@ -325,10 +325,6 @@ def get_anomaly_explanation(anomaly_date, entity, news_titles):
         logging.error(f"Error calling Azure OpenAI ChatCompletions: {e}")
         return None
 
-def hf_transformer_forecast(timeseries_df):
-    st.info("Placeholder")
-    return None
-
 # ---------------------------
 # Streamlit App Layout
 # ---------------------------
