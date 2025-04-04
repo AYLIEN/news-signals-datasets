@@ -29,22 +29,19 @@ st.set_page_config(
 # Reduce logging for azure and urllib3 output
 logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
-
-# Hard-coded Azure credentials (replace these with your actual values)
-azure_endpoint = os.getenv(
-    "AZURE_OPENAI_ENDPOINT", 
-    "https://nlp-hub-1.openai.azure.com/openai/deployments/nlp-hub-1-dev-1-gpt4o"
-)
-azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")  # This remains as is.
-deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "nlp-hub-1-dev-1-gpt4o")
-
-
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
     force=True
 )
 
+# Gets credentials from global environment variables or defaults to this
+azure_endpoint = os.getenv(
+    "AZURE_OPENAI_ENDPOINT", 
+    "https://nlp-hub-1.openai.azure.com/openai/deployments/nlp-hub-1-dev-1-gpt4o"
+)
+azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "nlp-hub-1-dev-1-gpt4o")
 NEWSAPI_APP_KEY = os.getenv("NEWSAPI_APP_KEY")
 NEWSAPI_APP_ID = os.getenv("NEWSAPI_APP_ID")
 
@@ -53,7 +50,6 @@ if not NEWSAPI_APP_KEY or not NEWSAPI_APP_ID:
 else:
     newsapi.set_headers(NEWSAPI_APP_ID, NEWSAPI_APP_KEY)
 
-# -------------------------------------------------------------------
 # Deep Linking: Read default parameters from the URL using st.query_params
 default_entity = st.query_params.get("entity", "Jensen Huang")
 default_stock = st.query_params.get("stock", "NVDA")
@@ -330,8 +326,8 @@ def get_anomaly_explanation(anomaly_date, entity, news_titles):
 # ---------------------------
 st.title("News Signals Demo")
 st.write(
-    "This demo shows an integration of news volume time series, related entity retrieval via Wikidata, "
-    "stock timeseries, anomaly detection, and anomaly explanation using Azure OpenAI."
+    "This demo is a showcase of the NewsAPI and news-signals library with news volume time series, related entity retrieval, "
+    "stock timeseries, anomaly detection, and anomaly explanation from news titles using AI"
 )
 
 # Sidebar: Input Parameters with defaults from query parameters (deep linking)
