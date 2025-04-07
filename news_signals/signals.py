@@ -374,7 +374,10 @@ class Signal:
 
     def plot(self, *args, **kwargs):
         if getattr(self, 'timeseries_df', None) is not None:
-            return self.timeseries_df.plot(*args, **kwargs)
+            if args:
+                return self.timeseries_df[list(args)].plot(**kwargs)
+            else:
+                return self.timeseries_df.plot(**kwargs)
         else:
             raise NotImplementedError(
                 'plot() is not implemented for this signal type'
